@@ -5,6 +5,7 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 ## Files
 
 - `bond_relative_value_assignment.ipynb`: executed notebook with an auditable cleaning funnel, reliability-weighted spread curves, rich/cheap diagnostics, DV01-neutral portfolio construction, dollar PnL, turnover, and transaction-cost sensitivity.
+- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: presentation-ready report generated from the executed notebook, with code cells omitted and wide analytical tables formatted for landscape pages.
 
 ## Headline Result
 
