@@ -4,12 +4,12 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 
 ## Files
 
-- `bond_relative_value_assignment.ipynb`: executed notebook with an auditable cleaning funnel, reliability-weighted spread curves, rich/cheap diagnostics, DV01-neutral portfolio construction, dollar PnL, turnover, and transaction-cost sensitivity.
-- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone 10-page academic report with an executive summary, methodology, three portfolio tests, performance and cost analysis, robustness checks, outlier review, and conclusions.
+- `bond_relative_value_assignment.ipynb`: executed notebook with an auditable cleaning funnel, reliability-weighted spread curves, rich/cheap diagnostics, three DV01-neutral portfolio passes, dollar PnL, turnover, and transaction-cost sensitivity.
+- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone 10-page academic report that explains what changed in each portfolio pass, why return improved, and which robustness checks qualify the result.
 
 ## Headline Result
 
-The notebook compares three portfolio constructions across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025. Gross annualized returns are 2.75% for the baseline top-three portfolio, 4.48% for the concentrated top-two version, and 5.99% for the liquidity-aware top-three version. The selected liquidity-aware portfolio earns 3.60% annualized after an illustrative 25 bp one-way turnover charge, but nearly all of the improvement disappears when AAPL is excluded.
+The notebook evaluates three successive portfolio passes across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025. Gross annualized returns are 2.75% for the baseline top-three portfolio, 4.48% after concentrating on the two strongest signals, and 5.99% after adding liquidity to the ranking. The selected liquidity-aware portfolio earns 3.60% annualized after an illustrative 25 bp one-way turnover charge, but nearly all of the improvement disappears when AAPL is excluded.
 
 ## Data
 
