@@ -5,7 +5,7 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 ## Files
 
 - `bond_relative_value_assignment.ipynb`: executed notebook with an auditable cleaning funnel, reliability-weighted spread curves, rich/cheap diagnostics, DV01-neutral portfolio construction, dollar PnL, turnover, and transaction-cost sensitivity.
-- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: presentation-ready report generated from the executed notebook, with code cells omitted and wide analytical tables formatted for landscape pages.
+- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone 10-page academic report with an executive summary, methodology, three portfolio tests, performance and cost analysis, robustness checks, outlier review, and conclusions.
 
 ## Headline Result
 
@@ -13,7 +13,7 @@ The notebook compares three portfolio constructions across AAPL, AMZN, BA, CAT, 
 
 ## Data
 
-The WRDS CSV files are not committed. To rerun the notebook, place the two downloaded CSV files in a local `data/` folder:
+The source WRDS CSV files are committed at the repository root. To rerun the notebook, place copies in the local `data/` folder:
 
 - `WRDS_Data-Systematic_Trading-Fall2026-1.csv`
 - `WRDS_Data-Systematic_Trading-Fall2026-2.csv`
