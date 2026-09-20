@@ -4,12 +4,14 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 
 ## Files
 
-- `bond_relative_value_assignment.ipynb`: executed notebook with an auditable cleaning funnel, reliability-weighted spread curves, rich/cheap diagnostics, three DV01-neutral portfolio passes, dollar PnL, turnover, and transaction-cost sensitivity.
-- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone 10-page academic report that explains what changed in each portfolio pass, why return improved, and which robustness checks qualify the result.
+- `bond_relative_value_assignment.ipynb`: executed notebook with an auditable price-quality screen, reliability-weighted spread curves, rich/cheap diagnostics, three DV01-neutral portfolio passes, dollar PnL, turnover, and transaction-cost sensitivity.
+- `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone academic report that explains the data correction, compares the raw and cleaned backtests, and interprets the result conservatively.
 
 ## Headline Result
 
-The notebook evaluates three successive portfolio passes across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025. Gross annualized returns are 2.75% for the baseline top-three portfolio, 4.48% after concentrating on the two strongest signals, and 5.99% after adding liquidity to the ranking. The selected liquidity-aware portfolio earns 3.60% annualized after an illustrative 25 bp one-way turnover charge, but nearly all of the improvement disappears when AAPL is excluded.
+The notebook evaluates three portfolio passes across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025. A two-sided price-quality check identifies one isolated Apple month-end mark: CUSIP `037833BX7` falls from 91.76 to 25.17 in February 2025 and returns to 92.24 in March. The main analysis excludes that mark before both curve fitting and return construction, while preserving the untouched backtest as a sensitivity check.
+
+After cleaning, gross annualized returns are 0.15% for the baseline top-three portfolio, 0.39% for the concentrated top-two portfolio, and 0.10% for the liquidity-aware top-three portfolio. Pass 2 has the strongest cleaned gross result, but its annualized return falls to -1.98% after an illustrative 25 bp one-way turnover charge. The earlier unfiltered returns of 2.75%, 4.48%, and 5.99% are reported only to show how strongly one bad mark distorted the original backtest.
 
 ## Data
 
