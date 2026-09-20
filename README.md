@@ -1,6 +1,6 @@
 # MTH9897 Bond Relative Value Assignment
 
-This repository contains the executed Jupyter notebook for the WRDS corporate bond relative-value homework. The methodology is aligned with the MTH9897 Lectures 1-2 treatment of issuer curves, weighted calibration, DV01 hedging, accruals, liquidity, and implementation costs.
+This repository contains the executed Jupyter notebook for the WRDS corporate bond relative-value homework. The analysis applies the issuer-curve, weighted-calibration, DV01-hedging, accrued-interest, liquidity, and trading-cost ideas Professor Boroditsky discussed in class.
 
 ## Files
 
@@ -9,7 +9,7 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 
 ## Headline Result
 
-Across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025, the equal-weighted strategy earns a 2.75% gross annualized return with 4.47% annualized volatility. At an illustrative 25 bp one-way trading cost, annualized return falls to 0.45%, reinforcing the importance of liquidity and execution costs in corporate-bond relative value.
+The notebook compares three portfolio constructions across AAPL, AMZN, BA, CAT, DIS, and T from August 2022 through March 2025. Gross annualized returns are 2.75% for the baseline top-three portfolio, 4.48% for the concentrated top-two version, and 5.99% for the liquidity-aware top-three version. The selected liquidity-aware portfolio earns 3.60% annualized after an illustrative 25 bp one-way turnover charge, but nearly all of the improvement disappears when AAPL is excluded.
 
 ## Data
 
@@ -18,4 +18,4 @@ The WRDS CSV files are not committed. To rerun the notebook, place the two downl
 - `WRDS_Data-Systematic_Trading-Fall2026-1.csv`
 - `WRDS_Data-Systematic_Trading-Fall2026-2.csv`
 
-The lecture PDF is also not committed. The notebook includes concise citations to the relevant lecture sections without redistributing the source material.
+The class PDF is not committed. The notebook cites the relevant slides without redistributing the source material.
