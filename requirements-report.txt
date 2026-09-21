@@ -1,0 +1,8 @@
+ipython
+matplotlib
+nbformat
+numpy
+pandas
+pypdf
+reportlab
+scikit-learn

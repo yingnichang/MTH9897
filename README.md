@@ -6,6 +6,8 @@ This repository contains the executed Jupyter notebook for the WRDS corporate bo
 
 - `bond_relative_value_assignment.ipynb`: executed notebook with an auditable price-quality screen, reliability-weighted spread curves, rich/cheap diagnostics, three DV01-neutral portfolio passes, dollar PnL, turnover, and transaction-cost sensitivity.
 - `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf`: standalone academic report that explains the data correction, compares the raw and cleaned backtests, and interprets the result conservatively.
+- `scripts/generate_pdf_report.py`: one-command entry point that executes the notebook analysis, rebuilds the report figures, writes the PDF, and validates the result.
+- `scripts/report/`: report data extraction, chart generation, and ReportLab layout code.
 
 ## Headline Result
 
@@ -21,3 +23,14 @@ The source WRDS CSV files are committed at the repository root. To rerun the not
 - `WRDS_Data-Systematic_Trading-Fall2026-2.csv`
 
 The class PDF is not committed. The notebook cites the relevant slides without redistributing the source material.
+
+## Rebuild the PDF Report
+
+Install the report dependencies and run the generator from the repository root:
+
+```powershell
+python -m pip install -r requirements-report.txt
+python scripts/generate_pdf_report.py
+```
+
+The generator reads `bond_relative_value_assignment.ipynb`, uses the WRDS files from `data/` when present and otherwise uses the committed root copies, writes temporary charts under `tmp/pdfs/`, and replaces `output/pdf/MTH9897_Bond_Relative_Value_Report.pdf` only after successfully producing and validating all 10 pages.
