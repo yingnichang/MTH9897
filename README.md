@@ -17,7 +17,7 @@ After cleaning, gross annualized returns are 0.15% for the baseline top-three po
 
 ## Data
 
-The source WRDS CSV files are committed at the repository root. To rerun the notebook, place copies in the local `data/` folder:
+The source WRDS CSV files are committed at the repository root and are read from there directly:
 
 - `WRDS_Data-Systematic_Trading-Fall2026-1.csv`
 - `WRDS_Data-Systematic_Trading-Fall2026-2.csv`

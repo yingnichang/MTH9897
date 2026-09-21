@@ -34,6 +34,7 @@ WHITE = colors.white
 styles = getSampleStyleSheet()
 styles.add(ParagraphStyle(name="CoverTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=29, leading=33, textColor=NAVY, alignment=TA_LEFT, spaceAfter=7))
 styles.add(ParagraphStyle(name="CoverSub", parent=styles["Normal"], fontName="Helvetica", fontSize=14, leading=19, textColor=MID, spaceAfter=18))
+styles.add(ParagraphStyle(name="CoverAuthor", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=10.5, leading=14, textColor=NAVY, spaceAfter=18))
 styles.add(ParagraphStyle(name="Section", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=19, leading=23, textColor=NAVY, spaceBefore=0, spaceAfter=9))
 styles.add(ParagraphStyle(name="Subsection", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=11.5, leading=14, textColor=TEAL, spaceBefore=7, spaceAfter=5))
 styles.add(ParagraphStyle(name="BodyReport", parent=styles["BodyText"], fontName="Helvetica", fontSize=9.4, leading=13.4, textColor=INK, spaceAfter=7))
@@ -154,14 +155,11 @@ def page_decorations(canvas, doc):
         canvas.line(0.72 * inch, 10.28 * inch, 7.78 * inch, 10.28 * inch)
         canvas.setFont("Helvetica-Bold", 7.2)
         canvas.setFillColor(NAVY)
-        canvas.drawString(0.72 * inch, 10.42 * inch, "MTH 9897 | CORPORATE BOND RELATIVE VALUE")
-        canvas.setFont("Helvetica", 7.2)
-        canvas.setFillColor(MID)
-        canvas.drawRightString(7.78 * inch, 10.42 * inch, "FINAL BACKTEST REPORT")
+        canvas.drawString(0.72 * inch, 10.42 * inch, "CORPORATE BOND RELATIVE VALUE")
         canvas.setStrokeColor(LINE)
         canvas.line(0.72 * inch, 0.55 * inch, 7.78 * inch, 0.55 * inch)
+        canvas.setFont("Helvetica", 7.2)
         canvas.setFillColor(MID)
-        canvas.drawString(0.72 * inch, 0.37 * inch, "Prepared from the executed WRDS assignment notebook")
         canvas.drawRightString(7.78 * inch, 0.37 * inch, f"Page {doc.page}")
     canvas.restoreState()
 
@@ -188,7 +186,7 @@ def build_report():
         topMargin=0.82 * inch,
         bottomMargin=0.68 * inch,
         title="MTH9897 Corporate Bond Relative Value Report",
-        author="MTH 9897 assignment",
+        author="Chloe Chang & Yikai Shen",
         subject="Duration-neutral issuer-curve strategy using WRDS corporate bond data",
     )
     story = []
@@ -198,6 +196,7 @@ def build_report():
         paragraph("CORPORATE BOND RELATIVE VALUE", "Small"),
         paragraph("A Duration-Neutral Issuer-Curve Strategy", "CoverTitle"),
         paragraph("WRDS enhanced end-of-month bond data | August 2022 to March 2025", "CoverSub"),
+        paragraph("Chloe Chang &amp; Yikai Shen", "CoverAuthor"),
         Spacer(1, 0.06 * inch),
         metric_strip([
             (percent(pass2["gross_annualized_return"]), "Gross annualized return", TEAL),
@@ -211,11 +210,11 @@ def build_report():
         ),
         Spacer(1, 0.44 * inch),
         styled_table([
-            ["Course", "Instructor", "Sample", "Issuers"],
-            ["MTH 9897 - Systematic Trading", "Professor Misha Boroditsky", "Aug. 2022 to Mar. 2025", "AAPL, AMZN, BA, CAT, DIS, T"],
-        ], [1.78 * inch] * 4, left_cols=(), font_size=7.6),
+            ["Sample", "Issuers"],
+            ["Aug. 2022 to Mar. 2025", "AAPL, AMZN, BA, CAT, DIS, T"],
+        ], [3.56 * inch] * 2, left_cols=(), font_size=7.6),
         Spacer(1, 0.65 * inch),
-        paragraph("Prepared from the executed assignment notebook and two supplied WRDS files.", "Small"),
+        paragraph("Data source: WRDS enhanced bond returns, two monthly extract files.", "Small"),
         PageBreak(),
     ]
 
@@ -233,10 +232,10 @@ def build_report():
         paragraph("Executive Summary", "Section"),
         callout("Bottom line", "Pass 2 earns 0.39% gross annualized return with 1.02% volatility and a 0.38 gross Sharpe ratio. After a 25 bp one-way turnover charge, annualized return is -1.98% and Sharpe is -1.96."),
         Spacer(1, 9),
-        paragraph("I estimate issuer-specific spread curves for six large corporate issuers, rank bonds by actual spread minus fitted spread, and form monthly long-cheap/short-rich portfolios. Each issuer sleeve is scaled to approximately zero net DV01 and then combined with equal issuer weights."),
+        paragraph("Issuer-specific spread curves are estimated for six large corporate issuers, bonds are ranked by actual spread minus fitted spread, and monthly long-cheap/short-rich portfolios are formed. Each issuer sleeve is scaled to approximately zero net DV01 and then combined with equal issuer weights."),
         paragraph("Results across the three specifications", "Subsection"),
         styled_table(summary_rows, [1.75 * inch, 1.12 * inch, 0.90 * inch, 0.90 * inch, 0.95 * inch, 1.38 * inch], left_cols=(0,), font_size=7.4),
-        paragraph("How I interpret the evidence", "Subsection"),
+        paragraph("Interpretation of the evidence", "Subsection"),
         paragraph("Concentrating on the two strongest residuals improves the gross result relative to the baseline. Adding liquidity to the ranking does not improve performance in the main sample. More importantly, all three designs become negative under the 25 bp cost assumption, so portfolio selection does not overcome implementation frictions."),
         metric_strip([
             (percent(pass2["gross_total_return"]), "Pass 2 gross total return", TEAL),
@@ -260,12 +259,12 @@ def build_report():
         ])
     story += [
         paragraph("1. Data and Cleaning", "Section"),
-        paragraph("The sample uses enhanced end-of-month observations for six large non-financial issuers. I require at least one year to maturity and approximately $200 million outstanding, remove defaulted and convertible observations, and keep the modal security level and rating category within each issuer-month."),
+        paragraph("The sample uses enhanced end-of-month observations for six large non-financial issuers. Bonds must have at least one year to maturity and approximately $200 million outstanding; defaulted and convertible observations are removed, and the modal security level and rating category are kept within each issuer-month."),
         styled_table(sample_rows, [0.74 * inch, 1.02 * inch, 0.65 * inch, 1.12 * inch, 1.30 * inch, 1.18 * inch], left_cols=(0,), font_size=7.5),
         paragraph("Price-quality rule", "Subsection"),
-        paragraph("Before fitting curves or constructing returns, I flag an isolated month-end mark when it differs by more than 40% from both adjacent monthly prices, the neighboring prices are within 20% of one another, and both date gaps are between 25 and 45 days. The rule identifies one observation."),
+        paragraph("Before fitting curves or constructing returns, an isolated month-end mark is flagged when it differs by more than 40% from both adjacent monthly prices, the neighboring prices are within 20% of one another, and both date gaps are between 25 and 45 days. The rule identifies one observation."),
         Image(str(BUILD_DIR / "price_quality.png"), width=7.05 * inch, height=2.35 * inch),
-        callout("Excluded observation", f"AAPL CUSIP {mark['cusip']} is recorded at {mark['previous_price']:.2f}, {mark['price']:.2f}, and {mark['next_price']:.2f} across January, February, and March 2025. I remove the February mark before both model fitting and return construction. The resulting 59-day January-to-March interval is not treated as a monthly return.", accent=RED),
+        callout("Excluded observation", f"AAPL CUSIP {mark['cusip']} is recorded at {mark['previous_price']:.2f}, {mark['price']:.2f}, and {mark['next_price']:.2f} across January, February, and March 2025. The February mark is removed before both model fitting and return construction. The resulting 59-day January-to-March interval is not treated as a monthly return.", accent=RED),
         PageBreak(),
     ]
 
@@ -281,10 +280,10 @@ def build_report():
     story += [
         paragraph("2. Return and Curve Model", "Section"),
         paragraph("Return construction", "Subsection"),
-        paragraph("Positions are formed at month-end and evaluated with the next observation for the same bond when the date gap is 25 to 45 days. WRDS <b>RET_EOM</b> is the primary total-return measure. If it is unavailable, the fallback combines clean-price return with coupon accrual using actual gap days over 360, consistent with the daily PnL convention Professor Boroditsky discussed in class."),
+        paragraph("Positions are formed at month-end and evaluated with the next observation for the same bond when the date gap is 25 to 45 days. WRDS <b>RET_EOM</b> is the primary total-return measure. If it is unavailable, the fallback combines clean-price return with coupon accrual, using an actual/360 day-count convention."),
         callout("Monthly return fallback", "Price return + annual coupon rate x gap days / 360", accent=GOLD),
         paragraph("Issuer-curve specification", "Subsection"),
-        paragraph("For each issuer-month, I fit the assignment's transparent three-factor spread model. The regression weights combine TRACE dollar volume and amount outstanding, with both inputs winsorized within issuer-month so a single large bond cannot dominate calibration."),
+        paragraph("For each issuer-month, a transparent three-factor spread model is fit. The regression weights combine TRACE dollar volume and amount outstanding, with both inputs winsorized within issuer-month so a single large bond cannot dominate calibration."),
         callout("Curve equation", "T_Spread = b0 + b1 log(1 + Duration) + b2 Duration + b3 Coupon"),
         paragraph("Fit diagnostics", "Subsection"),
         styled_table(curve_rows, [0.85 * inch, 1.05 * inch, 1.20 * inch, 1.55 * inch, 1.28 * inch], left_cols=(0,), font_size=7.6),
@@ -392,7 +391,7 @@ def build_report():
         ])
     story += [
         paragraph("7. Data-Quality Sensitivity", "Section"),
-        paragraph("As a diagnostic, I rerun the same three portfolios on the otherwise identical data with the isolated-mark screen disabled. This comparison measures how strongly one month-end input can affect fitted residuals, bond selection, and reported returns."),
+        paragraph("As a diagnostic, the same three portfolios are rerun on the otherwise identical data with the isolated-mark screen disabled. This comparison measures how strongly one month-end input can affect fitted residuals, bond selection, and reported returns."),
         Image(str(BUILD_DIR / "data_sensitivity.png"), width=7.05 * inch, height=2.85 * inch),
         styled_table(sensitivity_rows, [2.04 * inch, 1.20 * inch, 1.10 * inch, 1.37 * inch, 1.24 * inch], left_cols=(0,), font_size=7.4),
         paragraph("Interpretation", "Subsection"),
@@ -403,7 +402,7 @@ def build_report():
 
     story += [
         paragraph("8. Conclusion", "Section"),
-        callout("Final assessment", "The issuer-curve framework produces a coherent relative-value ranking and a well-controlled parallel-rate hedge, but the measured return does not survive plausible transaction costs. I would not present the strategy as profitable in this sample."),
+        callout("Final assessment", "The issuer-curve framework produces a coherent relative-value ranking and a well-controlled parallel-rate hedge, but the measured return does not survive plausible transaction costs. The strategy is not profitable in this sample after costs."),
         paragraph("What the analysis supports", "Subsection"),
         paragraph("- The three-factor curve provides an interpretable way to compare bonds from the same issuer across the maturity spectrum.<br/>- Concentrating on the strongest residuals performs better than the baseline and liquidity-aware alternatives in the main sample.<br/>- DV01 scaling removes first-order parallel-rate exposure with negligible residual net DV01.<br/>- Turnover costs and liquidity characteristics are large relative to the observed gross return."),
         paragraph("Limitations and next steps", "Subsection"),
