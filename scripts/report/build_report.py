@@ -186,7 +186,7 @@ def build_report():
         topMargin=0.82 * inch,
         bottomMargin=0.68 * inch,
         title="MTH9897 Corporate Bond Relative Value Report",
-        author="Chloe Chang & Yikai Shen",
+        author="Yingni Chang & Yikai Shen",
         subject="Duration-neutral issuer-curve strategy using WRDS corporate bond data",
     )
     story = []
@@ -196,7 +196,7 @@ def build_report():
         paragraph("CORPORATE BOND RELATIVE VALUE", "Small"),
         paragraph("A Duration-Neutral Issuer-Curve Strategy", "CoverTitle"),
         paragraph("WRDS enhanced end-of-month bond data | August 2022 to March 2025", "CoverSub"),
-        paragraph("Chloe Chang &amp; Yikai Shen", "CoverAuthor"),
+        paragraph("Yingni Chang &amp; Yikai Shen", "CoverAuthor"),
         Spacer(1, 0.06 * inch),
         metric_strip([
             (percent(pass2["gross_annualized_return"]), "Gross annualized return", TEAL),
