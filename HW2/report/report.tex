@@ -1,0 +1,393 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[font=small,labelfont=bf,skip=4pt]{caption}
+\usepackage[compact,small]{titlesec}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=3pt,parsep=0pt,leftmargin=*}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+
+\graphicspath{{figures/}}
+% Let floats share pages with text instead of collecting on sparse float pages.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.9}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{4}
+\setcounter{totalnumber}{6}
+\setlength{\textfloatsep}{10pt plus 2pt minus 4pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\newcommand{\tablefont}{\footnotesize\setlength{\tabcolsep}{3.4pt}}
+
+\title{\vspace{-1.5em}\textbf{Do Stocks Outperform Treasury Bills?}\\[2pt]
+  \large Simulated Multi-Period Returns and Industry Portfolios, after Bessembinder (2018)}
+\author{Yingni Chang, Yikai Shen}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\section*{Summary}
+
+We replicate and extend two tables of Bessembinder (2018). Section~1 revisits the simulation evidence on
+multi-period returns (Table~1), and Section~2 revisits the bootstrapped portfolios of Table~4 with industry
+portfolios in place of individual stocks. The main findings are as follows.
+\begin{itemize}
+  \item \textbf{Daily draws.} With a daily mean of 0.0025\%, the median buy-and-hold return is negative and fewer than
+    half of outcomes are positive for every daily $\sigma \ge 0.90\%$, at all horizons. The cause is the low mean,
+    about a tenth of the paper's 0.5\% a month, not daily compounding. With the daily mean matched to 0.5\% a month,
+    the daily table is close to Table~1.
+  \item \textbf{Horizons of 15 and 20 years.} The expected return is the same at every $\sigma$, but the median rises
+    with horizon for $\sigma \le 8\%$ and falls for $\sigma \ge 12\%$. At $\sigma = 20\%$ over 20 years the median is
+    $-97.9\%$ and only 11.7\% of outcomes are positive, although the expected return is $+231\%$.
+  \item \textbf{Low-volatility puzzle.} Compounding explains why volatile assets have worse \emph{typical}
+    (median) long-run outcomes at the same expected return. It does not explain the puzzle itself, which concerns
+    lower \emph{average} returns and alphas.
+  \item \textbf{Random industry selection.} A random FF49 industry with equal-weighted stocks beats the VW market in
+    51.7\%, 59.5\% and 81.2\% of 1-year, 10-year and full-period outcomes, more often than any of the paper's
+    random-stock portfolios. With value-weighted stocks, the shares (49.0\%, 46.4\%, 39.2\%) fall within the paper's
+    range for 25 to 100 stocks.
+  \item \textbf{Three-month industry momentum.} Holding the best FF49 industry of the past three months beat the
+    market over 1926--2016 (33,320$\times$ vs.\ 4,715$\times$). But it ranked only at the 63rd percentile of the
+    random paths, suffered a $-99.7\%$ drawdown, and had a lower Sharpe ratio (0.40) than the market (0.42).
+  \item \textbf{A rule that beats the market.} Hold the \textbf{five FF49 industries with the highest return over
+    the previous six months}, equally weighted, value-weighted within each industry, rebalanced monthly. Before
+    costs, it beat the VW market in 8 of 9 decades and in 78.5\% of all rolling 10-year windows since 1927 (82.7\%
+    after 1995).
+\end{itemize}
+All results are before transaction costs. Win rates across historical windows are frequencies on a single
+history, not probabilities.
+
+%======================================================================================================
+\section{Simulated multi-period returns (Table 1)}
+
+\subsection{Method and validation}
+
+Returns are i.i.d.\ $r_t \sim N(\mu, \sigma^2)$, and the $T$-period buy-and-hold return is
+$\prod_{t=1}^{T}(1+r_t) - 1$. Each experiment simulates 250,000 paths. The 1- and 5-year outcomes come from
+non-overlapping blocks of the 10-year paths, and the 15- and 20-year outcomes from 240-month paths. We report one
+set of draws (seed~0); four further independent runs (seeds 1--4) measure Monte Carlo error. Simulated means and
+SDs are z-tested against exact values from $E[W_T^k]$, where $W_T = \prod_t (1+r_t)$ (e.g.\ $E[W_T] = (1+\mu)^T$).
+The test is applied only where the exact skewness is below 10, a screening heuristic for tails light enough
+for the normal approximation, and every tested cell passes.
+Draws below $-100\%$ are kept. Treating them as an absorbing bankruptcy changes no median, share or percentile. Our
+monthly replication matches Table~1 to within 0.35 points on the median and 0.18 points on the share positive
+(Table~\ref{tab:compare}).
+
+\subsection{Daily returns}
+
+We draw 2,520 daily returns (252 a year) with $\mu = 0.0025\%$ and daily $\sigma = 0.45\%, 0.90\%, \dots, 4.5\%$.
+We pair these with the paper's monthly columns $2\%, \dots, 20\%$, since $0.45\% \times \sqrt{21} \approx 2\%$.
+Table~\ref{tab:daily} gives the result in the layout of Table~1.
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Table~1 with \textbf{daily} normal returns, $\mu = 0.0025\%$ a day (seed 0, 250,000 paths).}
+  \label{tab:daily}
+  \input{tables/table1_daily.tex}
+\end{table}
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Comparison with Table~1 at the 10-year horizon. ``Matched $\mu$'' is $1.005^{1/21} - 1 = 0.0238\%$ a
+    day, i.e.\ the paper's 0.5\% a month.}
+  \label{tab:compare}
+  \input{tables/table1_compare.tex}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{A daily mean of 0.0025\% is small.} It compounds to only $0.0525\%$ over 21 days, about a tenth of
+    the paper's 0.5\% a month. Volatility drag therefore wins early. The median is negative and fewer than half of
+    outcomes are positive from daily $\sigma = 0.90\%$ (monthly $\approx 4\%$) at all horizons. In the paper, this
+    happens only from 12\% monthly. As a rough guide, the small-return approximation to typical log growth,
+    $\mu - \sigma^2/2$, turns negative near $\sigma \approx 0.71\%$ daily.
+  \item \textbf{Daily versus monthly compounding matters little.} With the matched mean, the daily table is close
+    to Table~1: medians are at most 3.7 points below the paper's. The larger part of the gap is the grid. The daily
+    $\sigma$ values correspond to monthly 2.07\%--20.9\%, not 2\%--20\%, which lowers the median by up to 5.4 points
+    (five-seed mean). Drawing daily rather than monthly moves the median by at most 0.6 points at 1 year and 2.8
+    points at 10 years.
+  \item \textbf{Skewness.} Right skewness grows with $\sigma$ and horizon, as in Table~1. At long horizons and high
+    $\sigma$, this sample size cannot recover it: with $n = 250{,}000$ ten-year outcomes, sample skewness cannot
+    exceed $(n-2)/\sqrt{n-1} \approx 500$. At 10 years and 20\% monthly, the exact value is 662, the paper reports
+    53.3, and our seeds give 46--186.
+\end{itemize}
+
+\subsection{Horizons of 15 and 20 years}
+
+We use the paper's monthly parameters, $\mu = 0.5\%$ and $\sigma = 0\%, 2\%, \dots, 20\%$ (Table~\ref{tab:long},
+Figure~\ref{fig:table1}).
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Table~1 extended to \textbf{15 and 20 years}: monthly normal returns, $\mu = 0.5\%$ (seed 0,
+    250,000 paths). ``Exact'' rows are population values from $E[W_T^k]$.}
+  \label{tab:long}
+  \input{tables/table1_long.tex}
+\end{table}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_table1.pdf}
+  \caption{Median buy-and-hold return (top) and share of positive outcomes (bottom) against volatility, by
+    horizon (seed 0). Dashed lines show the lognormal approximation of the median, $e^{T(\mu - \sigma^2/2)} - 1$.}
+  \label{fig:table1}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{The median diverges from the mean with horizon.} The expected 20-year return is 231\% at every
+    $\sigma$. The median rises with horizon for $\sigma \le 8\%$ and falls for $\sigma \ge 12\%$. At 10\% it stays
+    near zero, and its sign varies across seeds. At 20\% it is $-97.9\%$ after 20 years, with only 11.7\% of
+    outcomes positive.
+  \item \textbf{A few extreme paths carry the mean.} The 99th percentile rises with horizon at every $\sigma$. Over
+    20 years it peaks at $\sigma = 16\%$ (4,887\%). The exact skewness at 20\% is 425,770, but the sample value is
+    158. Even with 250,000 paths, the seeds' sample means (192.8\%--221.9\%) fall short of the true 231\%, because
+    the mass sits in paths too rare to sample.
+\end{itemize}
+
+\subsection{Comparison with Table 1}
+
+The daily and longer-horizon results strengthen the paper's pattern rather than change it. At a given expected
+return, higher volatility means a lower median, a lower chance of a gain and a longer right tail, and each effect
+grows with horizon. This is the mechanism behind the paper's finding that most stocks underperform T-bills while a
+few account for the aggregate gains.
+
+\subsection{Implications for the low-volatility puzzle}
+
+Compounding lowers the typical terminal wealth of volatile assets at equal expected returns, but it does not explain
+the empirical anomaly, which concerns arithmetic average returns and alphas.
+\begin{itemize}
+  \item \textbf{What compounding does.} At the same expected 10-year return of 81.9\%, the median outcome is
+    $+65.5\%$ at $\sigma = 4\%$ but $-62.0\%$ at $\sigma = 16\%$, and the probability of a gain falls from 87.6\% to
+    29.4\%. Higher volatility thus lowers typical terminal wealth and the chance of a gain with no difference in
+    expected returns. As a small-return approximation, it lowers typical log growth by about $\sigma^2/2$ per period
+    (under the literal normal model, returns below $-100\%$ have positive probability, so $E[\log(1+r)]$ is not
+    defined). These are comparisons of marginal distributions; we do not estimate how often a high-volatility asset
+    trails a low-volatility one.
+  \item \textbf{What it does not explain.} The anomaly (Ang et al.\ 2006; Baker, Bradley and Wurgler 2011; Frazzini
+    and Pedersen 2014) is that high-volatility or high-beta stocks earn lower \emph{average} returns and negative
+    alphas. The simulation holds the arithmetic mean fixed by construction, so it cannot produce that.
+  \item \textbf{An indirect link.} Compounding makes high-volatility stocks strongly right-skewed, like lotteries.
+    If investors prefer positive skewness, they overpay for such stocks and lower their expected returns. This is
+    consistent with Table~1 but not tested here. Two further caveats apply: the simulation uses total volatility,
+    whereas the literature sorts on idiosyncratic volatility or beta; and cumulative-wealth comparisons alone cannot
+    identify differences in expected returns.
+\end{itemize}
+
+%======================================================================================================
+\section{Industry portfolios (Table 4)}
+
+\subsection{Data}
+
+We use Ken French's 49 (main) and 12 (robustness) industry portfolios, with monthly equal-weighted (EW) and
+value-weighted (VW) returns, from the August 2026 CRSP release. The VW market return is Mkt$-$RF $+$ RF, and the
+T-bill return is RF. The sample is the paper's, July 1926 to December 2016 (1,086 months). French assigns stocks to
+industries each June but does not date his firm counts, so we assume that a positive July firm count means the
+industry had members at the preceding June formation, and treat it as eligible for that July--June year. This gives
+40 FF49 industries in 1926 and all 49 from 1969; FF12 always has 12. The universe is thus reconstructed from revised
+data; it does not show what an investor could have known at the time.
+
+\subsection{Evaluation method}
+
+The evaluation follows the paper. The horizons are the 90 calendar years 1927--2016, the paper's nine decades (the
+first running from July 1926 to December 1936) and the full period. A strategy ``beats'' a benchmark when its
+holding-period wealth is strictly higher over the same window. For random strategies, statistics are pooled over
+all path $\times$ window outcomes. The paper does not document how it pools windows, so this is our choice. For a
+deterministic strategy they are frequencies across historical windows. Monte Carlo standard errors of the pooled
+shares are at most 0.35 points.
+
+\subsection{Random industry selection}\label{sec:random}
+
+Each month we draw one eligible industry uniformly at random, hold it for the month, then draw again. We run
+20,000 paths with seed 0. The same draws are applied to EW and VW returns, so the two differ only in how stocks are
+weighted within the industry. Conditional on history, the expected wealth of this strategy is exact:
+\begin{equation}
+  E[W] = \prod_t \frac{1}{|A_t|}\sum_{i \in A_t} (1 + r_{i,t}),
+  \label{eq:exact}
+\end{equation}
+where $A_t$ is the eligible set. This is the wealth of an equal-weight portfolio of industries, rebalanced monthly.
+Every formally tested simulated mean passes a z-test against it (a normal approximation at a nominal 0.1\%
+Bonferroni family-wise level per variant, with a minimum threshold of 4). The heavy-tailed FF49 full-period rows are
+reported as diagnostics only.
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Table~4 with \textbf{random industries} in place of random stocks (20,000 paths, July 1926 to December
+    2016). ``Ours'' is pooled across paths and windows. The paper's columns are its 1-, 5-, 25-, 50- and 100-stock
+    portfolios. Full-period mean and median are in whole percent. Skewness values are Monte Carlo estimates; the
+    FF49 full-period values are especially sensitive to rare paths (exact values 80.3 EW and 78.6 VW).}
+  \label{tab:table4}
+  \input{tables/table4_random.tex}
+\end{table}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_random_industry.pdf}
+  \caption{Full-period wealth of the 20,000 random-industry paths. Each curve gives the share of paths ending
+    above a given wealth level. Dots mark the share that beat the VW market.}
+  \label{fig:random}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{Equal-weighted industries beat the market more often than any stock portfolio in the paper.} FF49 EW
+    beats the market in 51.7\%, 59.5\% and 81.2\% of outcomes, against at most 49.3\%, 47.5\% and 43.3\% for the
+    paper's 100-stock portfolio. It is far from the single stock's 3.97\% over the full period. It also beats
+    T-bills in all 20,000 full-period paths, where only 27.5\% of the paper's single stocks did.
+  \item \textbf{With value weighting, market-beating shares resemble those of diversified stock portfolios.} FF49
+    VW's shares (49.0\%, 46.4\%, 39.2\%) lie inside the paper's 25- to 100-stock range at every horizon. This
+    concerns that one statistic, not the whole distribution. Its 1-year skewness is 1.32, against 6.99 for a single
+    stock, which is consistent with diversification within industries. The comparison does not isolate that effect,
+    however, and the data vintage and construction also differ from the paper's.
+  \item \textbf{Equal weighting within the industry adds 2.7, 13.2 and 42.0 points} to the share beating the market
+    (EW vs.\ VW, same draws). Its exact 1-year mean is 17.1\% against 13.2\% for VW, before the unmeasured costs of
+    maintaining equal weights. The broader FF12 industries have higher shares and much less skewness than FF49.
+\end{itemize}
+
+\subsection{Three-month industry momentum}\label{sec:momentum}
+
+Each month $t$ we hold the industry with the highest compounded return over months $t-3$ to $t-1$, among industries
+that are eligible in month $t$ and have all three lookback returns. Ties go to the first in column order. Ranking
+and holding use the same returns (EW or VW), and the first holding month is October 1926. Momentum is a single
+path, so we compare it with the 20,000 random paths of Section~\ref{sec:random} over the same months
+(Tables~\ref{tab:momentum} and~\ref{tab:momperf}, Figure~\ref{fig:momentum}). The lookback requirement makes
+momentum's candidate set smaller than the random baseline's in 21 FF49 months, just after an industry enters;
+restricting the baseline accordingly would raise its exact mean wealth by under 1\%.
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Three-month industry momentum against random industry selection, October 1926 to December 2016. The
+    random mean is exact (Eq.~\ref{eq:exact}). The percentile is the share of random paths with lower full-period
+    wealth. Window columns give the share of calendar years, paper decades and rolling 10-year windows in which the
+    strategy beat the VW market, shown as momentum\,/\,random.}
+  \label{tab:momentum}
+  \input{tables/momentum.tex}
+\end{table}
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Performance, October 1926 to December 2016, before costs. Return and volatility are annualized (\%).
+    The Sharpe ratio is over T-bills. Turnover is one-way turnover across industry portfolios (\% a year).
+    ``Equal weight'' holds every eligible industry equally, which is the expected outcome of random selection.}
+  \label{tab:momperf}
+  \input{tables/momentum_performance.tex}
+\end{table}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_momentum.pdf}
+  \caption{Wealth of FF49 three-month momentum, the VW market and the random-industry paths (median and 5th--95th
+    percentile band), October 1926 to December 2016.}
+  \label{fig:momentum}
+\end{figure}
+
+\begin{itemize}
+  \item \textbf{FF49 EW momentum beat the market and the median random path, but not the mean of random
+    selection.} It grew \$1 to 33,320$\times$, against 4,715$\times$ for the market and 19,430$\times$ for the median
+    random path, which places it at the 63rd percentile. It fell short of the 69,258$\times$ expected wealth of random
+    selection (Eq.~\ref{eq:exact}). It beat the market in 54.4\% of years, 6 of 9 decades and 69.6\% of rolling
+    10-year windows.
+  \item \textbf{The path was extreme.} Wealth fell 99.7\% from 1929 to 1942, and volatility was 35.9\%. The Sharpe
+    ratio of 0.40 is below the market's 0.42 and the equal-weight portfolio's 0.48. Momentum held an industry with at
+    most five firms in 34\% of months, against 15\% under random selection, and its most frequent holdings were Gold,
+    Coal and Smoke. A plausible but untested mechanism is that ranking on noisy three-month returns favors the most
+    volatile industries, which in FF49 often have few firms.
+  \item \textbf{The results depend on the universe and the weighting.} FF49 VW momentum ended at 113$\times$ (2nd
+    percentile). EW and VW momentum rank on different returns and hold different industries in 696 of 1,083 months,
+    so this gap reflects both rankings and holding returns, not weighting alone. With the broad FF12 industries,
+    momentum beat every random path with EW returns (Sharpe 0.74) and 99.9\% of them with VW returns. Turnover is
+    574\%--811\% a year, so trading costs would matter.
+\end{itemize}
+
+\subsection{A rule that beats the value-weighted market over ten years}
+
+We seek a rule with at least an even chance of beating the VW market over ten years, before transaction costs. Two
+candidate rules and a pass/fail criterion were specified ex ante, before the analyses of Sections~\ref{sec:random} and~\ref{sec:momentum}, and
+were not tuned.
+\begin{itemize}
+  \item \textbf{(a) Equal weight:} hold every eligible FF49 industry equally, value-weighted within each industry,
+    rebalanced monthly. This is the expected outcome of random FF49 VW selection.
+  \item \textbf{(b) Top 5, 6-month momentum:} each month, hold the five FF49 industries with the highest return over
+    months $t-6$ to $t-1$ (Moskowitz and Grinblatt's industry momentum), equally weighted and value-weighted within
+    each industry. Holding five industries rather than one diversifies away the single-industry risk documented in
+    Section~\ref{sec:momentum}, and value weighting limits the influence of tiny firms.
+\end{itemize}
+The rules are evaluated from January 1927 to August 2026. \textbf{Criterion:} a rule passes if it beats the VW
+market in at least 50\% of the paper's nine decades \emph{and} of the 249 rolling 10-year windows that lie entirely
+within January 1996 to August 2026. Because Sections~\ref{sec:random} and~\ref{sec:momentum} use data through 2016,
+this holdout is a retrospective validation. Adjacent rolling windows share 119 months, and the holdout contains only
+three non-overlapping decades, so its 249 windows are not independent confirmations. January 2017 to August 2026
+(116 months, with no complete 10-year window) lies outside the earlier samples. It is reported separately as a
+post-2016 evaluation of the prespecified candidates, not as an independent test of the final choice: those months
+also enter the screen and the comparison between the two rules.
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Win rates against the VW market over 10-year windows (strictly higher holding return), before costs.
+    The two rows marked ``screen'' form the pass/fail criterion.}
+  \label{tab:screen}
+  \input{tables/rule_screen.tex}
+\end{table}
+
+\begin{table}[!htbp]
+  \centering\tablefont
+  \caption{Performance by period, before costs. Wealth is per \$1. Return and volatility are annualized (\%).
+    Turnover is one-way across industries (\% a year). Jan 2017--Aug 2026 is the post-2016 evaluation period (116 months).}
+  \label{tab:ruleperf}
+  \input{tables/rule_performance.tex}
+\end{table}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_rules.pdf}
+  \caption{Each rule's rolling 10-year wealth relative to the VW market, at the window's end; above 1$\times$, the
+    rule won.}
+  \label{fig:rules}
+\end{figure}
+
+\textbf{Recommended rule: (b).} Both rules pass the criterion (Table~\ref{tab:screen}), but (b) wins at least as
+often as (a) on every measure:
+\begin{itemize}
+  \item 8 of 9 decades, 206 of 249 holdout windows, and 845 of all 1,077 rolling 10-year windows since 1927
+    (78.5\%);
+  \item 14.4\% a year against the market's 10.3\% over 1927--2026, with a Sharpe ratio of 0.58 against 0.45;
+  \item a win in the post-2016 period (4.61$\times$ vs.\ 3.92$\times$), although with a lower Sharpe
+    ratio (0.72 vs.\ 0.81).
+\end{itemize}
+Rule (a), by contrast, has lost every rolling window ending since March 2019. Two caveats apply. Rule (b)'s 78.5\%
+is a historical frequency on overlapping windows of one history, not an established probability that it beats the
+market over the next decade. And its turnover of about 455\% a year is 23 times rule (a)'s, so trading costs, which
+are not modeled here, would reduce its edge.
+
+%======================================================================================================
+\section{Limitations}
+All results are before transaction costs, and turnover counts trades between industries only. The returns come from
+the current, revised CRSP data (CIZ format), not the FIZ-era data the paper used, and the size of that difference is
+not measured. Industries are not stocks, and FF12 is not a GICS sector scheme. Pooling across windows and dropping
+the partial year 1926 are our choices; the paper documents neither. The industry simulations use a single seed.
+
+\textbf{Code and data.} All computations are in \texttt{hw2\_analysis.ipynb}, using the tested modules in
+\texttt{src/}. \texttt{report/make\_tables.py} and \texttt{report/make\_figures.py} rebuild these tables and figures
+from \texttt{output/} and check them against it.
+
+\textbf{References.}
+{\footnotesize
+Ang, A., R. Hodrick, Y. Xing and X. Zhang (2006), The cross-section of volatility and expected returns,
+\emph{Journal of Finance} 61.
+Baker, M., B. Bradley and J. Wurgler (2011), Benchmarks as limits to arbitrage: understanding the low-volatility
+anomaly, \emph{Financial Analysts Journal} 67.
+Bessembinder, H. (2018), Do stocks outperform Treasury bills?, \emph{Journal of Financial Economics} 129.
+Frazzini, A. and L. Pedersen (2014), Betting against beta, \emph{Journal of Financial Economics} 111.
+Moskowitz, T. and M. Grinblatt (1999), Do industries explain momentum?, \emph{Journal of Finance} 54.
+}
+
+\end{document}
