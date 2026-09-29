@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "a": "(a) equal weight across industries",
+    "b": "(b) top 5 by six-month return"
+  },
+  "universe": "FF49, value-weighted within industries, formation-eligible industries",
+  "rule_b": {
+    "lookback_months": 6,
+    "k": 5,
+    "candidates": "formation-eligible with all six lookback returns",
+    "ties": "declared column order"
+  },
+  "evaluation": [
+    "1927-01",
+    "2026-08"
+  ],
+  "signal history from": "1926-07",
+  "screen": "win rate >= 50% on the paper decades to 2016 and on rolling 10-year windows within the holdout",
+  "holdout from": "1996-01",
+  "post-2016 evaluation from": "2017-01",
+  "interpretation": "retrospective historical frequencies; candidates and screen are not independently preregistered",
+  "passes": {
+    "a": true,
+    "b": true
+  },
+  "crsp_release": "202608"
+}

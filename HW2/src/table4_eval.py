@@ -1,4 +1,4 @@
-"""Common evaluator for the Table 4 strategies, and the exact benchmark for random selection (Plan.md, Step 8).
+"""Common evaluator for Table 4 strategies and the exact benchmark for random selection (notebook Step 8).
 
 A strategy is a table of monthly simple returns indexed by month: a Series for one path (a
 deterministic rule), or a DataFrame with one column per path (the random strategies). Over a
@@ -493,7 +493,7 @@ def percentile_among(strategy_wealth: np.ndarray, path_wealth: np.ndarray) -> pd
 
 
 def allocation_turnover(weights: pd.DataFrame, returns: pd.DataFrame) -> pd.Series:
-    """One-way turnover across industry portfolios at each rebalance (Plan.md decision table).
+    """One-way turnover across industry portfolios at each rebalance.
 
     At month t it is 0.5 * sum_i |w_target_{i,t} - w_pretrade_{i,t}|, where the pre-trade weights are
     month t-1's targets drifted by month t-1's returns. The first month (the initial investment) is

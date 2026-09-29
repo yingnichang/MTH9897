@@ -1,5 +1,10 @@
 .ipynb_checkpoints/
 __pycache__/
 tmp/
-tests/
-output/
+output/*
+!output/*.csv
+!output/*.json
+.venv/
+report/*.aux
+report/*.log
+report/*.out

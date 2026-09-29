@@ -1,4 +1,4 @@
-"""Audit of the pinned August 2026 Ken French snapshot against the data facts in Plan.md (Step 7).
+"""Audit of the pinned August 2026 Ken French snapshot against the expected data facts (notebook Step 7).
 
 ff_data.py validates structure and parses any well-formed file. This module checks facts about
 one specific release, so it is meant to fail when a refresh changes them. Before the pin is
@@ -219,5 +219,5 @@ def require_audit(table: pd.DataFrame) -> pd.DataFrame:
     failed = table[~table["ok"]]
     if len(failed):
         lines = "\n".join(f"  [{r.file}] {r.fact}: observed {r.observed}" for r in failed.itertuples())
-        raise AuditError(f"{len(failed)} data fact(s) failed; review Plan.md before using this release:\n{lines}")
+        raise AuditError(f"{len(failed)} data fact(s) failed; review the expected snapshot facts before using this release:\n{lines}")
     return table

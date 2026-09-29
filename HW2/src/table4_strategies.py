@@ -1,4 +1,4 @@
-"""Table 4 strategies on industry portfolios (Plan.md, Steps 9-11).
+"""Table 4 strategies on industry portfolios (notebook Steps 9-11).
 
 Step 9 (Task 2.1), random industry selection: each month, one industry is drawn uniformly from
 that month's eligible set, independently across months and paths. The draws are generated once

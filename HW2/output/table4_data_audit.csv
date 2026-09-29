@@ -1,0 +1,25 @@
+file,fact,observed,ok
+all,CRSP release 202608 in every file header,"202608, 202608, 202608",True
+all,"Months: Jul 1926 to Aug 2026 (1,202), identical in all files","Jul 1926 to Aug 2026 (1,202)",True
+factors,"Compounded T-bill return, Jul 1926 to Dec 2016 (1,086 months): 19.2797",19.2797,True
+factors,"Compounded VW market return, same months: 5031.7488",5031.7488,True
+ff49,"Missing-data codes: only −99.99 occurs, never −999","−99.99: 5,736; −999: 0",True
+ff49,EW and VW are missing in the same industry-months,0 mismatches,True
+ff49,Returns are missing exactly where the firm count is zero,0 mismatches,True
+ff49,"Firm counts rise only in July, and fall to zero only in July",0 rises and 0 falls to zero outside July,True
+ff49,Every eligible industry-month has EW and VW returns (formation rule),0 eligible industry-months without a return,True
+ff49,Industries with firms in Jul 1926: 40,40,True
+ff49,"First July with firms for the other nine: PerSv 1927, Paper 1929, Rubbr 1930, Soda 1963, FabPr 1963, Guns 1963, Gold 1963, Softw 1965, Hlth 1969","PerSv 1927, Paper 1929, Rubbr 1930, Soda 1963, FabPr 1963, Guns 1963, Gold 1963, Softw 1965, Hlth 1969",True
+ff49,All 49 have firms in every month from Jul 1969,from Jul 1969,True
+ff49,Only zero-firm spell after a first appearance: Rubbr Jul 1943 to Jun 1944,Rubbr Jul 1943 to Jun 1944,True
+ff49,"Eligible industries: 40 in Jul 1926, 49 from Jul 1969; the only decrease is 43→42 in Jul 1943 (back in Jul 1944)",40 in Jul 1926; 49 from Jul 1969; decreases: Jul 1943 43→42,True
+ff49,"Single-firm industries: 5 in Jul 1926, 3 in Jan 1940; last among the original 40 Jun 1963 (Insur), last overall Jun 1973 (Softw)","5 and 3; Jun 1963 (Insur), Jun 1973 (Softw)",True
+ff49,Single-firm industry-months: EW equals VW up to the files' rounding (0.01 pp),max |EW − VW| = 0.0100 pp over 782 industry-months,True
+ff12,"Missing-data codes: only −99.99 occurs, never −999",−99.99: 0; −999: 0,True
+ff12,EW and VW are missing in the same industry-months,0 mismatches,True
+ff12,Returns are missing exactly where the firm count is zero,0 mismatches,True
+ff12,"Firm counts rise only in July, and fall to zero only in July",0 rises and 0 falls to zero outside July,True
+ff12,Every eligible industry-month has EW and VW returns (formation rule),0 eligible industry-months without a return,True
+ff12,No missing EW or VW returns,0 missing,True
+ff12,At least 4 firms in every industry-month,minimum 4,True
+ff12,Eligible industries: 12 in every month,12 to 12,True

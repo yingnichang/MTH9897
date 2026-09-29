@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "simulator_sha256": "a2b0e3fe9abbd6ef355ccc6b70f2e9a6a12f1fbb5a8587bd4e7b66886bd43bad",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "mu": 0.005,
+  "sigmas": [
+    0.0,
+    0.02,
+    0.04,
+    0.06,
+    0.08,
+    0.1,
+    0.12,
+    0.14,
+    0.16,
+    0.18,
+    0.2
+  ],
+  "n_paths": 250000,
+  "n_periods": 240,
+  "block_lengths": [],
+  "prefix_lengths": [
+    180,
+    240
+  ],
+  "return_model": "literal",
+  "periods_per_year": 12,
+  "csv_sha256": "c74688f879ee12b602f15686d03566a22538c92e99c1dbf78be288237f163db1"
+}
