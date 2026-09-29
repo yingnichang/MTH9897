@@ -1,8 +1,14 @@
 # Conservative Formula presentation
 
-`conservative_formula_presentation.pdf` is the 14-slide presentation accompanying
+`conservative_formula_presentation.pdf` is the 22-slide presentation accompanying
 the first-draft notebook. The PowerPoint file is the editable source. Presenter
 notes appear inside that source and in `speaker_notes.md`.
+
+The expanded version adds the economic rationale for combining signals,
+worked payout and stock-ranking examples, a transaction-cost calculation,
+data-bias controls, evaluation periods, explanations of the performance
+measures, and balanced interpretation of the synthetic results. Suggested
+speaking time is approximately 18–22 minutes, excluding questions.
 
 ## Regenerate the PDF
 
@@ -31,6 +37,7 @@ results and revise the narrative after the empirical study is complete.
 - `slide_data.json`: committed numerical snapshot of notebook demo outputs.
 - `export_slide_data.py`: standard-library Python script that refreshes the snapshot.
 - `finalize_slides.mjs`: packages chart workbooks and validates a separately staged deck.
+- `deck_manifest.json`: slide count and native chart/table locations, generated alongside each candidate.
 
 No charts, data, or helper assets need to be downloaded to regenerate the deck.
 The PowerPoint opens normally without the generation runtime.
@@ -75,6 +82,8 @@ node finalize_slides.mjs build/candidate.pptx rebuilt/conservative_formula_prese
 ```
 
 Both paths must be inside the current working directory (or `DECK_WORKSPACE`).
+Keep the generated `deck_manifest.json` next to the candidate so the finalizer
+checks the chart and table locations for the current slide order.
 The finalizer requires a new output path and never overwrites an existing deck.
 It writes private validation records to `.slide-validation/`. The intermediate
 generator output uses editable native charts with literal data. Finalization
