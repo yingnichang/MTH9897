@@ -1,0 +1,16 @@
+{
+  "rule": "one industry drawn uniformly each month from the formation-rule eligible set",
+  "generator": "numpy.random.default_rng(seed).integers(0, counts, size=(n_paths, n_months)); the k-th eligible column in declared order",
+  "seed": 0,
+  "n_paths": 20000,
+  "sample": [
+    "1926-07",
+    "2016-12"
+  ],
+  "crsp_release": "202608",
+  "same selections for EW and VW": true,
+  "selection_sha256": {
+    "ff49": "9664ee21225a88dd4ca869bf3ea14d6418e20916655e417e245f78824ff55b94",
+    "ff12": "297e62b9235f6d9d86fc808ef0f055cfebee25bc4ad20f444551e7f5a817ab1a"
+  }
+}

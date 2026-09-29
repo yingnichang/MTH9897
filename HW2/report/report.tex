@@ -61,13 +61,13 @@ portfolios in place of individual stocks. The main findings are as follows.
   \item \textbf{Three-month industry momentum.} Holding the best FF49 industry of the past three months beat the
     market over 1926--2016 (33,320$\times$ vs.\ 4,715$\times$). But it ranked only at the 63rd percentile of the
     random paths, suffered a $-99.7\%$ drawdown, and had a lower Sharpe ratio (0.40) than the market (0.42).
-  \item \textbf{A rule that beats the market.} Hold the \textbf{five FF49 industries with the highest return over
+  \item \textbf{A candidate strategy.} Hold the \textbf{five FF49 industries with the highest return over
     the previous six months}, equally weighted, value-weighted within each industry, rebalanced monthly. Before
     costs, it beat the VW market in 8 of 9 decades and in 78.5\% of all rolling 10-year windows since 1927 (82.7\%
     after 1995).
 \end{itemize}
 All results are before transaction costs. Win rates across historical windows are frequencies on a single
-history, not probabilities.
+history; they do not establish a probability of beating the market in a future decade.
 
 %======================================================================================================
 \section{Simulated multi-period returns (Table 1)}
@@ -308,11 +308,11 @@ restricting the baseline accordingly would raise its exact mean wealth by under 
     574\%--811\% a year, so trading costs would matter.
 \end{itemize}
 
-\subsection{A rule that beats the value-weighted market over ten years}
+\subsection{Candidate strategies and historical ten-year win rates}
 
-We seek a rule with at least an even chance of beating the VW market over ten years, before transaction costs. Two
-candidate rules and a pass/fail criterion were specified ex ante, before the analyses of Sections~\ref{sec:random} and~\ref{sec:momentum}, and
-were not tuned.
+The bonus asks for a strategy with at least an even chance of beating the VW market over ten years, before
+transaction costs. We compare two candidate rules using historical ten-year win frequencies. We treat this
+comparison as exploratory and the screening criterion as a retrospective assessment.
 \begin{itemize}
   \item \textbf{(a) Equal weight:} hold every eligible FF49 industry equally, value-weighted within each industry,
     rebalanced monthly. This is the expected outcome of random FF49 VW selection.
@@ -321,13 +321,13 @@ were not tuned.
     each industry. Holding five industries rather than one diversifies away the single-industry risk documented in
     Section~\ref{sec:momentum}, and value weighting limits the influence of tiny firms.
 \end{itemize}
-The rules are evaluated from January 1927 to August 2026. \textbf{Criterion:} a rule passes if it beats the VW
+The rules are evaluated from January 1927 to August 2026. \textbf{Historical screen:} a rule passes if it beats the VW
 market in at least 50\% of the paper's nine decades \emph{and} of the 249 rolling 10-year windows that lie entirely
 within January 1996 to August 2026. Because Sections~\ref{sec:random} and~\ref{sec:momentum} use data through 2016,
 this holdout is a retrospective validation. Adjacent rolling windows share 119 months, and the holdout contains only
 three non-overlapping decades, so its 249 windows are not independent confirmations. January 2017 to August 2026
 (116 months, with no complete 10-year window) lies outside the earlier samples. It is reported separately as a
-post-2016 evaluation of the prespecified candidates, not as an independent test of the final choice: those months
+post-2016 evaluation of the candidates. It is not an independent test of the final choice: those months
 also enter the screen and the comparison between the two rules.
 
 \begin{table}[!htbp]
@@ -354,8 +354,8 @@ also enter the screen and the comparison between the two rules.
   \label{fig:rules}
 \end{figure}
 
-\textbf{Recommended rule: (b).} Both rules pass the criterion (Table~\ref{tab:screen}), but (b) wins at least as
-often as (a) on every measure:
+\textbf{Suggested candidate: (b).} Both rules pass the historical screen (Table~\ref{tab:screen}); (b) has a win
+frequency at least as high as (a) on every reported measure:
 \begin{itemize}
   \item 8 of 9 decades, 206 of 249 holdout windows, and 845 of all 1,077 rolling 10-year windows since 1927
     (78.5\%);
@@ -364,8 +364,9 @@ often as (a) on every measure:
     ratio (0.72 vs.\ 0.81).
 \end{itemize}
 Rule (a), by contrast, has lost every rolling window ending since March 2019. Two caveats apply. Rule (b)'s 78.5\%
-is a historical frequency on overlapping windows of one history, not an established probability that it beats the
-market over the next decade. And its turnover of about 455\% a year is 23 times rule (a)'s, so trading costs, which
+is a historical frequency on overlapping windows of one history. It supports considering the rule as a candidate,
+but does not establish a probability of at least 50\% of beating the market over the next decade. Its turnover of
+about 455\% a year is 23 times rule (a)'s, so trading costs, which
 are not modeled here, would reduce its edge.
 
 %======================================================================================================
@@ -375,9 +376,8 @@ the current, revised CRSP data (CIZ format), not the FIZ-era data the paper used
 not measured. Industries are not stocks, and FF12 is not a GICS sector scheme. Pooling across windows and dropping
 the partial year 1926 are our choices; the paper documents neither. The industry simulations use a single seed.
 
-\textbf{Code and data.} All computations are in \texttt{hw2\_analysis.ipynb}, using the tested modules in
-\texttt{src/}. \texttt{report/make\_tables.py} and \texttt{report/make\_figures.py} rebuild these tables and figures
-from \texttt{output/} and check them against it.
+\textbf{Code and data.} Setup, tests and rebuild commands are in \texttt{README.md}.\\
+Analysis: \texttt{hw2\_analysis.ipynb}. Table and figure builders: \texttt{report/}.
 
 \textbf{References.}
 {\footnotesize

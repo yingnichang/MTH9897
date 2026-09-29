@@ -1,4 +1,4 @@
-"""Download, cache and parse the Ken French data library files used for Table 4 (Plan.md, Step 7).
+"""Download, cache and parse the Ken French data library files used for Table 4 (notebook Step 7).
 
 Download and cache
 ------------------
@@ -362,7 +362,7 @@ def load_all(paths: dict[str, Path] | None = None) -> tuple[dict[str, Industries
 
 
 def formation_eligibility(firms: pd.DataFrame) -> pd.DataFrame:
-    """Eligible industries per month under the Plan.md reconstruction assumption.
+    """Eligible industries per month under the July-count reconstruction assumption.
 
     An industry is eligible in month t when its firm count is positive in the July that starts
     t's formation year: July of the same year for July to December, of the previous year for
