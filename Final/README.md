@@ -15,3 +15,13 @@ the results a replication. The notebook contains the preparation checklist.
 `build_notebook.py` rebuilds the unexecuted notebook; do not run it over your edited
 notebook without preserving your changes. Outputs go to `output/demo/` or
 `output/crsp/` according to the selected mode.
+
+## Presentation
+
+The [14-slide PowerPoint](presentation/conservative_formula_presentation.pptx)
+accompanies this draft and includes speaker notes and editable charts. All
+numerical results remain clearly labeled as synthetic demonstrations.
+
+The [presentation folder](presentation/) contains the generator source, data
+snapshot, speaker notes, and rebuild instructions. Generation uses the
+Codex-bundled presentation runtime documented in that folder.

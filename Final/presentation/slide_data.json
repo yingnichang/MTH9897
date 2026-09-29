@@ -1,0 +1,310 @@
+{
+  "manifest": {
+    "mode": "demo",
+    "label": "SYNTHETIC DEMO \u2014 NOT EMPIRICAL EVIDENCE",
+    "seed": 9897,
+    "universe_cap": 1000,
+    "holdings": 100,
+    "cost_bps": 10,
+    "first_return": "2003-01-31",
+    "last_return": "2025-12-31",
+    "payout_definition": "Trailing 12m cash dividend yield + 1 - shares / trailing 24m mean shares",
+    "status": "Demonstration only",
+    "python": "3.12.14",
+    "numpy": "2.5.3",
+    "pandas": "3.0.1"
+  },
+  "performance": {
+    "Conservative": {
+      "Months": 276.0,
+      "CAGR": 0.056571972344346966,
+      "Ann. volatility": 0.1360841846097776,
+      "Sharpe": 0.34053035111616964,
+      "Max drawdown": -0.3827813282634823,
+      "Positive months": 0.5507246376811594,
+      "Ann. one-way turnover": 1.5659581056080585
+    },
+    "No momentum": {
+      "Months": 276.0,
+      "CAGR": 0.05253757304740203,
+      "Ann. volatility": 0.13476886609348762,
+      "Sharpe": 0.31414718330285607,
+      "Max drawdown": -0.40075475250560955,
+      "Positive months": 0.5398550724637681,
+      "Ann. one-way turnover": 1.1686866417747368
+    },
+    "No payout": {
+      "Months": 276.0,
+      "CAGR": 0.057733986841946194,
+      "Ann. volatility": 0.13450836645922523,
+      "Sharpe": 0.3511242032508175,
+      "Max drawdown": -0.34872961682563997,
+      "Positive months": 0.5579710144927537,
+      "Ann. one-way turnover": 1.7750095196857893
+    },
+    "No low-vol screen": {
+      "Months": 276.0,
+      "CAGR": 0.055739873195156164,
+      "Ann. volatility": 0.14460796782101334,
+      "Sharpe": 0.32335182946099933,
+      "Max drawdown": -0.38736095203261456,
+      "Positive months": 0.5471014492753623,
+      "Ann. one-way turnover": 1.8379070859178102
+    },
+    "Low volatility only": {
+      "Months": 276.0,
+      "CAGR": 0.04910496074600168,
+      "Ann. volatility": 0.09988655323721107,
+      "Sharpe": 0.3502685821803546,
+      "Max drawdown": -0.28219419930819867,
+      "Positive months": 0.5579710144927537,
+      "Ann. one-way turnover": 0.4364152261483323
+    },
+    "Universe equal weight": {
+      "Months": 276.0,
+      "CAGR": 0.060271572437480936,
+      "Ann. volatility": 0.14075478700103444,
+      "Sharpe": 0.3587930374088668,
+      "Max drawdown": -0.3884051008767532,
+      "Positive months": 0.5398550724637681,
+      "Ann. one-way turnover": 0.1994166682488674
+    },
+    "Universe cap weight": {
+      "Months": 276.0,
+      "CAGR": 0.06862915083555277,
+      "Ann. volatility": 0.14411646091957384,
+      "Sharpe": 0.4085104260516685,
+      "Max drawdown": -0.3934295806486581,
+      "Positive months": 0.5434782608695652,
+      "Ann. one-way turnover": 0.03543767208968399
+    },
+    "Market": {
+      "Months": 276.0,
+      "CAGR": 0.04750568082015438,
+      "Ann. volatility": 0.14162154029685708,
+      "Sharpe": 0.2715941307372731,
+      "Max drawdown": -0.41057660450881006,
+      "Positive months": 0.5434782608695652,
+      "Ann. one-way turnover": null
+    }
+  },
+  "costs": [
+    {
+      "bps per dollar traded": 0.0,
+      "Ann. cost approximation": 0.0,
+      "Months": 276.0,
+      "CAGR": 0.05988756887268876,
+      "Ann. volatility": 0.13628881458296802,
+      "Sharpe": 0.3633019973835009,
+      "Max drawdown": -0.37642331385570327,
+      "Positive months": 0.5507246376811594
+    },
+    {
+      "bps per dollar traded": 10.0,
+      "Ann. cost approximation": 0.003131916211216117,
+      "Months": 276.0,
+      "CAGR": 0.056571972344346966,
+      "Ann. volatility": 0.1360841846097776,
+      "Sharpe": 0.34053035111616964,
+      "Max drawdown": -0.3827813282634823,
+      "Positive months": 0.5507246376811594
+    },
+    {
+      "bps per dollar traded": 25.0,
+      "Ann. cost approximation": 0.007829790528040292,
+      "Months": 276.0,
+      "CAGR": 0.05161311817962777,
+      "Ann. volatility": 0.13580038448431347,
+      "Sharpe": 0.30619199080826875,
+      "Max drawdown": -0.3934347461303712,
+      "Positive months": 0.5471014492753623
+    },
+    {
+      "bps per dollar traded": 50.0,
+      "Ann. cost approximation": 0.015659581056080583,
+      "Months": 276.0,
+      "CAGR": 0.04338703574471814,
+      "Ann. volatility": 0.1353895245330606,
+      "Sharpe": 0.2485272159170798,
+      "Max drawdown": -0.41526757819254767,
+      "Positive months": 0.5434782608695652
+    }
+  ],
+  "annual_wealth": [
+    {
+      "year": "2002",
+      "Conservative": 1.0,
+      "Low volatility only": 1.0,
+      "Universe equal weight": 1.0,
+      "Market": 1.0
+    },
+    {
+      "year": "2003",
+      "Conservative": 1.0581492881632744,
+      "Low volatility only": 1.0703967544447668,
+      "Universe equal weight": 1.0877830969483537,
+      "Market": 1.0704274395537388
+    },
+    {
+      "year": "2004",
+      "Conservative": 0.9754860380968753,
+      "Low volatility only": 1.018504117951981,
+      "Universe equal weight": 1.0075938619903595,
+      "Market": 0.9833388318209325
+    },
+    {
+      "year": "2005",
+      "Conservative": 0.8137405874101297,
+      "Low volatility only": 0.8793827940833354,
+      "Universe equal weight": 0.8050720204043982,
+      "Market": 0.7790071295834924
+    },
+    {
+      "year": "2006",
+      "Conservative": 0.7696689524399813,
+      "Low volatility only": 0.8640302628216446,
+      "Universe equal weight": 0.7819677924693839,
+      "Market": 0.7491588070880953
+    },
+    {
+      "year": "2007",
+      "Conservative": 0.6966507157562437,
+      "Low volatility only": 0.8250871792806314,
+      "Universe equal weight": 0.71814657257799,
+      "Market": 0.6834469618111128
+    },
+    {
+      "year": "2008",
+      "Conservative": 0.8795147413055038,
+      "Low volatility only": 1.0023697831361993,
+      "Universe equal weight": 0.9462059653377122,
+      "Market": 0.8932028340127124
+    },
+    {
+      "year": "2009",
+      "Conservative": 0.9729342626528219,
+      "Low volatility only": 1.0882683658874217,
+      "Universe equal weight": 1.0553301507300612,
+      "Market": 0.9779613387846401
+    },
+    {
+      "year": "2010",
+      "Conservative": 1.6805390563534166,
+      "Low volatility only": 1.5925116937966817,
+      "Universe equal weight": 1.7634321698071609,
+      "Market": 1.6163472564460035
+    },
+    {
+      "year": "2011",
+      "Conservative": 1.974658273525107,
+      "Low volatility only": 1.7710999083638943,
+      "Universe equal weight": 2.031813876986662,
+      "Market": 1.845038056445245
+    },
+    {
+      "year": "2012",
+      "Conservative": 2.318657895226762,
+      "Low volatility only": 1.9515079262013053,
+      "Universe equal weight": 2.3610164332174053,
+      "Market": 2.117374159460518
+    },
+    {
+      "year": "2013",
+      "Conservative": 2.1155365648151023,
+      "Low volatility only": 1.8213078534476073,
+      "Universe equal weight": 2.1319539061764203,
+      "Market": 1.892810251746716
+    },
+    {
+      "year": "2014",
+      "Conservative": 2.3856389785746646,
+      "Low volatility only": 1.9819096591416887,
+      "Universe equal weight": 2.403367076615056,
+      "Market": 2.1007311666922197
+    },
+    {
+      "year": "2015",
+      "Conservative": 2.333010146822532,
+      "Low volatility only": 1.9948875226058196,
+      "Universe equal weight": 2.374688956880138,
+      "Market": 2.0556740945389618
+    },
+    {
+      "year": "2016",
+      "Conservative": 2.116884653087596,
+      "Low volatility only": 1.9064252771389074,
+      "Universe equal weight": 2.1637341577036864,
+      "Market": 1.872803111102627
+    },
+    {
+      "year": "2017",
+      "Conservative": 2.3247327302462053,
+      "Low volatility only": 2.1061187813806614,
+      "Universe equal weight": 2.4350056524968378,
+      "Market": 2.0803438370341842
+    },
+    {
+      "year": "2018",
+      "Conservative": 2.328821483136086,
+      "Low volatility only": 2.155531631613172,
+      "Universe equal weight": 2.469454339489894,
+      "Market": 2.0469646432779744
+    },
+    {
+      "year": "2019",
+      "Conservative": 2.8476824661311917,
+      "Low volatility only": 2.4839698193439443,
+      "Universe equal weight": 3.058135317716743,
+      "Market": 2.500491270219311
+    },
+    {
+      "year": "2020",
+      "Conservative": 2.6188216195326204,
+      "Low volatility only": 2.3550012926173927,
+      "Universe equal weight": 2.801310196192151,
+      "Market": 2.260673768323056
+    },
+    {
+      "year": "2021",
+      "Conservative": 2.660540507174984,
+      "Low volatility only": 2.373992270247693,
+      "Universe equal weight": 2.890365041512415,
+      "Market": 2.271943204676167
+    },
+    {
+      "year": "2022",
+      "Conservative": 3.2151773408036046,
+      "Low volatility only": 2.782567452952132,
+      "Universe equal weight": 3.4940471993148714,
+      "Market": 2.7083454079234426
+    },
+    {
+      "year": "2023",
+      "Conservative": 3.505900151763797,
+      "Low volatility only": 2.905293557166455,
+      "Universe equal weight": 3.71233442641897,
+      "Market": 2.8406564887900982
+    },
+    {
+      "year": "2024",
+      "Conservative": 3.3473154210485943,
+      "Low volatility only": 2.8267778693684344,
+      "Universe equal weight": 3.5504572224873256,
+      "Market": 2.6952181111566547
+    },
+    {
+      "year": "2025",
+      "Conservative": 3.545512147501602,
+      "Low volatility only": 3.011865918857719,
+      "Universe equal weight": 3.8423215015684407,
+      "Market": 2.9080167173103852
+    }
+  ],
+  "source_sha256": {
+    "synthetic_demo_cost_sensitivity.csv": "e36f7d74c2135bd7b9f3b7b71fbe03f0f9a49498ebf36f3a7f2f942da43f1335",
+    "synthetic_demo_formation_audit.csv": "2845c59efb98b769aa986d2ed94a4e19b8755f1de8a1cb24eef1ead4c2d69ee8",
+    "synthetic_demo_monthly_returns.csv": "db47296d869eeb1d3d726cb4f8d46a35bb3bc4af98778310e8f8dbd4eb268ee0",
+    "synthetic_demo_performance.csv": "3ac475840822b4187c91d0fada472d28520d5d6e46b4d105a2fbb38a83016a64",
+    "synthetic_demo_subperiods.csv": "0f21baba6c13fb7f71494a295afc6e23fc9e157193cfd5bb30ffb7b476968d90"
+  }
+}

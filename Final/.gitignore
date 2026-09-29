@@ -5,3 +5,7 @@ __pycache__/
 .matplotlib/
 output/
 data/*.csv
+presentation/build/
+presentation/rebuilt/
+presentation/.slide-validation/
+presentation/*.inspect.ndjson
