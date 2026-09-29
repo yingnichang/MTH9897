@@ -1,8 +1,25 @@
 # Conservative Formula presentation
 
-`conservative_formula_presentation.pptx` is the 14-slide presentation accompanying
-the first-draft notebook. Charts and tables are editable. Presenter notes appear
-inside the deck and in `speaker_notes.md`.
+`conservative_formula_presentation.pdf` is the 14-slide presentation accompanying
+the first-draft notebook. The PowerPoint file is the editable source. Presenter
+notes appear inside that source and in `speaker_notes.md`.
+
+## Regenerate the PDF
+
+`export_pdf.mjs` renders each PowerPoint slide at 2560 × 1440 pixels, then calls
+`images_to_pdf.py` to create a PDF with one 16:9 landscape page per slide.
+This preserves the visual layout. PDF text and charts are flattened images.
+Speaker notes remain in the separate Markdown file.
+
+Set `ARTIFACT_TOOL_MODULE` as described below and `RUNTIME_PYTHON` to Python with
+`reportlab` and `pypdf` installed, then run:
+
+```sh
+node export_pdf.mjs
+```
+
+Optional positional arguments specify a different input PPTX and output PDF.
+Intermediate images go to the ignored `build/pdf-pages/` directory.
 
 **All displayed numerical results use synthetic demonstration data.** This is a
 presentation of the current draft, not a completed CRSP replication. Replace the

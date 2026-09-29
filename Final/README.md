@@ -18,8 +18,8 @@ notebook without preserving your changes. Outputs go to `output/demo/` or
 
 ## Presentation
 
-The [14-slide PowerPoint](presentation/conservative_formula_presentation.pptx)
-accompanies this draft and includes speaker notes and editable charts. All
+The [14-slide PDF](presentation/conservative_formula_presentation.pdf)
+accompanies this draft. The folder also includes speaker notes and editable PowerPoint source. All
 numerical results remain clearly labeled as synthetic demonstrations.
 
 The [presentation folder](presentation/) contains the generator source, data
