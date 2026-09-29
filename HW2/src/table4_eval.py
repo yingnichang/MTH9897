@@ -1,4 +1,4 @@
-"""Common evaluator for Table 4 strategies and the exact benchmark for random selection (notebook Step 8).
+"""Common evaluator for Table 4 strategies and the exact benchmark for random selection.
 
 A strategy is a table of monthly simple returns indexed by month: a Series for one path (a
 deterministic rule), or a DataFrame with one column per path (the random strategies). Over a

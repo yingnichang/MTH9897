@@ -1,13 +1,13 @@
 design,statistic,rows,rows changed,largest absolute change
-Step 2 design (non-overlapping blocks),mean,30,21,5.654624045670076e-06
-Step 2 design (non-overlapping blocks),sd,30,21,1.4594502122378117e-06
-Step 2 design (non-overlapping blocks),skew,30,21,1.8491521810659606e-05
-Step 2 design (non-overlapping blocks),median,30,0,0.0
-Step 2 design (non-overlapping blocks),pct_positive,30,0,0.0
-Step 2 design (non-overlapping blocks),p99,30,0,0.0
-Step 4 design (first 180 and 240 months),mean,20,17,3.700001835760247e-05
-Step 4 design (first 180 and 240 months),sd,20,17,2.362349420081955e-06
-Step 4 design (first 180 and 240 months),skew,20,17,1.1013805305992719e-05
-Step 4 design (first 180 and 240 months),median,20,0,0.0
-Step 4 design (first 180 and 240 months),pct_positive,20,0,0.0
-Step 4 design (first 180 and 240 months),p99,20,0,0.0
+Monthly returns (non-overlapping blocks),mean,30,21,5.654624045670076e-06
+Monthly returns (non-overlapping blocks),sd,30,21,1.4594502122378117e-06
+Monthly returns (non-overlapping blocks),skew,30,21,1.8491521810659606e-05
+Monthly returns (non-overlapping blocks),median,30,0,0.0
+Monthly returns (non-overlapping blocks),pct_positive,30,0,0.0
+Monthly returns (non-overlapping blocks),p99,30,0,0.0
+Longer horizons (first 180 and 240 months),mean,20,17,3.700001835760247e-05
+Longer horizons (first 180 and 240 months),sd,20,17,2.362349420081955e-06
+Longer horizons (first 180 and 240 months),skew,20,17,1.1013805305992719e-05
+Longer horizons (first 180 and 240 months),median,20,0,0.0
+Longer horizons (first 180 and 240 months),pct_positive,20,0,0.0
+Longer horizons (first 180 and 240 months),p99,20,0,0.0

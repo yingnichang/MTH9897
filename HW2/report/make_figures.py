@@ -27,7 +27,7 @@ from ff_data import formation_eligibility, load_all, verify_cache  # noqa: E402
 from table4_eval import full_period, window_wealth  # noqa: E402
 from table4_strategies import random_selections, selected_returns  # noqa: E402
 
-# Palette and anatomy follow the notebook (validated with the dataviz skill's validator on a white surface).
+# Use the same palette as the notebook.
 INK, INK_2, MUTED, GRID, BASE, SURFACE = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#ffffff"
 HORIZON_COLORS = {1: "#86b6ef", 5: "#5598e7", 10: "#2a78d6", 15: "#1c5cab", 20: "#104281"}
 SLOTS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]

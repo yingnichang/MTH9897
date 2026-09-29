@@ -1,6 +1,6 @@
-"""Table 4 strategies on industry portfolios (notebook Steps 9-11).
+"""Table 4 strategies on industry portfolios.
 
-Step 9 (Task 2.1), random industry selection: each month, one industry is drawn uniformly from
+Random industry selection (Task 2.1): each month, one industry is drawn uniformly from
 that month's eligible set, independently across months and paths. The draws are generated once
 per universe as an explicit (paths x months) array of column positions, and the same array is
 applied to equal- and value-weighted returns, which share one eligible universe. The algorithm is
@@ -13,7 +13,7 @@ fixed so a seed reproduces every draw:
 A selection is never dropped or redrawn using holding-month information: an ineligible selection
 or a selected industry without a return raises.
 
-Step 10 (Task 2.2), momentum: each month t, hold the industry with the highest compounded return
+Momentum (Task 2.2): each month t, hold the industry with the highest compounded return
 over months t-3 to t-1, among industries that are formation-eligible in month t and have all
 three lookback returns. Ties go to the lowest position in the declared column order. The score
 never uses month t, so a holding-month return cannot affect that month's selection.

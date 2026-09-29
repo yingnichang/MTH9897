@@ -5,7 +5,7 @@
   "first holding month": "1926-10",
   "sample end": "2016-12",
   "weighting": "ranking and holding use the same returns (EW or VW)",
-  "random comparison": "Step 9 selections (seed 0) sliced from October 1926; wealth reset to 1 per window",
+  "random comparison": "Random industry selections (seed 0) sliced from October 1926; wealth reset to 1 per window",
   "selection_sha256_july_start": {
     "ff49": "9664ee21225a88dd4ca869bf3ea14d6418e20916655e417e245f78824ff55b94",
     "ff12": "297e62b9235f6d9d86fc808ef0f055cfebee25bc4ad20f444551e7f5a817ab1a"

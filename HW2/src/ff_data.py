@@ -1,4 +1,4 @@
-"""Download, cache and parse the Ken French data library files used for Table 4 (notebook Step 7).
+"""Download, cache and parse the Ken French data library files used for Table 4.
 
 Download and cache
 ------------------

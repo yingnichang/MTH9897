@@ -1,4 +1,4 @@
-"""Audit of the pinned August 2026 Ken French snapshot against the expected data facts (notebook Step 7).
+"""Audit of the pinned August 2026 Ken French snapshot against the expected data facts.
 
 ff_data.py validates structure and parses any well-formed file. This module checks facts about
 one specific release, so it is meant to fail when a refresh changes them. Before the pin is
