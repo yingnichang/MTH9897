@@ -16,6 +16,15 @@ the results a replication. The notebook contains the preparation checklist.
 notebook without preserving your changes. Outputs go to `output/demo/` or
 `output/crsp/` according to the selected mode.
 
+## Reference-paper review
+
+The [paper-alignment review](PAPER_ALIGNMENT_REVIEW.md) compares this draft
+with the March 2018 reference paper and the Project 8 requirements. It documents
+the supported share-count payout method, needed universe-selection changes,
+missing paper comparisons, and the priorities for a real CRSP replication.
+These are review findings and proposed revisions; the notebook remains the
+original synthetic first draft.
+
 ## Presentation
 
 The [22-slide PDF](presentation/conservative_formula_presentation.pdf)
