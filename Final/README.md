@@ -18,7 +18,7 @@ notebook without preserving your changes. Outputs go to `output/demo/` or
 
 ## Reference-paper review
 
-The [paper-alignment review](../Final_Paper_Alignment_Review.md) compares this draft
+The [paper-alignment review](PAPER_ALIGNMENT_REVIEW.md) compares this draft
 with the March 2018 reference paper and the Project 8 requirements. It documents
 the supported share-count payout method, needed universe-selection changes,
 missing paper comparisons, and the priorities for a real CRSP replication.
