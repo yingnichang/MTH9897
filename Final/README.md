@@ -107,6 +107,15 @@ license terms apply.
 3. Add expected-calendar and initial-formation checks to the backtest (critique item 7). Then
    run 1929–2016 for comparison with the paper, before extending to 2024.
 
+## Reference-paper review
+
+The [paper-alignment review](PAPER_ALIGNMENT_REVIEW.md) compares this draft
+with the March 2018 reference paper and the Project 8 requirements. It documents
+the supported share-count payout method, needed universe-selection changes,
+missing paper comparisons, and the priorities for a real CRSP replication.
+These are review findings and proposed revisions; the notebook remains the
+original synthetic first draft.
+
 ## Presentation
 
 The [22-slide PDF](presentation/conservative_formula_presentation.pdf) accompanies the first
