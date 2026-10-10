@@ -35,5 +35,10 @@ DELIST_ACTIVE_CODE = 100
 # below -tol are treated as unknown distributions and counted.
 DIV_NEGATIVE_TOL = 1e-6
 
+# Missing returns of held stocks (DATA-002, DATA-010). A missing-return month with a CRSP price earns
+# the price ratio to the last positive price if that price is at most this many calendar months
+# earlier (one holding quarter); otherwise it is carried at the stale price (0).
+PRICE_RATIO_MAX_LOOKBACK_MONTHS = 3
+
 UNIVERSE_SIZE = 1000
 HISTORY_MONTHS = 36

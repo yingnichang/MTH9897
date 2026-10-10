@@ -16,6 +16,13 @@ Conventions (each is audited in `audit.py`):
   shares, a nonterminal row, and being the largest common-stock class of its PERMCO that month.
 * `hist36` marks 36 calendar-consecutive non-missing total returns ending this month, the
   paper's history requirement (paper p. 4) that must be applied before the capitalization cut.
+* `ret_hold` is the holding return for the backtest (stale-price carry, DATA-002 and DATA-010). It
+  equals `ret_total` where observed (`ret_hold_source = crsp`, every exit row included). A non-exit
+  row with a missing return after the PERMNO's first row earns the price-only ratio to its last
+  positive price when CRSP reports a positive price this month and the last one is at most
+  `PRICE_RATIO_MAX_LOOKBACK_MONTHS` earlier (`price_ratio`; distributions in the gap are unknown);
+  otherwise 0 (`stale_carry`: held at the last price). A first row without a return stays NaN
+  (`no_prior_row`). `ret_total`, `hist36` and the signals keep the NaN, so a gap still breaks every window.
 """
 from __future__ import annotations
 
@@ -112,6 +119,35 @@ def consecutive(panel: pd.DataFrame, valid: pd.Series, k: int) -> pd.Series:
     return valid & span_ok & (run - lag_run).eq(k)
 
 
+HOLD_SOURCES = ("crsp", "price_ratio", "stale_carry", "no_prior_row")
+
+
+def add_holding_returns(panel: pd.DataFrame) -> pd.DataFrame:
+    """Add `ret_hold` and `ret_hold_source` without touching any existing column.
+
+    Requires `panel` sorted by permno, date.
+    """
+    out = panel.copy()
+    g = out["permno"]
+    observed = out["ret_total"].notna()
+    first = ~g.duplicated()
+    missing = ~observed & ~out["is_exit"].fillna(False).astype(bool) & ~first
+
+    # Last positive price strictly before this row, and how many calendar months back it is.
+    priced = out["price_adj"].gt(0)
+    m = month_index(out["date"])
+    last_price = out["price_adj"].where(priced).groupby(g).ffill().groupby(g).shift(1)
+    last_month = m.where(priced).groupby(g).ffill().groupby(g).shift(1)
+    ratio = missing & priced & (m - last_month).le(config.PRICE_RATIO_MAX_LOOKBACK_MONTHS)
+    stale = missing & ~ratio
+
+    out["ret_hold"] = out["ret_total"].where(observed, np.nan)
+    out.loc[ratio, "ret_hold"] = out.loc[ratio, "price_adj"] / last_price[ratio] - 1
+    out.loc[stale, "ret_hold"] = 0.0
+    out["ret_hold_source"] = np.select([observed, ratio, stale], list(HOLD_SOURCES[:3]), HOLD_SOURCES[3])
+    return out
+
+
 def build_panel(raw: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, pd.DataFrame]:
     msf = raw["msf"].copy()
     msf = attach_names(msf, raw["msenames"])
@@ -155,9 +191,10 @@ def build_panel(raw: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, pd.DataFram
 
     panel["hist36"] = consecutive(panel, panel["ret_total"].notna(), config.HISTORY_MONTHS)
     panel["ff12"] = ff12(panel["siccd"])
+    panel = add_holding_returns(panel)
 
     keep = ["date", "permno", "permco", "ticker", "comnam", "shrcd", "exchcd", "siccd", "ff12",
-            "ret_total", "ret_price", "price_adj", "div_cash_adj", "shares_adj", "mktcap",
+            "ret_total", "ret_price", "ret_hold", "ret_hold_source", "price_adj", "div_cash_adj", "shares_adj", "mktcap",
             "mktcap_company", "eligible", "is_exit", "hist36", "primary_class", "exclusion",
             "ret", "retx", "prc", "shrout", "cfacpr", "cfacshr", "vol",
             "dlstcd", "dlret", "delist_source", "appended_delist_row", "delist_ret_without_monthly",

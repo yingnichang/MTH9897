@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from . import audit, config
-from .normalize import build_benchmark, build_panel
+from .normalize import HOLD_SOURCES, build_benchmark, build_panel
 from .provenance import code_version, sha256
 
 RAW_TABLES = ["msf", "msenames", "msedelist", "msedist", "msi", "ff_factors"]
@@ -46,6 +46,22 @@ def validate_panel(panel: pd.DataFrame) -> None:
         raise AssertionError("Terminal row without a total return")
     if panel.groupby(["permco", "date"])["eligible"].sum().gt(1).any():
         raise AssertionError("More than one eligible share class per company-month")
+    # Holding returns (DATA-002): ret_total where observed, stale carry otherwise, never a silent fill.
+    src = panel["ret_hold_source"]
+    if not src.isin(HOLD_SOURCES).all():
+        raise AssertionError(f"Unknown ret_hold_source values {sorted(set(src) - set(HOLD_SOURCES))}")
+    observed = panel["ret_total"].notna()
+    if panel.loc[observed, "ret_hold"].ne(panel.loc[observed, "ret_total"]).any():
+        raise AssertionError("ret_hold differs from ret_total where the total return is observed")
+    if not panel["ret_hold"].isna().eq(src.eq("no_prior_row")).all():
+        raise AssertionError("ret_hold is NaN outside no_prior_row (or no_prior_row has a value)")
+    if (src.eq("stale_carry") & panel["is_exit"]).any():
+        raise AssertionError("stale_carry on a terminal row")
+    ratio = src.eq("price_ratio")
+    if (ratio & (observed | panel["is_exit"])).any():
+        raise AssertionError("price_ratio on a row with an observed return or a terminal flag")
+    if (ratio & ~panel["price_adj"].gt(0)).any():
+        raise AssertionError("price_ratio without a positive price")
 
 
 def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DATA,
@@ -77,6 +93,7 @@ def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DAT
         "dividend_reconciliation": audit.dividend_reconciliation(panel, raw["msedist"]),
         "benchmark_check": audit.benchmark_check(bench, factors),
         "worked_examples": audit.worked_examples(panel, delist_log),
+        "missing_returns": audit.missing_returns(panel),
     }
     for name, t in tables.items():
         t.to_csv(audit_dir / f"{name}.csv", index=name in {"exclusions_by_decade", "missingness_by_decade",
@@ -97,6 +114,10 @@ def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DAT
             "dividends": "implied from ret - retx times lagged adjusted price",
             "one_class_per_permco": "largest market cap common-stock class",
             "history_months": config.HISTORY_MONTHS,
+            "missing_held_returns": ("stale-price carry: ret_hold = 0 after the first row, or the price ratio to the "
+                                     f"last price when CRSP reports a price and the last one is <= "
+                                     f"{config.PRICE_RATIO_MAX_LOOKBACK_MONTHS} months earlier; "
+                                     "resumption keeps CRSP's return"),
         },
         "sample": {
             "panel_rows": len(panel), "securities": int(panel["permno"].nunique()),
@@ -111,6 +132,11 @@ def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DAT
                                                    if cov["universe_n"].ge(config.UNIVERSE_SIZE).any() else None),
             "delist_sources": delist_log["delist_source"].value_counts().to_dict(),
             "delist_rows_after_dropped": int(delist_log["rows_dropped"].sum()),
+            "ret_hold_stale_carry_rows": int(panel["ret_hold_source"].eq("stale_carry").sum()),
+            "ret_hold_no_prior_row_rows": int(panel["ret_hold_source"].eq("no_prior_row").sum()),
+            "ret_hold_price_ratio_rows": int(panel["ret_hold_source"].eq("price_ratio").sum()),
+            "universe_holding_stale_carry_months": int(
+                tables["missing_returns"].set_index("decade").loc["total", "universe_holding_stale_carry"]),
         },
         "outputs": {p.name: sha256(p) for p in [panel_path, bench_path, factors_path]},
         "audits": {f"audit/{n}.csv": sha256(audit_dir / f"{n}.csv") for n in tables},

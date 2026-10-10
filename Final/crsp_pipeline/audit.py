@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
+from .normalize import month_index
 from .signals import build_signals
 
 
@@ -22,6 +23,13 @@ def universe_members(snap: pd.DataFrame, n: int | None = None) -> pd.DataFrame:
     n = config.UNIVERSE_SIZE if n is None else n
     pool = snap.loc[snap["eligible"] & snap["hist36"]]
     return pool.sort_values(["mktcap", "permno"], ascending=[False, True]).head(n)
+
+
+def universe_by_formation(panel: pd.DataFrame) -> pd.DataFrame:
+    """Universe members at every quarter-end formation: columns permno, fdate."""
+    members = [universe_members(snap)[["permno"]].assign(fdate=date)
+               for date, snap in panel.loc[panel["date"].isin(formation_dates(panel))].groupby("date")]
+    return pd.concat(members, ignore_index=True)
 
 
 def formation_coverage(panel: pd.DataFrame) -> pd.DataFrame:
@@ -75,10 +83,7 @@ def delisting_summary(delist_log: pd.DataFrame, panel: pd.DataFrame) -> pd.DataF
         {200: "200 merger", 300: "300 exchange change", 400: "400 liquidation",
          500: "500 dropped (performance and other)", 600: "600 expired", 900: "900 foreign"}).fillna("other")
     # Was the security in the formation universe at the last quarter-end before delisting?
-    members = []
-    for date, snap in panel.loc[panel["date"].isin(formation_dates(panel))].groupby("date"):
-        members.append(universe_members(snap)[["permno"]].assign(fdate=date))
-    members = pd.concat(members, ignore_index=True)
+    members = universe_by_formation(panel)
     last_q = d["date"] - pd.offsets.QuarterEnd(1)
     key = pd.MultiIndex.from_arrays([d["permno"], last_q])
     d["in_universe_prior_quarter"] = key.isin(pd.MultiIndex.from_frame(members[["permno", "fdate"]]))
@@ -125,6 +130,106 @@ def dividend_reconciliation(panel: pd.DataFrame, dist: pd.DataFrame, rel_tol: fl
             row[f"dist_only_{col}"] = (grp["div_cash_adj"].le(1e-6) & grp[col].gt(1e-6)).mean()
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+MISSING_RETURN_SOURCES = ("stale_carry", "price_ratio")
+MAX_SPANNED_GAP = 10   # months; longer gaps restart the CRSP return series (DATA-002 evidence)
+SPAN_TOL = 1e-3
+
+
+def _nan_runs(panel: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """Maximal runs of consecutive rows of one PERMNO with NaN `ret_total`.
+
+    Returns (runs, run_id per panel row; NaN outside runs). `panel` must be sorted by permno, date
+    with a RangeIndex. A run spans the gap when CRSP's resumption price return equals the price
+    ratio across it; it is checkable when both prices exist. A checkable run that does not span is
+    split by whether CRSP shows a price in its last missing-return month (the resumption return then
+    starts from that in-gap price) or not (e.g. a non-ordinary distribution in the gap, which `retx`
+    includes). An empty panel or one without missing returns gives an empty, correctly typed table.
+    """
+    nan = panel["ret_total"].isna().to_numpy()
+    permno = panel["permno"].to_numpy()
+    same_prev = np.r_[False, permno[1:] == permno[:-1]]
+    same_next = np.r_[permno[:-1] == permno[1:], False]
+    start = nan & ~(same_prev & np.r_[False, nan[:-1]])
+    first, last = np.flatnonzero(start), np.flatnonzero(nan & ~(same_next & np.r_[nan[1:], False]))
+    run_id = pd.Series(np.where(nan, np.cumsum(start), np.nan), index=panel.index)
+    runs = pd.DataFrame({"first": first, "last": last, "length": last - first + 1,
+                         "end_month": month_index(panel["date"]).to_numpy()[last]},
+                        index=pd.Index(np.arange(1, len(first) + 1, dtype=float), name="run_id"))
+
+    n = len(panel)
+    before, after = np.clip(first - 1, 0, max(n - 1, 0)), np.clip(last + 1, 0, max(n - 1, 0))
+    has_before = (first > 0) & (permno[before] == permno[first])
+    has_after = (last + 1 < n) & (permno[after] == permno[last])
+    ret_price, price = panel["ret_price"].to_numpy(), panel["price_adj"].to_numpy()
+    runs["resumes_with_valid_return"] = has_after & ~np.isnan(panel["ret_total"].to_numpy()[after])
+    implied = price[after] / price[before] - 1
+    runs["checkable"] = (has_before & has_after & ~np.isnan(implied) & ~np.isnan(ret_price[after])
+                         & (runs["length"].to_numpy() <= MAX_SPANNED_GAP))
+    runs["crsp_spans_gap"] = runs["checkable"] & (np.abs(ret_price[after] - implied) <= SPAN_TOL)
+    nonspanning = runs["checkable"] & ~runs["crsp_spans_gap"]
+    priced_in_gap = np.nan_to_num(price[last], nan=0.0) > 0
+    runs["nonspanning_priced_gap"] = nonspanning & priced_in_gap
+    runs["nonspanning_other"] = nonspanning & ~priced_in_gap
+    return runs, run_id
+
+
+def missing_returns(panel: pd.DataFrame) -> pd.DataFrame:
+    """Missing-return months and the stale-price carry (DATA-002), aggregate counts by decade.
+
+    Whole-panel columns count rows by `ret_hold_source`. `universe_*` columns count holding months
+    t+1..t+3 of universe members at each formation t that have a CRSP row. "Missing-return" holding
+    months are those with source `stale_carry` or `price_ratio` (DATA-010); despite its name,
+    `universe_holding_stale_carry` counts all of them, and `universe_holding_price_ratio` the subset
+    priced from an in-gap CRSP price. `resume_in_quarter` and `straddle_rebalance` split the
+    missing-return holding months by whether the run ends by t+2 (so the resumption return falls in
+    the same holding quarter). `universe_holding_runs` and all `runs_*` columns count runs touching at
+    least one universe missing-return holding month, each in the decade of its first such month.
+    No security-level rows are written.
+    """
+    p = panel.sort_values(["permno", "date"]).reset_index(drop=True)
+    runs, run_id = _nan_runs(p)
+    p["run_id"] = run_id
+
+    members = universe_by_formation(p)
+    held = pd.concat([members.assign(date=members["fdate"] + pd.offsets.MonthEnd(k)) for k in (1, 2, 3)],
+                     ignore_index=True)
+    held = held.merge(p[["permno", "date", "ret_hold_source", "run_id"]], on=["permno", "date"], how="inner")
+    stale = held.loc[held["ret_hold_source"].isin(MISSING_RETURN_SOURCES)].copy()
+    run_end = stale["run_id"].map(runs["end_month"]).astype("int64")
+    stale["in_quarter"] = run_end.le(month_index(stale["fdate"]) + 2).astype(bool)
+
+    first_touch = stale.sort_values("date").drop_duplicates("run_id").set_index("run_id")["date"]
+    touched = runs.loc[first_touch.index].assign(decade=_decade(first_touch))
+
+    def table(rows_p, rows_held, rows_stale, rows_runs):
+        return {
+            "nan_ret_rows": int(rows_p["ret_total"].isna().sum()),
+            "stale_carry_rows": int(rows_p["ret_hold_source"].eq("stale_carry").sum()),
+            "no_prior_row_rows": int(rows_p["ret_hold_source"].eq("no_prior_row").sum()),
+            "price_ratio_rows": int(rows_p["ret_hold_source"].eq("price_ratio").sum()),
+            "universe_holding_months": len(rows_held),
+            "universe_holding_stale_carry": len(rows_stale),
+            "universe_holding_price_ratio": int(rows_stale["ret_hold_source"].eq("price_ratio").sum()),
+            "universe_holding_securities": int(rows_stale["permno"].nunique()),
+            "universe_holding_runs": len(rows_runs),
+            "resume_in_quarter": int(rows_stale["in_quarter"].sum()),
+            "straddle_rebalance": int((~rows_stale["in_quarter"]).sum()),
+            "runs_over_10_months": int(rows_runs["length"].gt(MAX_SPANNED_GAP).sum()),
+            "runs_resuming_with_valid_return": int(rows_runs["resumes_with_valid_return"].sum()),
+            "runs_le_10_crsp_spans_gap": int(rows_runs["crsp_spans_gap"].sum()),
+            "runs_le_10_checkable": int(rows_runs["checkable"].sum()),
+            "runs_le_10_nonspanning_priced_gap": int(rows_runs["nonspanning_priced_gap"].sum()),
+            "runs_le_10_nonspanning_other": int(rows_runs["nonspanning_other"].sum()),
+        }
+
+    dec_p, dec_h, dec_s = _decade(p["date"]), _decade(held["date"]), _decade(stale["date"])
+    out = [{"decade": d, **table(p.loc[dec_p.eq(d)], held.loc[dec_h.eq(d)], stale.loc[dec_s.eq(d)],
+                                 touched.loc[touched["decade"].eq(d)])}
+           for d in sorted(set(dec_p) | set(dec_h))]
+    out.append({"decade": "total", **table(p, held, stale, touched)})
+    return pd.DataFrame(out)
 
 
 def benchmark_check(bench: pd.DataFrame, factors: pd.DataFrame) -> pd.DataFrame:

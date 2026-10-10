@@ -1,16 +1,16 @@
 {
   "code": {
-    "git_commit": "86ca09167f3ba113937772323a69b420a7a4878b",
+    "git_commit": "31042673f14e1511c0d21d9b6360ee64bbfa8224",
     "uncommitted_changes": true,
     "source_sha256": {
       "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
       "crsp_pipeline/__main__.py": "a78128853267b1b06930272163d4c081bcb9d5b943991b8f31b3991202ea821c",
-      "crsp_pipeline/audit.py": "82f7f0a05729e50690322d74cc59f7db261cd6a3fe0b3746a3c887221c6261cf",
-      "crsp_pipeline/build.py": "27c0d22d52fe0b82eda587037b700a6621dba39e41d27ccf64ef596b8b154b7d",
-      "crsp_pipeline/config.py": "58eeecda95a7e9c1782b2e59cbdb2a342b69dc8f4a9825adbef0088d4ac12009",
+      "crsp_pipeline/audit.py": "85a1e744a4f138af2bbe4a24d63403b9e779d681850fc2910d853d9557019f24",
+      "crsp_pipeline/build.py": "9c6f5e53b8e8c4c4006ae1a46f424f9b4152acc69c21b7d33ce165ca3c46e8be",
+      "crsp_pipeline/config.py": "45b7415e08113a75ccae94605b9b9c8c1688564ac4f3c143a126121fbf6556fa",
       "crsp_pipeline/extract.py": "c9039015494845e7c98642e688e289f8f6973e2379afe2311cf604df41aaeafa",
       "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
-      "crsp_pipeline/normalize.py": "d27cedaab9aecd4552f69ffb1b7b6242a93681e764804eed37684d73f4eddded",
+      "crsp_pipeline/normalize.py": "7d9f19b486b5d785e948856462924ded65eacff5d8bfe30ac9fbb31b92577646",
       "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
       "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042"
     },
@@ -84,7 +84,8 @@
     "performance_delist_codes": "500, 520-584",
     "dividends": "implied from ret - retx times lagged adjusted price",
     "one_class_per_permco": "largest market cap common-stock class",
-    "history_months": 36
+    "history_months": 36,
+    "missing_held_returns": "stale-price carry: ret_hold = 0 after the first row, or the price ratio to the last price when CRSP reports a price and the last one is <= 3 months earlier; resumption keeps CRSP's return"
   },
   "sample": {
     "panel_rows": 3954476,
@@ -105,10 +106,14 @@
       "imputed_shumway": 110,
       "missing_set_zero": 27
     },
-    "delist_rows_after_dropped": 0
+    "delist_rows_after_dropped": 0,
+    "ret_hold_stale_carry_rows": 107341,
+    "ret_hold_no_prior_row_rows": 26745,
+    "ret_hold_price_ratio_rows": 175,
+    "universe_holding_stale_carry_months": 447
   },
   "outputs": {
-    "crsp_monthly_normalized.parquet": "612eb869385c5cff3b33ed34df989731a1595849a91cb334b8be5e5da7e7deb1",
+    "crsp_monthly_normalized.parquet": "84e3148292b901400bb33450187b2c22c7fe6f7ce104c4b5d20812e9eb131cdc",
     "benchmark_monthly.csv": "3c6f04909d1d07da22c56be63dc8bcf8535de06d0e4aa63acd1c730ad65bca66",
     "ff_factors_monthly.csv": "af3f48676af2ad588029ea732282c2496ab50fb6fe0804a8dbaf3fcb03444b2b"
   },
@@ -119,6 +124,7 @@
     "audit/delistings.csv": "227367a7a0bf239c101fea4248e65f34f8546e598dea4074020905eed410c4e9",
     "audit/dividend_reconciliation.csv": "24bc8e980e90716b236453466b695613d5590f4d28414f026d1e0cbe95edb596",
     "audit/benchmark_check.csv": "d80e38efa9b2e60fee8ba3fe3070823f3dfe6d3c75755912f73043536c9d477f",
-    "audit/worked_examples.csv": "02863b0ffab705e09e6db9190dc25a0836fb54bb52b5cb8023f5a40fd8e3ce04"
+    "audit/worked_examples.csv": "02863b0ffab705e09e6db9190dc25a0836fb54bb52b5cb8023f5a40fd8e3ce04",
+    "audit/missing_returns.csv": "d52fe14d95353afb76cbad7b3096f90723734b6c65d3d8b9113f9cf9da76f449"
   }
 }
