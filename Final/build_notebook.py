@@ -108,8 +108,8 @@ REAL_START = "1929-01-31"
 DEMO_START = "2003-01-31"
 # Run from this notebook's folder, or from the parent project workspace.
 BASE = Path.cwd()
-if (BASE / "final_project" / "conservative_formula_first_draft.ipynb").exists():
-    BASE = BASE / "final_project"
+if (BASE / "Final" / "conservative_formula_first_draft.ipynb").exists():
+    BASE = BASE / "Final"
 DATA = BASE / "data"
 OUT = BASE / "output" / MODE
 OUT.mkdir(parents=True, exist_ok=True)
@@ -130,7 +130,8 @@ The notebook consumes a **normalized, audited extract**, not an arbitrary raw CR
 embedded here. Request the instructor's CRSP cleaning example, then obtain the monthly stock file, historical security names/type
 information, share and price adjustment factors, cash distributions, terminal-event information, and monthly benchmark returns.
 
-Save `data/crsp_monthly_normalized.csv` with one row per security-month:
+Save `data/crsp_monthly_normalized.parquet` with one row per security-month. The `crsp_pipeline` package
+builds it from WRDS (`python -m crsp_pipeline all --user <wrds_username>`); see README.md.
 
 | Column | Required meaning / units |
 |---|---|
@@ -198,7 +199,7 @@ def make_demo(seed=SEED, n_stocks=1100):
 if MODE == "demo":
     panel, benchmark = make_demo()
 else:
-    panel = pd.read_csv(DATA / "crsp_monthly_normalized.csv")
+    panel = pd.read_parquet(DATA / "crsp_monthly_normalized.parquet")
     benchmark = pd.read_csv(DATA / "benchmark_monthly.csv")
 
 def validate_inputs(panel, benchmark):

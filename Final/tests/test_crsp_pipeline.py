@@ -1,0 +1,271 @@
+"""Deterministic fixtures in raw legacy-CRSP layout. Run from Final/:  python -m pytest tests -q"""
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from crsp_pipeline import audit, config  # noqa: E402
+from crsp_pipeline.build import build, validate_panel  # noqa: E402
+from crsp_pipeline.extract import TABLES, build_query, decade_chunks  # noqa: E402
+from crsp_pipeline.normalize import build_benchmark, build_panel  # noqa: E402
+from crsp_pipeline.signals import build_signals  # noqa: E402
+
+N = 60
+TRADE_DATES = pd.date_range("2000-01-01", periods=N, freq="BME")   # CRSP-style last trading days
+MONTHS = TRADE_DATES + pd.offsets.MonthEnd(0)
+SPLIT_AT = 30
+
+
+def _rows(permno, permco, ret, retx, prc, shrout, cfacpr=1.0, cfacshr=1.0, months=None):
+    idx = np.arange(N) if months is None else np.asarray(months)
+    as_arr = lambda v: np.broadcast_to(np.asarray(v, dtype=float), (N,))[idx]
+    return pd.DataFrame({"permno": permno, "permco": permco, "date": TRADE_DATES[idx],
+                         "ret": as_arr(ret), "retx": as_arr(retx), "prc": as_arr(prc),
+                         "shrout": as_arr(shrout), "cfacpr": as_arr(cfacpr),
+                         "cfacshr": as_arr(cfacshr), "vol": 1.0})
+
+
+def make_raw():
+    t = np.arange(N)
+    # 101: quarterly payer with a 2-for-1 split in month 30. Adjusted (current) basis is post-split.
+    p_adj = 100 * 1.01 ** t
+    cf = np.where(t < SPLIT_AT, 2.0, 1.0)
+    d_adj = np.where((t + 1) % 3 == 0, 0.25, 0.0)
+    ret_101 = 0.01 + d_adj / np.r_[np.nan, p_adj[:-1]]
+    ret_101[0] = 0.01 + d_adj[0] / (100 / 1.01)
+    msf = [_rows(101, 1, ret_101, 0.01, p_adj * cf, 2000 / cf, cf, cf)]
+    # 102: non-payer issuing 1% more shares per month; retx missing in month 20.
+    retx_102 = np.full(N, 0.02); retx_102[20] = np.nan
+    msf.append(_rows(102, 2, 0.02, retx_102, 50 * 1.02 ** t, 500 * 1.01 ** t))
+    # 103: NASDAQ, last monthly row month 40, delisted next month, missing dlret, code 552.
+    msf.append(_rows(103, 3, -0.02, -0.02, 20.0, 100, months=range(41)))
+    # 104: NYSE merger in month 45 with dlret 0.10; a spurious row in month 46.
+    msf.append(_rows(104, 4, 0.05, 0.05, 30.0, 300, months=range(47)))
+    # 105/106: two classes of one company; 105 is larger.
+    msf.append(_rows(105, 5, 0.01, 0.01, 40.0, 1000))
+    msf.append(_rows(106, 5, 0.01, 0.01, 40.0, 100))
+    # 107: share code 12; 108: exchange 4.
+    msf.append(_rows(107, 7, 0.01, 0.01, 10.0, 100))
+    msf.append(_rows(108, 8, 0.01, 0.01, 10.0, 100))
+    # 109: industry change in July 2002; missing monthly row 10.
+    msf.append(_rows(109, 9, 0.015, 0.015, 25.0, 200, months=[m for m in range(N) if m != 10]))
+    # 110: name history starts January 2001.
+    msf.append(_rows(110, 10, 0.01, 0.01, 15.0, 100))
+    msf = pd.concat(msf, ignore_index=True)
+
+    def name(permno, start, end, shrcd=11, exchcd=1, siccd=2000, ticker="X", permco=None):
+        return {"permno": permno, "permco": permco or permno, "namedt": pd.Timestamp(start),
+                "nameendt": pd.Timestamp(end), "shrcd": shrcd, "exchcd": exchcd, "siccd": siccd,
+                "ticker": ticker, "comnam": f"CO {permno}", "shrcls": None}
+    names = pd.DataFrame([
+        name(101, "1999-01-01", "2024-12-31", ticker="PAY", siccd=3570, permco=1),
+        name(102, "1999-01-01", "2024-12-31", ticker="ISS", permco=2),
+        name(103, "1999-01-01", "2003-06-30", exchcd=3, permco=3),
+        name(104, "1999-01-01", "2004-01-31", permco=4),
+        name(105, "1999-01-01", "2024-12-31", ticker="CLA", permco=5),
+        name(106, "1999-01-01", "2024-12-31", ticker="CLB", permco=5),
+        name(107, "1999-01-01", "2024-12-31", shrcd=12, permco=7),
+        name(108, "1999-01-01", "2024-12-31", exchcd=4, permco=8),
+        name(109, "1999-01-01", "2002-06-30", siccd=2834, permco=9),
+        name(109, "2002-07-01", "2024-12-31", siccd=7372, permco=9),
+        name(110, "2001-01-01", "2024-12-31", permco=10),
+    ])
+    delist = pd.DataFrame({
+        "permno": [103, 104, 101], "dlstdt": pd.to_datetime(["2003-06-15", "2003-10-20", "2025-01-01"]),
+        "dlstcd": [552, 233, 100], "dlret": [np.nan, 0.10, np.nan], "dlretx": [np.nan, 0.10, np.nan],
+        "dlprc": np.nan, "nwperm": 0})
+    q = (t + 1) % 3 == 0
+    dist = pd.DataFrame({"permno": 101, "distcd": 1232, "divamt": (d_adj * cf)[q],
+                         "facpr": 0.0, "facshr": 0.0, "exdt": TRADE_DATES[q] - pd.Timedelta(days=5),
+                         "dclrdt": pd.NaT, "rcrddt": pd.NaT, "paydt": pd.NaT})
+    split = pd.DataFrame({"permno": [101], "distcd": [5523], "divamt": [0.0], "facpr": [1.0], "facshr": [1.0],
+                          "exdt": [TRADE_DATES[SPLIT_AT] - pd.Timedelta(days=3)],
+                          "dclrdt": pd.NaT, "rcrddt": pd.NaT, "paydt": pd.NaT})
+    msi = pd.DataFrame({"date": TRADE_DATES, "vwretd": 0.01, "vwretx": 0.008, "ewretd": 0.012,
+                        "totval": 1e6, "totcnt": 10})
+    ff = pd.DataFrame({"dateff": MONTHS, "mktrf": 0.009, "smb": 0.0, "hml": 0.0, "rf": 0.001, "umd": 0.0})
+    return {"msf": msf, "msenames": names, "msedelist": delist,
+            "msedist": pd.concat([dist, split], ignore_index=True), "msi": msi, "ff_factors": ff}
+
+
+@pytest.fixture(scope="module")
+def built():
+    raw = make_raw()
+    panel, log = build_panel(raw)
+    return raw, panel, log
+
+
+def rows(panel, permno):
+    return panel.loc[panel["permno"].eq(permno)].sort_values("date").reset_index(drop=True)
+
+
+def test_month_end_dates_and_contract(built):
+    _, panel, _ = built
+    assert panel["date"].dt.is_month_end.all()
+    validate_panel(panel)
+
+
+def test_split_is_not_issuance_and_dividends_survive_split(built):
+    _, panel, _ = built
+    s = rows(panel, 101)
+    assert np.allclose(s["shares_adj"], 2000)
+    assert np.allclose(s["price_adj"].pct_change().iloc[1:], 0.01)
+    expected = np.where((np.arange(N) + 1) % 3 == 0, 0.25, 0.0)
+    assert np.isnan(s["div_cash_adj"].iloc[0])           # no prior month: unknown, not zero
+    assert np.allclose(s["div_cash_adj"].iloc[1:], expected[1:])
+    sig = build_signals(panel).query("permno == 101").reset_index(drop=True)
+    assert np.allclose(sig["net_issuance"].dropna(), 0)
+    assert np.allclose(sig["div_yield"].iloc[-1], 1.0 / s["price_adj"].iloc[-1])
+
+
+def test_confirmed_zero_versus_unknown_dividends(built):
+    _, panel, _ = built
+    s = rows(panel, 102)
+    assert s.loc[20, "div_cash_adj"] != s.loc[20, "div_cash_adj"]        # NaN when retx missing
+    assert (s.loc[s.index.difference([0, 20]), "div_cash_adj"] == 0).all()
+    sig = build_signals(panel).query("permno == 102").reset_index(drop=True)
+    ni = sig["net_issuance"].iloc[-1]
+    assert np.isclose(ni, 1 / np.mean(1.01 ** -np.arange(24)) - 1)      # positive issuance lowers NPY
+    assert sig["npy"].iloc[-1] < 0
+
+
+def test_missing_delisting_return_appended_and_imputed(built):
+    _, panel, log = built
+    s = rows(panel, 103)
+    last = s.iloc[-1]
+    assert len(s) == 42 and last["is_exit"] and not last["eligible"]
+    assert last["date"] == pd.Timestamp("2003-06-30")
+    assert np.isclose(last["ret_total"], config.DELIST_IMPUTE_NASDAQ)
+    assert last["delist_source"] == "imputed_shumway"
+    assert log.set_index("permno").loc[103, "placement"] == "appended_month"
+
+
+def test_same_month_delisting_compounded_once_and_later_rows_dropped(built):
+    _, panel, log = built
+    s = rows(panel, 104)
+    assert s["date"].max() == pd.Timestamp("2003-10-31") and s["is_exit"].sum() == 1
+    assert np.isclose(s.iloc[-1]["ret_total"], 1.05 * 1.10 - 1)
+    assert np.isclose(s.iloc[-2]["ret_total"], 0.05)
+    assert log.set_index("permno").loc[104, "rows_dropped"] == 1
+
+
+def test_active_code_is_not_an_exit(built):
+    _, panel, _ = built
+    assert not rows(panel, 101)["is_exit"].any()
+
+
+def test_one_eligible_class_per_company(built):
+    _, panel, _ = built
+    a, b = rows(panel, 105), rows(panel, 106)
+    assert a["eligible"].all() and not b["eligible"].any()
+    assert (b["exclusion"] == "secondary_share_class").all()
+    assert np.allclose(a["mktcap_company"], 40 * 1100 / 1e3)
+
+
+def test_exclusion_reasons(built):
+    _, panel, _ = built
+    assert (rows(panel, 107)["exclusion"] == "share_code").all()
+    assert (rows(panel, 108)["exclusion"] == "exchange").all()
+    s = rows(panel, 110)
+    assert (s.loc[s["date"] < "2001-01-01", "exclusion"] == "no_name_record").all()
+    assert s.loc[s["date"] >= "2001-01-31", "eligible"].all()
+
+
+def test_point_in_time_industry_and_history_gap(built):
+    _, panel, _ = built
+    s = rows(panel, 109).set_index("date")
+    assert s.loc["2002-06-30", "ff12"] == "Hlth" and s.loc["2002-07-31", "ff12"] == "BusEq"
+    # Gap at month 10 (November 2000): the first full 36-month window ends 36 rows later.
+    hist = s["hist36"]
+    assert not hist.loc[:"2003-10-31"].any() and hist.loc["2003-11-30"]
+    assert np.isnan(s.loc["2000-12-31", "div_cash_adj"])
+
+
+def test_history_screen_precedes_capitalization_cut(built, monkeypatch):
+    _, panel, _ = built
+    monkeypatch.setattr(config, "UNIVERSE_SIZE", 2)
+    cov = audit.formation_coverage(panel).set_index("date")
+    row = cov.loc["2003-06-30"]
+    # 109 lacks 36 consecutive months after its gap; only stocks with full history qualify.
+    assert row["universe_n"] == 2
+    snap = panel.loc[panel["date"].eq("2003-06-30")]
+    assert audit.universe_members(snap, 2)["hist36"].all()
+
+
+def notebook_build_signals(p):
+    """Reference copy of the notebook's Section 4 loop implementation."""
+    parts = []
+    for sid, raw in p.groupby("permno", sort=False):
+        g = raw.set_index("date").sort_index()
+        g = g.reindex(pd.date_range(g.index.min(), g.index.max(), freq="ME"))
+        g.index.name = "date"
+        g["permno"] = sid
+        g["vol36"] = g.ret_total.rolling(36, min_periods=36).std(ddof=1) * np.sqrt(12)
+        g["momentum"] = (1 + g.ret_price).shift(1).rolling(11, min_periods=11).apply(np.prod, raw=True) - 1
+        g["div_yield"] = g.div_cash_adj.rolling(12, min_periods=12).sum() / g.price_adj
+        g["net_issuance"] = g.shares_adj / g.shares_adj.rolling(24, min_periods=24).mean() - 1
+        g["npy"] = g.div_yield - g.net_issuance
+        parts.append(g.reset_index())
+    return pd.concat(parts, ignore_index=True)
+
+
+def test_vectorized_signals_match_notebook_definitions(built):
+    _, panel, _ = built
+    cols = ["vol36", "momentum", "div_yield", "net_issuance", "npy"]
+    fast = build_signals(panel).set_index(["permno", "date"])[cols]
+    ref = notebook_build_signals(panel[["date", "permno", "ret_total", "ret_price", "div_cash_adj",
+                                        "price_adj", "shares_adj"]]).set_index(["permno", "date"])[cols]
+    ref = ref.reindex(fast.index)
+    pd.testing.assert_frame_equal(fast, ref, check_exact=False, rtol=1e-9, atol=1e-12)
+    assert fast.notna().sum().min() > 0
+
+
+def test_dividend_reconciliation_agrees_with_distribution_file(built):
+    raw, panel, _ = built
+    rec = audit.dividend_reconciliation(panel, raw["msedist"])
+    assert (rec["agree_ordinary_cash"] == 1).all()
+    paying = rec["n_with_distribution_ordinary_cash"] > 0
+    assert paying.any() and (rec.loc[paying, "agree_ordinary_cash_given_distribution"] == 1).all()
+
+
+def test_benchmark_coverage_is_enforced():
+    raw = make_raw()
+    bench, _ = build_benchmark(raw["msi"], raw["ff_factors"], "2000-01-31", "2004-12-31")
+    assert len(bench) == N and np.allclose(bench["market_ret"], 0.01)
+    with pytest.raises(ValueError, match="does not cover"):
+        build_benchmark(raw["msi"].iloc[1:], raw["ff_factors"], "2000-01-31", "2004-12-31")
+    with pytest.raises(ValueError, match="does not cover"):
+        build_benchmark(raw["msi"], raw["ff_factors"], "2000-01-31", "2005-03-31")
+    pct = raw["ff_factors"].assign(rf=0.1, mktrf=0.9 * 100)
+    with pytest.raises(ValueError, match="percentages"):
+        build_benchmark(raw["msi"], pct, "2000-01-31", "2004-12-31")
+
+
+def test_end_to_end_build_writes_outputs_and_manifest(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "BENCHMARK_START", "2000-01-31")
+    res = build(make_raw(), out_dir=tmp_path, end="2004-12-31")
+    for f in ["crsp_monthly_normalized.parquet", "benchmark_monthly.csv", "ff_factors_monthly.csv",
+              "manifest.json", "audit/formation_coverage.csv", "audit/worked_examples.csv"]:
+        assert (tmp_path / f).exists(), f
+    man = json.loads((tmp_path / "manifest.json").read_text())
+    assert man["extract"] is None and man["sample"]["terminal_rows"] == 2
+    assert "crsp_pipeline/normalize.py" in man["code"]["source_sha256"]
+    assert man["code"]["packages"]["pandas"] == pd.__version__
+    back = pd.read_parquet(tmp_path / "crsp_monthly_normalized.parquet")
+    pd.testing.assert_frame_equal(back, res["panel"])
+
+
+def test_extract_queries_name_every_required_field():
+    for name, (_, _, cols, _, _) in TABLES.items():
+        sql = build_query(name, "crsp")
+        assert all(c in sql for c in cols)
+        assert "{lib}" not in sql
+    assert "shrcd in (10, 11)" in build_query("msf", "crsp")
+    chunks = list(decade_chunks("1925-12-31", "2024-12-31"))
+    assert chunks[0] == ("1925-12-31", "1929-12-31") and chunks[-1] == ("2020-01-01", "2024-12-31")
+    assert all(pd.Timestamp(b) + pd.Timedelta(days=1) == pd.Timestamp(a2)
+               for (_, b), (a2, _) in zip(chunks, chunks[1:]))

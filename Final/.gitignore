@@ -9,3 +9,19 @@ presentation/build/
 presentation/rebuilt/
 presentation/.slide-validation/
 presentation/*.inspect.ndjson
+data/raw/
+data/*.parquet
+.pytest_cache/
+
+# Agent context: local only, never committed
+CLAUDE.md
+AGENTS.md
+.claude/
+docs/
+memory/
+skills/
+experiments/
+tests/test_workspace.py
+
+# Security-level CRSP fields (licensed): local only
+data/audit/worked_examples.csv
