@@ -41,4 +41,5 @@ DIV_NEGATIVE_TOL = 1e-6
 PRICE_RATIO_MAX_LOOKBACK_MONTHS = 3
 
 UNIVERSE_SIZE = 1000
+HOLDINGS = 100                  # Conservative portfolio size (paper p. 4)
 HISTORY_MONTHS = 36

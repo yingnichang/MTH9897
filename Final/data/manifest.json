@@ -1,16 +1,16 @@
 {
   "code": {
-    "git_commit": "31042673f14e1511c0d21d9b6360ee64bbfa8224",
+    "git_commit": "574c92b43efb6891524c2fc9a5e70f2d8e21d248",
     "uncommitted_changes": true,
     "source_sha256": {
       "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
-      "crsp_pipeline/__main__.py": "a78128853267b1b06930272163d4c081bcb9d5b943991b8f31b3991202ea821c",
+      "crsp_pipeline/__main__.py": "ec44dab290ce4211b19b7418e558eb2ac2c5e6744f40b2bcc35b84dac2e79359",
       "crsp_pipeline/audit.py": "85a1e744a4f138af2bbe4a24d63403b9e779d681850fc2910d853d9557019f24",
-      "crsp_pipeline/build.py": "9c6f5e53b8e8c4c4006ae1a46f424f9b4152acc69c21b7d33ce165ca3c46e8be",
-      "crsp_pipeline/config.py": "45b7415e08113a75ccae94605b9b9c8c1688564ac4f3c143a126121fbf6556fa",
-      "crsp_pipeline/extract.py": "c9039015494845e7c98642e688e289f8f6973e2379afe2311cf604df41aaeafa",
+      "crsp_pipeline/build.py": "08977adf7e072c16ff88caadadd3ecc7a0035522a8d28f50120b970558ecaf37",
+      "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+      "crsp_pipeline/extract.py": "9b2f15cad4b0c84cf72d07a753821dd360e1bf2a27e4f80b57976aa16566d8d8",
       "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
-      "crsp_pipeline/normalize.py": "7d9f19b486b5d785e948856462924ded65eacff5d8bfe30ac9fbb31b92577646",
+      "crsp_pipeline/normalize.py": "ce68e13ef2ad579676ecaa1e668ef4e5df7a90c3d324844f2c3a75674991391f",
       "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
       "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042"
     },
@@ -65,6 +65,13 @@
         "rows": 1182,
         "file": "ff_factors.parquet",
         "sha256": "24b3e00dc199d80aeb172f05ceb46f5c78e045ca1ad55c7aa6389803f9aac7f4"
+      },
+      "ff5_factors": {
+        "sql": "select dateff, mktrf, smb, hml, rmw, cma, rf from ff.fivefactors_monthly where dateff between %(start)s and %(end)s",
+        "rows": 738,
+        "file": "ff5_factors.parquet",
+        "sha256": "4cb6cce17a0f79f328cf6d2a946e9cca3968e75be770c6edfda371873600caac",
+        "extracted_at_utc": "2026-10-10T17:05:02+00:00"
       }
     },
     "msf_max_date": "2024-12-31"
@@ -112,10 +119,29 @@
     "ret_hold_price_ratio_rows": 175,
     "universe_holding_stale_carry_months": 447
   },
+  "ff5_check": {
+    "first_ff5_month": "1963-07-31",
+    "last_ff5_month": "2024-12-31",
+    "overlap_months": 738,
+    "mktrf_max_abs_diff": 0.0007999999999999952,
+    "rf_max_abs_diff": 0.0,
+    "mktrf_rf_agree_1e-6": false,
+    "smb_corr_ff3_ff5": 0.981153451494949,
+    "hml_corr_ff3_ff5": 1.0
+  },
+  "raw_inputs": {
+    "raw/msf.parquet": "112b3871d0e49a29aca990ea5d8558c8ac8914d2623d5cb2c207135babad2760",
+    "raw/msenames.parquet": "c4740356db90f8c42ab51c0f811bd95dd8fd166094cefb5379ec40e07cfd2bcf",
+    "raw/msedelist.parquet": "cf63395ed493b00c9d74a8a5b5a3eb4afd7a8feec2dafd89c4de5311e3e43044",
+    "raw/msedist.parquet": "9bb598eba4ff923b618a926418f56b2a86d52a7a7d63a93471cf296f0c912a4f",
+    "raw/msi.parquet": "1f2ddec2f5b7521938a93176d1f89293259a4ccf69e611aee2e3ce3c5d2bce50",
+    "raw/ff_factors.parquet": "24b3e00dc199d80aeb172f05ceb46f5c78e045ca1ad55c7aa6389803f9aac7f4",
+    "raw/ff5_factors.parquet": "4cb6cce17a0f79f328cf6d2a946e9cca3968e75be770c6edfda371873600caac"
+  },
   "outputs": {
     "crsp_monthly_normalized.parquet": "84e3148292b901400bb33450187b2c22c7fe6f7ce104c4b5d20812e9eb131cdc",
     "benchmark_monthly.csv": "3c6f04909d1d07da22c56be63dc8bcf8535de06d0e4aa63acd1c730ad65bca66",
-    "ff_factors_monthly.csv": "af3f48676af2ad588029ea732282c2496ab50fb6fe0804a8dbaf3fcb03444b2b"
+    "ff_factors_monthly.csv": "3b70bfbd1a689c39cf975f64c5e02c831f2a0b6834fec8c6d7e9a34172b4535b"
   },
   "audits": {
     "audit/formation_coverage.csv": "617841ed74f8e7cae9bf82e0ba146ca2f21ea37beaeddd69b7284d0b3ffe3aa1",

@@ -33,9 +33,11 @@ open until the historical equity data and signal definitions have been audited.
 
 ### How to run
 Use Python 3.10+ with `numpy`, `pandas`, `matplotlib`, and `ipython` in a Jupyter environment.
-Run **Kernel → Restart Kernel and Run All Cells**. The default `MODE = "demo"` needs no credentials or downloads.
+Run **Kernel → Restart Kernel and Run All Cells**. The default demo mode needs no credentials or downloads.
 It generates its own data and saves clearly named outputs under `output/demo/`.
-For real research, follow Section 3, supply both CSVs, and set `MODE = "crsp"`; missing real files cause an error, never a silent demo fallback.
+For real research, follow Section 3 to build the CRSP inputs and start the kernel with the environment variable `CF_MODE=crsp`
+(optionally `CF_END=YYYY-MM-DD` for the last return month; the default is December 2016, the end of the paper's sample).
+Missing real files cause an error, never a silent demo fallback.
 ''')
 
 md(r'''
@@ -67,16 +69,17 @@ The demo instead uses 2000–2025 artificial observations and starts investing i
 
 | Component | First-draft convention |
 |---|---|
-| Universe | Point-in-time eligible US common stocks; largest 1,000 by month-end market cap before checking signal completeness |
-| Historical shortfall | If fewer than 1,000 eligible stocks exist, use those available and report counts; never use today's constituents |
+| Universe | Point-in-time eligible US common stocks with 36 consecutive monthly returns; the largest 1,000 of these by month-end market cap |
+| Historical shortfall | If fewer than 1,000 such stocks exist (before mid-1964), use all of them and report counts; never use today's constituents |
 | Volatility | Sample standard deviation of 36 consecutive monthly total returns, annualized by √12 |
 | Momentum | 11 compounded monthly price returns, excluding the most recent formation month |
 | Dividend yield | Trailing 12-month split-adjusted cash dividends / current split-adjusted price |
 | Net issuance proxy | Current split-adjusted shares / their trailing 24-month mean − 1 |
 | Net payout proxy | Dividend yield minus the net issuance proxy; larger means more payouts / fewer new shares |
-| Selection | Lower-volatility half of complete cases; average ascending-quality ranks on momentum and payout; keep best 100 |
+| Selection | Lower-volatility half of the universe; within it, average ranks on momentum and payout among stocks with both signals; keep best 100 |
 | Rebalancing | Signals at March/June/September/December end; first earned return is the following month |
 | Between rebalances | Weights drift with total returns; dividends are reinvested in the paying stock |
+| Missing monthly returns | A held stock without a CRSP return keeps its last price (zero return), or earns the ratio to an observed price within three months; the next CRSP return applies when trading resumes |
 | Terminal events | Audited terminal return is earned; remaining proceeds become cash until next rebalance |
 | Execution | Idealized quarter-end marks; no within-day execution model; trading costs studied separately |
 
@@ -94,33 +97,40 @@ would require a subsequent tradable price. Full-window eligibility and share-cla
 code('''
 from pathlib import Path
 import json
+import os
 import platform
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from IPython.display import display, Markdown
 
-MODE = "demo"                       # "demo" or "crsp"
-SEED = 9897
-N_UNIVERSE, N_HOLDINGS = 1000, 100
-COST_BPS = 10                       # per dollar bought OR sold, scenario assumption
-REAL_START = "1929-01-31"
-DEMO_START = "2003-01-31"
 # Run from this notebook's folder, or from the parent project workspace.
 BASE = Path.cwd()
 if (BASE / "Final" / "conservative_formula_first_draft.ipynb").exists():
     BASE = BASE / "Final"
+sys.path.insert(0, str(BASE))
+from crsp_pipeline import config    # sample dates and portfolio sizes shared with the data pipeline
+from research import engine         # selection, validation and backtest accounting
+
+MODE = os.environ.get("CF_MODE", "demo")      # "demo" (default) or "crsp"
+assert MODE in {"demo", "crsp"}, f"CF_MODE must be demo or crsp, got {MODE!r}"
+SEED = 9897
+N_UNIVERSE, N_HOLDINGS = config.UNIVERSE_SIZE, config.HOLDINGS
+COST_BPS = 10                       # per dollar bought OR sold, scenario assumption
+REAL_START = config.FIRST_INVESTMENT
+DEMO_START = "2003-01-31"
+CRSP_END = os.environ.get("CF_END", config.PAPER_END)    # last return month in CRSP mode
 DATA = BASE / "data"
 OUT = BASE / "output" / MODE
 OUT.mkdir(parents=True, exist_ok=True)
-assert MODE in {"demo", "crsp"}
 LABEL = "SYNTHETIC DEMO — NOT EMPIRICAL EVIDENCE" if MODE == "demo" else "CRSP — DRAFT CONVENTIONS"
 START = pd.Timestamp(DEMO_START if MODE == "demo" else REAL_START)
 plt.rcParams.update({"figure.figsize": (11, 5), "axes.spines.top": False,
                      "axes.spines.right": False, "axes.grid": True, "grid.alpha": .18,
                      "font.size": 10, "figure.dpi": 110})
 pd.set_option("display.max_columns", 12)
-display(Markdown(f"**Active data mode: {LABEL}**"))
+display(Markdown(f"**Active data mode: {LABEL}** (set with the `CF_MODE` environment variable)"))
 print({"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__})
 ''')
 
@@ -144,6 +154,8 @@ builds it from WRDS (`python -m crsp_pipeline all --user <wrds_username>`); see 
 | `mktcap` | Observed security market cap in consistent currency units, normally abs(raw price) × raw shares |
 | `eligible` | 1 if eligible for new positions at that date, otherwise 0; historical common-stock / exchange screens applied upstream |
 | `is_exit` | 1 for an audited terminal observation after which proceeds become cash, otherwise 0 |
+| `hist36` | 1 if the security has 36 calendar-consecutive non-missing total returns ending this month |
+| `ret_hold`, `ret_hold_source` | Holding-period return used by the backtest and its source: `crsp` (equals `ret_total`), `price_ratio`, `stale_carry`, or `no_prior_row` (missing) |
 
 Save `data/benchmark_monthly.csv` with `date`, `market_ret`, `rf`. Both return columns are monthly **decimal returns**,
 not annual yields or percentage units. Prefer the CRSP value-weighted US market including dividends and a documented one-month
@@ -160,104 +172,41 @@ Treasury return series. An S&P 500 price index is not an equivalent benchmark.
 - Reconcile legacy versus CIZ returns before any delisting merge. CIZ changes monthly return calculations and delisting conventions;
   do not mechanically append legacy delisting adjustments to an already adjusted series.
   See [CRSP's CIZ differences guide](https://www.crsp.org/wp-content/uploads/guides/CRSP_US_Stock_%26_Indexes_Databases_Summary_of_CIZ_Differences_to_Legacy_Files.pdf).
-- Investigate unresolved terminal values; the engine stops on missing returns of a held stock. It never silently replaces them with 0.
-- Keep extract date, source tables, filters, units, and field mapping in `data/data_provenance.md`. CRSP licenses may constrain sharing;
-  use the course-approved submission channel for the required data.
+- Missing monthly returns of a held stock follow a disclosed stale-price convention rather than a silent fill. In a month
+  without a CRSP return, the position keeps its last price (`stale_carry`, zero return), or earns the price ratio to its
+  last price when CRSP reports a price in that month and the last price is at most three months old (`price_ratio`).
+  When trading resumes, CRSP's return covers the gap, so a gap that ends within the holding quarter reproduces
+  buy-and-hold. A gap that spans a rebalance loses the price change during the gap, and the position is traded at its
+  last value; this affects 208 universe holding months in CRSP. Total returns, the history screen and all signals keep
+  the missing value, and every case is counted in the audit tables. A held stock without any holding return stops the engine.
+- The pipeline records the extract date, source tables and queries, row counts, conventions, code version, and file hashes
+  in `data/manifest.json`, and writes the coverage, exclusion, missingness, missing-return, delisting, dividend and
+  benchmark audits to `data/audit/`. CRSP licenses may constrain sharing; use the course-approved submission channel for
+  the required data.
 
 This adapter remains a data-preparation task for the empirical version. No live WRDS SQL is presented as tested or guaranteed.
 ''')
 
 code('''
-def make_demo(seed=SEED, n_stocks=1100):
-    """Synthetic fixed-universe panel; deliberately NOT calibrated to reproduce the paper."""
-    rng = np.random.default_rng(seed)
-    dates = pd.date_range("2000-01-31", "2025-12-31", freq="ME")
-    nt = len(dates)
-    market = rng.normal(.005, .04, nt)
-    rf = np.full(nt, .0015)
-    beta = rng.uniform(.5, 1.5, n_stocks)
-    residual_vol = rng.uniform(.02, .10, n_stocks)
-    ret = np.clip(.001 + market[:, None] * beta +
-                  rng.normal(size=(nt, n_stocks)) * residual_vol, -.85, 1.5)
-    div_rate = rng.uniform(0, .004, n_stocks)
-    price_ret = ret - div_rate
-    price = 40 * np.cumprod(1 + price_ret, axis=0)
-    lag_price = np.vstack([np.full(n_stocks, 40.), price[:-1]])
-    div = lag_price * div_rate
-    initial_shares = rng.lognormal(17, 1.0, n_stocks)
-    issuance = rng.normal(0, .004, (nt, n_stocks))
-    shares = initial_shares * np.cumprod(1 + issuance, axis=0)
-    frame = pd.DataFrame({"date": np.repeat(dates, n_stocks),
-        "permno": np.tile(np.arange(10000, 10000+n_stocks), nt),
-        "ret_total": ret.ravel(), "ret_price": price_ret.ravel(),
-        "price_adj": price.ravel(), "div_cash_adj": div.ravel(),
-        "shares_adj": shares.ravel(), "mktcap": (price*shares).ravel(),
-        "eligible": 1, "is_exit": 0})
-    bench = pd.DataFrame({"date": dates, "market_ret": market, "rf": rf})
-    return frame, bench
-
 if MODE == "demo":
-    panel, benchmark = make_demo()
+    panel, benchmark = engine.make_demo(seed=SEED)
 else:
-    panel = pd.read_parquet(DATA / "crsp_monthly_normalized.parquet")
-    benchmark = pd.read_csv(DATA / "benchmark_monthly.csv")
+    panel = pd.read_parquet(config.PANEL_FILE)
+    benchmark = pd.read_csv(config.BENCHMARK_FILE, parse_dates=["date"])
+    # Nothing after the chosen end month enters the analysis.
+    panel = panel.loc[panel.date.le(pd.Timestamp(CRSP_END))].reset_index(drop=True)
+    benchmark = benchmark.loc[benchmark.date.le(pd.Timestamp(CRSP_END))]
 
-def validate_inputs(panel, benchmark):
-    p, b = panel.copy(), benchmark.copy()
-    required = {"date", "permno", "ret_total", "ret_price", "price_adj", "div_cash_adj",
-                "shares_adj", "mktcap", "eligible", "is_exit"}
-    if not required.issubset(p):
-        raise ValueError(f"Missing stock fields: {required-set(p.columns)}")
-    if not {"date", "market_ret", "rf"}.issubset(b):
-        raise ValueError("Benchmark requires date, market_ret, rf")
-    for df in (p, b):
-        df["date"] = pd.to_datetime(df["date"], errors="raise")
-        if df["date"].isna().any() or not df["date"].dt.is_month_end.all():
-            raise ValueError("Dates must be calendar month ends")
-    if p["permno"].isna().any():
-        raise ValueError("Missing security identifier")
-    if p.duplicated(["permno", "date"]).any() or b.duplicated("date").any():
-        raise ValueError("Duplicate security-month or benchmark month")
-    for col in required - {"date", "permno"}:
-        p[col] = pd.to_numeric(p[col], errors="raise")
-        if np.isinf(p[col]).any():
-            raise ValueError(f"Infinite values in {col}")
-    for col in ("eligible", "is_exit"):
-        if not p[col].isin([0, 1]).all():
-            raise ValueError(f"{col} must be explicit 0 or 1")
-        p[col] = p[col].astype(bool)
-    for col in ("ret_total", "ret_price"):
-        if (p[col].dropna() < -1).any():
-            raise ValueError(f"{col} below -100%; check missing-value codes")
-    for col in ("mktcap", "price_adj", "shares_adj"):
-        if (p.loc[p["eligible"] & ~p["is_exit"], col].dropna() <= 0).any():
-            raise ValueError(f"Nonpositive {col} on eligible nonterminal row")
-    if (p["div_cash_adj"].dropna() < 0).any():
-        raise ValueError("Negative dividends require upstream reconciliation")
-    for col in ("market_ret", "rf"):
-        b[col] = pd.to_numeric(b[col], errors="raise")
-        if not np.isfinite(b[col]).all() or (b[col] <= -1).any():
-            raise ValueError(f"Invalid benchmark field {col}")
-    b = b.set_index("date").sort_index()
-    expected = pd.date_range(b.index.min(), b.index.max(), freq="ME")
-    if not expected.equals(b.index):
-        raise ValueError("Benchmark calendar has gaps")
-    p = p.sort_values(["permno", "date"]).reset_index(drop=True)
-    exits = p.loc[p["is_exit"], ["permno", "date"]]
-    if exits["permno"].duplicated().any():
-        raise ValueError("Multiple terminal rows for a security")
-    if not exits.empty:
-        last = p.groupby("permno")["date"].max()
-        if any(row.date != last.loc[row.permno] for row in exits.itertuples()):
-            raise ValueError("Observations after terminal exit need reconciliation")
-    return p, b
-
-panel, benchmark = validate_inputs(panel, benchmark)
+panel, benchmark = engine.validate_inputs(panel, benchmark)
+END = panel.date.max()
+if MODE == "crsp":
+    assert END == pd.Timestamp(CRSP_END), f"Panel ends {END.date()}, before the requested end {CRSP_END}"
 display(Markdown(f"### Input audit — {LABEL}"))
 display(pd.DataFrame({"value": [len(panel), panel.permno.nunique(),
     panel.date.min().date(), panel.date.max().date(), int(panel.is_exit.sum()),
     int(panel.ret_total.isna().sum())]},
     index=["security-month rows", "securities", "first month", "last month", "terminal rows", "missing total returns"]))
+display(panel.ret_hold_source.value_counts().rename("holding-return source (rows)").to_frame())
 display(panel.head())
 ''')
 
@@ -274,28 +223,15 @@ DY_{i,t}=\frac{\sum_{j=0}^{11}D^{adj}_{i,t-j}}{P^{adj}_{i,t}},\qquad
 NPY^{proxy}_{i,t}=DY_{i,t}+1-\frac{S^{adj}_{i,t}}{\frac{1}{24}\sum_{j=0}^{23}S^{adj}_{i,t-j}}.
 \]
 
-Each security is reindexed to a complete monthly calendar before rolling calculations. Thus a missing month invalidates a
-window instead of allowing 36 observations spread over more than 36 months. No future observations are used or backfilled.
+Every window must consist of calendar-consecutive months with no missing input: a missing month invalidates the window
+instead of allowing 36 observations spread over more than 36 months. No future observations are used or backfilled.
 Missing dividends are not turned into zero, and missing shares are not carried forward without audit.
+The signals are computed by the same vectorized function that the data pipeline audits use, and are attached to the
+panel one-to-one on security and month, so every panel field (eligibility, history, holding returns) is kept alongside them.
 ''')
 
 code('''
-def build_signals(p):
-    parts = []
-    for sid, raw in p.groupby("permno", sort=False):
-        g = raw.set_index("date").sort_index()
-        g = g.reindex(pd.date_range(g.index.min(), g.index.max(), freq="ME"))
-        g.index.name = "date"
-        g["permno"] = sid
-        g["vol36"] = g.ret_total.rolling(36, min_periods=36).std(ddof=1) * np.sqrt(12)
-        g["momentum"] = (1 + g.ret_price).shift(1).rolling(11, min_periods=11).apply(np.prod, raw=True)-1
-        g["div_yield"] = g.div_cash_adj.rolling(12, min_periods=12).sum() / g.price_adj
-        g["net_issuance"] = g.shares_adj / g.shares_adj.rolling(24, min_periods=24).mean()-1
-        g["npy"] = g.div_yield - g.net_issuance
-        parts.append(g.reset_index())
-    return pd.concat(parts, ignore_index=True)
-
-signals = build_signals(panel)
+signals = engine.attach_signals(panel)
 display(Markdown(f"### Latest signal snapshot — {LABEL}"))
 display(signals.loc[signals.date.eq(signals.date.max()),
     ["date", "permno", "vol36", "momentum", "div_yield", "net_issuance", "npy"]].head(8).round(4))
@@ -303,12 +239,17 @@ display(signals.loc[signals.date.eq(signals.date.max()),
 
 md(r'''
 ## 5. Portfolio construction and controlled comparisons
-Ranks are calculated within the low-volatility pool for the baseline. Higher momentum and payout get smaller (better) ranks;
-the average rank determines selection. Ties in final scores are broken by the stable security identifier.
+Selection at each quarter-end follows the order described in the paper. The history screen comes first: only eligible stocks
+with 36 consecutive monthly returns qualify, and the universe is the largest 1,000 of them by market capitalization (all of
+them when fewer exist, as before mid-1964). The universe is then split at the volatility median: the low-volatility pool
+consists of the ⌊N/2⌋ members with the lowest 36-month volatility. Only after this partition are missing signals handled:
+momentum and payout are ranked within the pool among members with both signals, and a member missing either cannot be
+selected. Higher momentum and payout get smaller (better) ranks; the average rank determines selection, and ties in final
+scores are broken by the stable security identifier. The engine stops if fewer complete members remain than holdings required.
 
-All signal strategies share the same complete-case universe so that an ablation does not change data availability as well as the
-signal. This makes attribution cleaner but is stricter than necessary for a standalone low-volatility strategy.
-The 1,000-stock cap is applied **before** the complete-case screen, so missing signals do not silently introduce smaller stocks.
+The ablations keep the same universe, pool and complete-signal requirement, so a comparison changes the signal and not the
+data availability. The low-volatility-only portfolio takes the lowest-volatility names of the universe directly. Counts of
+eligible, history-eligible, universe, pool, missing-signal and selected names are recorded at every formation.
 
 | Portfolio | Purpose |
 |---|---|
@@ -325,54 +266,16 @@ Sector constraints are a proposed follow-up, not part of the original baseline o
 ''')
 
 code('''
-STRATEGIES = ["Conservative", "No momentum", "No payout", "No low-vol screen",
-              "Low volatility only", "Universe equal weight", "Universe cap weight"]
-
-def choose_weights(snapshot, name, n_universe=N_UNIVERSE, n_hold=N_HOLDINGS):
-    eligible = snapshot.loc[snapshot.eligible.eq(True) & ~snapshot.is_exit.eq(True) &
-                            snapshot.mktcap.gt(0)].copy()
-    universe = eligible.sort_values(["mktcap", "permno"], ascending=[False, True]).head(n_universe)
-    complete = universe.dropna(subset=["vol36", "momentum", "npy"]).copy()
-    audit = {"universe_n": len(universe), "complete_n": len(complete)}
-    if name.startswith("Universe"):
-        selected = universe.set_index("permno")
-        if selected.empty:
-            raise ValueError("Empty universe")
-        weights = selected.mktcap / selected.mktcap.sum() if name.endswith("cap weight") else pd.Series(1/len(selected), index=selected.index)
-    else:
-        if len(complete) < 2*n_hold:
-            raise ValueError(f"Only {len(complete)} complete cases; need at least {2*n_hold}. Audit history or explicitly revise scope.")
-        ordered = complete.sort_values(["vol36", "permno"])
-        pool = ordered.head(len(ordered)//2).copy()
-        if name == "Low volatility only":
-            selected = ordered.head(n_hold).set_index("permno")
-        else:
-            if name == "No low-vol screen":
-                pool = complete.copy()
-            pool["mom_rank"] = pool.momentum.rank(ascending=False, method="average")
-            pool["npy_rank"] = pool.npy.rank(ascending=False, method="average")
-            pool["score"] = ((pool.mom_rank + pool.npy_rank)/2 if name in {"Conservative", "No low-vol screen"}
-                             else pool.npy_rank if name == "No momentum" else pool.mom_rank)
-            selected = pool.sort_values(["score", "permno"]).head(n_hold).set_index("permno")
-        weights = pd.Series(1/len(selected), index=selected.index)
-    audit["holdings_n"] = len(weights)
-    return weights.astype(float), audit
-
-formation_dates = sorted(d for d in signals.date.unique()
-                        if pd.Timestamp(d).month in {3, 6, 9, 12}
-                        and pd.Timestamp(d) >= START-pd.offsets.MonthEnd(1)
-                        and pd.Timestamp(d) < panel.date.max())
-targets = {s: {} for s in STRATEGIES}
-audits = []
-for date in formation_dates:
-    snapshot = signals.loc[signals.date.eq(date)]
-    for name in STRATEGIES:
-        w, audit = choose_weights(snapshot, name)
-        targets[name][pd.Timestamp(date)] = w
-        audits.append({"formation": date, "strategy": name, **audit})
-audit_table = pd.DataFrame(audits)
-display(Markdown(f"### Formation coverage — {LABEL}"))
-display(audit_table.groupby("strategy")[["universe_n", "complete_n", "holdings_n"]].agg(["min", "max"]))
+STRATEGIES = engine.STRATEGIES
+targets, audit_table = engine.formation_targets(signals, STRATEGIES, start=START, last=END,
+                                                n_universe=N_UNIVERSE, n_hold=N_HOLDINGS)
+count_cols = [c for c in engine.COUNT_FIELDS if c != "eligible_n"]
+display(Markdown(f"### Formation counts by strategy (minimum and maximum) — {LABEL}"))
+display(audit_table.groupby("strategy", sort=False)[count_cols].agg(["min", "max"]).T)
+conservative_counts = audit_table.loc[audit_table.strategy.eq("Conservative")]
+decade = (conservative_counts.formation.dt.year // 10 * 10).astype(str) + "s"
+display(Markdown(f"### Conservative formation counts by decade (mean per formation) — {LABEL}"))
+display(conservative_counts.groupby(decade)[engine.COUNT_FIELDS].mean().round(1))
 ''')
 
 md(r'''
@@ -388,119 +291,51 @@ For total traded stock notional (T_t=\sum_i|w^{target}_{i,t}-w^{pre}_{i,t}|) and
 This is a proportional NAV haircut approximation: target holdings are subsequently scaled to the remaining NAV.
 It does not solve a fully self-financing execution optimization, model market impact, or charge terminal cash settlements as trades.
 Cash earns the supplied monthly risk-free return. Terminal proceeds move to cash after the final return.
-Unexplained missing holding returns raise an exception rather than creating optimistic performance.
+Holdings grow with the holding-period return of Section 3. A held position in a month without a CRSP return keeps its last
+price or earns the observed price ratio, and these position-months are counted; a held position with no holding return at all
+raises an exception rather than creating optimistic performance. At a rebalance during such a gap, the position is traded at
+its last value.
 ''')
 
 code('''
-def backtest(p, bench, target_map, start, cost_bps=0):
-    monthly = {d: g.set_index("permno") for d, g in p.groupby("date", sort=False)}
-    dates = bench.loc[start:p.date.max()].index
-    holdings = pd.Series(dtype=float)
-    cash = 1.0
-    records = []
-    for date in dates:
-        prev = date-pd.offsets.MonthEnd(1)
-        traded = 0.0
-        if prev in target_map:
-            new = target_map[prev]
-            assert new.ge(0).all() and np.isclose(new.sum(), 1)
-            keys = holdings.index.union(new.index)
-            traded = (new.reindex(keys, fill_value=0)-holdings.reindex(keys, fill_value=0)).abs().sum()
-            holdings, cash = new.copy(), 0.0
-        rf = float(bench.loc[date, "rf"])
-        if len(holdings):
-            if date not in monthly:
-                raise ValueError(f"No stock returns for {date}")
-            rows = monthly[date].reindex(holdings.index)
-            if rows.ret_total.isna().any() or rows.is_exit.isna().any():
-                bad = rows.index[rows.ret_total.isna() | rows.is_exit.isna()].tolist()[:8]
-                raise ValueError(f"Missing held-stock return/event at {date}: {bad}; reconcile delistings or gaps")
-            grown = holdings*(1+rows.ret_total)
-            exited = rows.is_exit.astype(bool)
-        else:
-            grown = pd.Series(dtype=float)
-            exited = pd.Series(dtype=bool)
-        gross_factor = float(grown.sum()+cash*(1+rf))
-        if gross_factor <= 0:
-            raise ValueError("Portfolio exhausted")
-        charge = cost_bps/10000*traded
-        if charge >= 1:
-            raise ValueError("Costs exceed NAV")
-        exit_cash = float(grown.loc[exited].sum())
-        cash = (cash*(1+rf)+exit_cash)/gross_factor
-        holdings = grown.loc[~exited]/gross_factor
-        holdings = holdings.loc[holdings > 1e-14]
-        assert np.isclose(holdings.sum()+cash, 1, atol=1e-10)
-        records.append({"date": date, "gross": gross_factor-1,
-                        "net": (1-charge)*gross_factor-1, "traded_notional": traded,
-                        "one_way_turnover": traded/2, "cost_fraction": charge,
-                        "cash_weight": cash, "holdings_n": len(holdings)})
-    return pd.DataFrame(records).set_index("date")
-
-runs = {name: backtest(panel, benchmark, target, START, COST_BPS) for name, target in targets.items()}
+runs = {name: engine.backtest(panel, benchmark, target, START, END, COST_BPS) for name, target in targets.items()}
 returns = pd.DataFrame({name: run.net for name, run in runs.items()})
 returns["Market"] = benchmark.market_ret.reindex(returns.index)
 assert not returns.isna().any().any()
-print(f"{LABEL}: {len(returns)} investment months; costs = {COST_BPS} bps per dollar traded.")
+print(f"{LABEL}: {len(returns)} investment months ({START.date()} to {END.date()}); "
+      f"costs = {COST_BPS} bps per dollar traded.")
+diagnostics = pd.DataFrame({name: {
+    "months": len(run), "first_month": run.index.min().date(), "last_month": run.index.max().date(),
+    "stale_position_months": int(run.stale_held_n.sum()), "stale_carry": int(run.stale_carry_n.sum()),
+    "price_ratio": int(run.price_ratio_n.sum()), "max_stale_weight": run.stale_weight.max(),
+    "all_cash_months": int(run.all_cash.sum()), "min_holdings": int(run.holdings_n.min()),
+    "max_holdings": int(run.holdings_n.max())} for name, run in runs.items()}).T
+display(Markdown(f"### Run diagnostics: calendar, positions without a CRSP return, all-cash months — {LABEL}"))
+display(diagnostics)
 ''')
 
 md(r'''
 ## 7. Accounting and timing checks
 These checks test errors that can materially distort a trading backtest: accidentally using future data, failing to skip the
 latest momentum month, disguising calendar gaps, ignoring portfolio drift, omitting trading costs, or dropping delisted holdings.
+Each check builds a small synthetic example with a hand-computed answer and runs it through the same engine code as the
+analysis above. The calendar checks confirm that a missing benchmark month, a late benchmark start, a missing formation
+target, or a month without stock returns stops the backtest instead of shortening it silently. A second rebalance after
+drift confirms that security-level trades equal the target minus the drifted weights, that traded notional and costs
+reconcile, and that cash from a terminal exit is reinvested at the next rebalance.
 Passing them establishes implementation behavior, not investment merit or exact agreement with the paper.
 ''')
 
 code('''
-# 1. Future input changes must not affect already-formed signals.
-sid = panel.permno.iloc[0]
-small = panel.loc[panel.permno.eq(sid)].copy()
-cut = small.date.iloc[59]
-before = build_signals(small)
-perturbed = small.copy()
-perturbed.loc[perturbed.date.gt(cut), ["ret_total", "ret_price"]] = .70
-after = build_signals(perturbed)
-pd.testing.assert_frame_equal(before.loc[before.date.le(cut)], after.loc[after.date.le(cut)])
+from research import checks
+check_results = pd.DataFrame({"check": [c.__name__.removeprefix("check_").replace("_", " ") for c in checks.ALL_CHECKS],
+                              "what passed": checks.run_all()})
+display(check_results)
 
-# 2. The signal uses exactly the eleven returns preceding the formation month.
-position = 45
-expected_mom = np.prod(1+small.ret_price.iloc[position-11:position])-1
-assert np.isclose(before.momentum.iloc[position], expected_mom)
-
-# 3. A gap breaks a full 36-month volatility window.
-gap = small.drop(small.index[20])
-gapped = build_signals(gap)
-assert pd.isna(gapped.loc[gapped.date.eq(small.date.iloc[40]), "vol36"]).all()
-
-# 4. Hand-computed drift, cost, and terminal settlement example.
-td = pd.date_range("2020-01-31", periods=3, freq="ME")
-toy = pd.DataFrame({"date": [td[0],td[0],td[1],td[1],td[2]],
-    "permno": [1,2,1,2,1], "ret_total": [.10,0.,0.,.20,0.],
-    "is_exit": [False,False,False,True,False]})
-tb = pd.DataFrame({"rf": [0.,0.,0.]}, index=td)
-tw = {pd.Timestamp("2019-12-31"): pd.Series({1:.5,2:.5})}
-check = backtest(toy, tb, tw, td[0], cost_bps=10)
-assert np.isclose(check.gross.iloc[0], .05)
-assert np.isclose(check.gross.iloc[1], (.5/1.05)*.20)
-assert np.isclose(check.net.iloc[0], (1-.001)*1.05-1)
-assert np.isclose(check.cash_weight.iloc[1], .60/1.15)
-assert check.holdings_n.iloc[2] == 1
-assert np.isclose(check.traded_notional.sum(), 1.)
-
-# 5. Missing held returns are rejected instead of treated as zero.
-broken = toy.copy()
-broken.loc[0, "ret_total"] = np.nan
-try:
-    backtest(broken, tb, tw, td[0])
-except ValueError as exc:
-    assert "Missing held-stock" in str(exc)
-else:
-    raise AssertionError("Missing returns were not rejected")
-
-# 6. All targets are long-only and invested; positive costs cannot improve a monthly return.
+# On the actual run: all targets are long-only and fully invested, and positive costs never raise a monthly return.
 assert all(np.isclose(w.sum(), 1) and w.gt(0).all() for ts in targets.values() for w in ts.values())
 assert all((run.net <= run.gross+1e-12).all() for run in runs.values())
-print("PASS: future-data isolation, momentum timing, gap handling, drift, costs, exits, missing-return rejection, target weights.")
+print(f"PASS: {len(check_results)} fixture checks; target weights and cost ordering hold on the {MODE} run.")
 ''')
 
 md(r'''
@@ -583,7 +418,7 @@ Subperiod rows are reported only when at least 12 monthly observations exist, wi
 ''')
 
 code('''
-periods = {"Through 2016": ("1929-01-01", "2016-12-31"),
+periods = {"Through 2016": (REAL_START, config.PAPER_END),
            "Transition 2017–2018": ("2017-01-01", "2018-12-31"),
            "Post-publication 2019+": ("2019-01-01", "2099-12-31")}
 period_rows = []
@@ -609,7 +444,7 @@ The analysis omits taxes, financing, and nonlinear price impact. Since the strat
 code('''
 cost_rows = []
 for bps in [0, 10, 25, 50]:
-    run = backtest(panel, benchmark, targets["Conservative"], START, bps)
+    run = engine.backtest(panel, benchmark, targets["Conservative"], START, END, bps)
     row = performance(run.net, benchmark.rf).to_dict()
     cost_rows.append({"bps per dollar traded": bps,
                       "Ann. cost approximation": run.cost_fraction.mean()*12, **row})
@@ -675,6 +510,7 @@ prefix = "synthetic_demo" if MODE == "demo" else "crsp_draft"
 summary.to_csv(OUT / f"{prefix}_performance.csv")
 returns.to_csv(OUT / f"{prefix}_monthly_returns.csv")
 audit_table.to_csv(OUT / f"{prefix}_formation_audit.csv", index=False)
+diagnostics.to_csv(OUT / f"{prefix}_run_diagnostics.csv", index_label="strategy")
 subperiods.to_csv(OUT / f"{prefix}_subperiods.csv", index=False)
 cost_table.to_csv(OUT / f"{prefix}_cost_sensitivity.csv")
 manifest = {"mode": MODE, "label": LABEL, "seed": SEED if MODE == "demo" else None,

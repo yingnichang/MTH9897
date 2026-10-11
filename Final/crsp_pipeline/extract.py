@@ -45,7 +45,22 @@ TABLES = {
             "date between %(start)s and %(end)s", None),
     "ff_factors": ("ff", "factors_monthly", ["dateff", "mktrf", "smb", "hml", "rf", "umd"],
                    "dateff between %(start)s and %(end)s", None),
+    # Fama-French five factors (RMW, CMA) for the RS-006 robustness alphas; coverage starts 1963-07.
+    "ff5_factors": ("ff", "fivefactors_monthly", ["dateff", "mktrf", "smb", "hml", "rmw", "cma", "rf"],
+                    "dateff between %(start)s and %(end)s", None),
 }
+ALIASES = {"ff5": "ff5_factors", "ff": "ff_factors"}
+
+
+def select_tables(spec: str | None) -> list[str]:
+    """All tables, or a comma-separated subset (names or aliases such as ff5), in TABLES order."""
+    if not spec:
+        return list(TABLES)
+    names = [ALIASES.get(n.strip(), n.strip()) for n in spec.split(",") if n.strip()]
+    unknown = sorted(set(names) - set(TABLES))
+    if unknown:
+        raise ValueError(f"Unknown tables {unknown}; choose from {list(TABLES)} or {list(ALIASES)}")
+    return [n for n in TABLES if n in names]
 
 
 def build_query(name: str, library: str) -> str:
@@ -98,15 +113,22 @@ def decade_chunks(start: str, end: str):
 
 
 def extract(username: str, library: str = "crsp", start: str = config.EXTRACT_START,
-            end: str = config.EXTRACT_END) -> dict:
+            end: str = config.EXTRACT_END, tables: list[str] | None = None) -> dict:
+    """Extract `tables` (default: all). A partial extract updates only those entries of the log."""
     config.RAW.mkdir(parents=True, exist_ok=True)
+    tables = list(TABLES) if tables is None else tables
+    log_path = config.RAW / "extract_log.json"
+    now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    if tables == list(TABLES) or not log_path.exists():
+        log = {"extracted_at_utc": now, "host": HOST, "library": library, "start": start, "end": end, "tables": {}}
+    else:
+        log = json.loads(log_path.read_text(encoding="utf-8"))
     engine = connect(username)
-    log = {"extracted_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-           "host": HOST, "library": library, "start": start, "end": end, "tables": {}}
     with engine.connect() as conn:
-        for name in TABLES:
+        for name in tables:
             check_schema(conn, name, library)
-        for name, spec in TABLES.items():
+        for name in tables:
+            spec = TABLES[name]
             sql = build_query(name, library)
             chunks = list(decade_chunks(start, end)) if spec[4] else [(start, end)]
             frames = []
@@ -116,8 +138,10 @@ def extract(username: str, library: str = "crsp", start: str = config.EXTRACT_ST
             df = pd.concat(frames, ignore_index=True)
             path = config.RAW / f"{name}.parquet"
             df.to_parquet(path, index=False, compression="zstd")
-            log["tables"][name] = {"sql": sql, "rows": len(df), "file": path.name, "sha256": sha256(path)}
+            log["tables"][name] = {"sql": sql, "rows": len(df), "file": path.name, "sha256": sha256(path),
+                                   "extracted_at_utc": now}
             print(f"  {name}: {len(df):,} rows -> {path.name}", flush=True)
-        log["msf_max_date"] = str(pd.read_sql(f"select max(date) as d from {library}.msf", conn)["d"].iloc[0])
-    (config.RAW / "extract_log.json").write_text(json.dumps(log, indent=2), encoding="utf-8")
+        if "msf" in tables:
+            log["msf_max_date"] = str(pd.read_sql(f"select max(date) as d from {library}.msf", conn)["d"].iloc[0])
+    log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
     return log

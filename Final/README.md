@@ -22,11 +22,27 @@ Open `conservative_formula_first_draft.ipynb` in JupyterLab or VS Code from this
 Install the packages in `requirements.txt`, then restart the kernel and run all cells.
 
 The notebook runs offline in **demo mode**. Saved outputs use seeded synthetic data, not CRSP or
-real investment results. Setting `MODE = "crsp"` reads the normalized CRSP panel produced by the
-pipeline below. The previous homework folders are not inputs to this project.
+real investment results. The environment variable `CF_MODE` selects the mode when the kernel
+starts: unset or `CF_MODE=demo` gives the demo; `CF_MODE=crsp` reads the normalized CRSP panel
+produced by the pipeline below and stops with an error if it is missing (there is no silent demo
+fallback). In CRSP mode, `CF_END` sets the last return month (default `2016-12-31`, the end of the
+paper's sample); data after it are dropped on load. For example:
+
+```bash
+CF_MODE=crsp CF_END=2016-12-31 python execute_notebook.py    # PowerShell: $env:CF_MODE="crsp"; python execute_notebook.py
+```
+
+The previous homework folders are not inputs to this project.
 
 `build_notebook.py` rebuilds the unexecuted notebook; do not run it over your edited notebook
 without preserving your changes. Outputs go to `output/demo/` or `output/crsp/`.
+
+Selection, input validation and the backtest live in `research/engine.py`, which the notebook and
+the tests import. At each quarter-end the engine applies the paper's order: eligible stocks with
+36 consecutive monthly returns, then the largest 1,000 by market cap (all of them when fewer exist,
+before mid-1964), then the low-volatility half of that universe, and only then the momentum and
+payout ranks among pool members with both signals; the best 100 are held equally weighted. Holdings
+grow with `ret_hold` (see the conventions below), and every formation records its counts.
 
 ## CRSP data pipeline
 
@@ -35,6 +51,7 @@ contract, and writes audit tables and a provenance manifest. Run every command f
 
 ```bash
 python -m crsp_pipeline extract --user <wrds_username>   # WRDS -> data/raw/*.parquet  (~10-20 min)
+python -m crsp_pipeline extract --user <wrds_username> --tables ff5   # one table only (here FF5)
 python -m crsp_pipeline build                            # data/raw -> panel, benchmark, audits (~1-2 min)
 python -m pytest tests -q                                # deterministic fixture tests
 ```
@@ -80,6 +97,7 @@ Legacy-format (SIZ) CRSP monthly tables in schema `crsp` (override with `--libra
 | `msedist` | permno, distcd, divamt, facpr, facshr, exdt, ... | independent dividend cross-check |
 | `msi` | date, vwretd, ... | CRSP value-weighted market including distributions |
 | `ff.factors_monthly` | dateff, mktrf, smb, hml, rf, umd | one-month T-bill rate; factors for later attribution |
+| `ff.fivefactors_monthly` | dateff, mktrf, smb, hml, rmw, cma, rf | profitability (RMW) and investment (CMA) factors, from 1963-07, for five-factor robustness alphas |
 
 The extract covers every security that ever had share code 10 or 11, for all months from
 1925-12-31 through 2024-12-31. Eligibility is then applied month by month, so a stock that leaves
@@ -107,9 +125,11 @@ checks every table's columns against `information_schema` and stops if a field i
 | Industry | Fama–French 12 from point-in-time SIC; missing or zero SIC is `Unknown`, kept separate from `Other` |
 | Benchmark | `market_ret` = CRSP `vwretd`, `rf` = Fama–French `rf`; decimal monthly; full contiguous coverage from 1926-07 through the endpoint is asserted |
 
-`crsp_pipeline/signals.py` implements the notebook's Section 4 signals in vectorized form. A test
-checks that it matches the notebook's loop implementation on the fixtures. The net-issuance
-denominator is the mean of the 24 share counts *including* the formation month.
+`crsp_pipeline/signals.py` implements the Section 4 signals in vectorized form; the notebook, the
+audits and the tests all use it (`research.engine.attach_signals` merges it into the panel
+one-to-one). Tests check each signal against a hand calculation and check that signals do not
+change when later inputs change. The net-issuance denominator is the mean of the 24 share counts
+*including* the formation month.
 
 ### Outputs
 
@@ -117,8 +137,8 @@ denominator is the mean of the 24 share counts *including* the formation month.
 |---|---|
 | `data/crsp_monthly_normalized.parquet` | security-month panel: the notebook's contract columns plus `permco`, codes, `ff12`, `hist36`, `mktcap_company`, raw CRSP fields, delisting fields, `exclusion` reason |
 | `data/benchmark_monthly.csv` | `date, market_ret, rf` |
-| `data/ff_factors_monthly.csv` | Fama–French 3 factors, momentum, and rf |
-| `data/audit/formation_coverage.csv` | quarter-end eligible and universe counts. Compares the history-first universe with the notebook's current cap-first ordering, and reports industry coverage |
+| `data/ff_factors_monthly.csv` | `date, mktrf, smb, hml, rmw, cma, umd, rf`: Fama–French 3 factors, momentum and rf from `ff.factors_monthly`, plus RMW and CMA from `ff.fivefactors_monthly`, which are NaN before 1963-07 (never filled). The manifest's `ff5_check` reports where the two WRDS files disagree: MKT−RF differs by 1–8 bp in 165 of 738 overlapping months (rf and HML are identical; SMB correlates 0.98, as the FF5 SMB is built differently) |
+| `data/audit/formation_coverage.csv` | quarter-end eligible and universe counts. Compares the history-first universe (used by the engine) with a cap-first ordering, and reports industry coverage |
 | `data/audit/exclusions_by_decade.csv` | quarter-end rows by exclusion reason |
 | `data/audit/missingness_by_decade.csv` | missing returns, dividends, shares, and industry among eligible rows |
 | `data/audit/missing_returns.csv` | missing-return months by `ret_hold_source`; universe holding months with a missing return (stale carry or in-gap price ratio), split into gaps that end within the quarter and gaps that straddle a rebalance; run lengths; whether CRSP's resumption return spans the gap, and for checkable runs that do not, whether CRSP shows a price in the gap (aggregate counts only) |
@@ -134,10 +154,7 @@ license terms apply.
 
 ### Next work, in order
 
-1. Use `ret_hold` for holding-period returns in the backtest.
-2. In the notebook, screen on `hist36 & eligible` before taking the 1,000 largest (critique item 3).
-   Switch to `crsp_pipeline.signals.build_signals`; the per-security loop is slow at CRSP scale.
-3. Add expected-calendar and initial-formation checks to the backtest (critique item 7). Then
+1. Add expected-calendar and initial-formation checks to the backtest (critique item 7). Then
    run 1929–2016 for comparison with the paper, before extending to 2024.
 
 ## Reference-paper review

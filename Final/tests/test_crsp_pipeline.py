@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from crsp_pipeline import audit, config  # noqa: E402
 from crsp_pipeline.build import build, validate_panel  # noqa: E402
 from crsp_pipeline.extract import TABLES, build_query, decade_chunks  # noqa: E402
-from crsp_pipeline.normalize import build_benchmark, build_panel  # noqa: E402
+from crsp_pipeline.normalize import build_benchmark, build_panel, merge_ff5  # noqa: E402
 from crsp_pipeline.signals import build_signals  # noqa: E402
 
 N = 60
@@ -21,6 +21,7 @@ SPLIT_AT = 30
 GAP1_AT = 40   # 111: one missing-return month inside a holding quarter
 GAP2_AT = 38   # 112: two missing-return months straddling a rebalance
 GAP3_AT = 45   # 113: a missing return with a CRSP price in the month
+FF5_FROM = 30  # first month with FF5 factors in the fixture
 
 
 def _rows(permno, permco, ret, retx, prc, shrout, cfacpr=1.0, cfacshr=1.0, months=None):
@@ -107,9 +108,16 @@ def make_raw():
                           "dclrdt": pd.NaT, "rcrddt": pd.NaT, "paydt": pd.NaT})
     msi = pd.DataFrame({"date": TRADE_DATES, "vwretd": 0.01, "vwretx": 0.008, "ewretd": 0.012,
                         "totval": 1e6, "totcnt": 10})
-    ff = pd.DataFrame({"dateff": MONTHS, "mktrf": 0.009, "smb": 0.0, "hml": 0.0, "rf": 0.001, "umd": 0.0})
+    smb, hml = 0.01 * np.sin(t), 0.01 * np.cos(t)
+    ff = pd.DataFrame({"dateff": MONTHS, "mktrf": 0.009, "smb": smb, "hml": hml, "rf": 0.001, "umd": 0.0})
+    # FF5 coverage starts 30 months into the sample (like 1963-07 on WRDS); same mktrf and rf,
+    # SMB and HML close to but not equal to FF3 (they differ by construction).
+    k = slice(FF5_FROM, None)
+    ff5 = pd.DataFrame({"dateff": MONTHS[k], "mktrf": 0.009, "smb": smb[k] + 0.001 * np.cos(3 * t[k]),
+                        "hml": hml[k], "rmw": 0.002, "cma": 0.003, "rf": 0.001})
     return {"msf": msf, "msenames": names, "msedelist": delist,
-            "msedist": pd.concat([dist, split], ignore_index=True), "msi": msi, "ff_factors": ff}
+            "msedist": pd.concat([dist, split], ignore_index=True), "msi": msi, "ff_factors": ff,
+            "ff5_factors": ff5}
 
 
 @pytest.fixture(scope="module")
@@ -390,32 +398,32 @@ def test_missing_returns_classifies_nonspanning_runs(built):
     assert total["runs_le_10_nonspanning_priced_gap"] == 2 and total["runs_le_10_nonspanning_other"] == 1
 
 
-def notebook_build_signals(p):
-    """Reference copy of the notebook's Section 4 loop implementation."""
-    parts = []
-    for sid, raw in p.groupby("permno", sort=False):
-        g = raw.set_index("date").sort_index()
-        g = g.reindex(pd.date_range(g.index.min(), g.index.max(), freq="ME"))
-        g.index.name = "date"
-        g["permno"] = sid
-        g["vol36"] = g.ret_total.rolling(36, min_periods=36).std(ddof=1) * np.sqrt(12)
-        g["momentum"] = (1 + g.ret_price).shift(1).rolling(11, min_periods=11).apply(np.prod, raw=True) - 1
-        g["div_yield"] = g.div_cash_adj.rolling(12, min_periods=12).sum() / g.price_adj
-        g["net_issuance"] = g.shares_adj / g.shares_adj.rolling(24, min_periods=24).mean() - 1
-        g["npy"] = g.div_yield - g.net_issuance
-        parts.append(g.reset_index())
-    return pd.concat(parts, ignore_index=True)
-
-
-def test_vectorized_signals_match_notebook_definitions(built):
-    _, panel, _ = built
-    cols = ["vol36", "momentum", "div_yield", "net_issuance", "npy"]
-    fast = build_signals(panel).set_index(["permno", "date"])[cols]
-    ref = notebook_build_signals(panel[["date", "permno", "ret_total", "ret_price", "div_cash_adj",
-                                        "price_adj", "shares_adj"]]).set_index(["permno", "date"])[cols]
-    ref = ref.reindex(fast.index)
-    pd.testing.assert_frame_equal(fast, ref, check_exact=False, rtol=1e-9, atol=1e-12)
-    assert fast.notna().sum().min() > 0
+def test_signals_hand_computed():
+    """Each signal against an explicit calculation with plain Python (no pandas windows)."""
+    import math
+    import statistics
+    n = 48
+    t = np.arange(n)
+    r = [0.01 + 0.03 * math.sin(i) for i in t]                     # total returns
+    rp = [x - 0.002 for x in r]                                    # price returns
+    price = [50 * math.prod(1 + x for x in rp[:i + 1]) for i in t]
+    div = [0.1 if i % 3 == 2 else 0.0 for i in t]                  # quarterly payer
+    shares = [1000 * (1.01 ** i if i < 30 else 1.01 ** 30 * 0.99 ** (i - 30)) for i in t]   # issue, then buy back
+    p = pd.DataFrame({"date": pd.date_range("2001-01-31", periods=n, freq="ME"), "permno": 7,
+                      "ret_total": r, "ret_price": rp, "price_adj": price, "div_cash_adj": div, "shares_adj": shares})
+    sig = build_signals(p).set_index("date")
+    for i in [35, 40, 47]:
+        d = p["date"][i]
+        assert np.isclose(sig.loc[d, "vol36"], math.sqrt(12) * statistics.stdev(r[i - 35:i + 1]))
+        assert np.isclose(sig.loc[d, "momentum"], math.prod(1 + x for x in rp[i - 11:i]) - 1)   # skips month i
+        dy = sum(div[i - 11:i + 1]) / price[i]
+        ni = shares[i] / (sum(shares[i - 23:i + 1]) / 24) - 1                                  # mean includes month i
+        assert np.isclose(sig.loc[d, "div_yield"], dy) and np.isclose(sig.loc[d, "net_issuance"], ni)
+        assert np.isclose(sig.loc[d, "npy"], dy - ni)
+    # Windows are NaN until they are complete.
+    first_valid = {c: sig[c].first_valid_index() for c in ["vol36", "momentum", "div_yield", "net_issuance"]}
+    assert first_valid == {"vol36": p["date"][35], "momentum": p["date"][11], "div_yield": p["date"][11],
+                           "net_issuance": p["date"][23]}
 
 
 def test_dividend_reconciliation_agrees_with_distribution_file(built):
@@ -450,12 +458,47 @@ def test_end_to_end_build_writes_outputs_and_manifest(tmp_path, monkeypatch):
     assert man["extract"] is None and man["sample"]["terminal_rows"] == 2
     assert man["sample"]["ret_hold_stale_carry_rows"] == 3 and man["sample"]["ret_hold_no_prior_row_rows"] == 1
     assert man["sample"]["ret_hold_price_ratio_rows"] == 1
+    fac = pd.read_csv(tmp_path / "ff_factors_monthly.csv")
+    assert list(fac.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf"]
+    assert man["ff5_check"]["first_ff5_month"] == str(MONTHS[FF5_FROM].date())
     assert man["sample"]["universe_holding_stale_carry_months"] == 3      # missing-return holding months
     assert "audit/missing_returns.csv" in man["audits"]
     assert "crsp_pipeline/normalize.py" in man["code"]["source_sha256"]
     assert man["code"]["packages"]["pandas"] == pd.__version__
     back = pd.read_parquet(tmp_path / "crsp_monthly_normalized.parquet")
     pd.testing.assert_frame_equal(back, res["panel"])
+
+
+def test_ff5_merge_keeps_nan_before_coverage():
+    raw = make_raw()
+    _, factors = build_benchmark(raw["msi"], raw["ff_factors"], "2000-01-31", "2004-12-31")
+    merged, check = merge_ff5(factors, raw["ff5_factors"])
+    assert list(merged.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf"]
+    assert len(merged) == len(factors) and merged["date"].equals(factors["date"])
+    before = merged["date"].lt(MONTHS[FF5_FROM])
+    assert merged.loc[before, ["rmw", "cma"]].isna().all().all()          # never filled
+    assert merged.loc[~before, ["rmw", "cma"]].notna().all().all()
+    for col in ["mktrf", "smb", "hml", "umd", "rf"]:                      # FF3 + UMD values are kept
+        assert merged[col].equals(factors[col]), col
+    assert check["first_ff5_month"] == str(MONTHS[FF5_FROM].date()) and check["overlap_months"] == N - FF5_FROM
+    assert check["mktrf_max_abs_diff"] == 0 and check["rf_max_abs_diff"] == 0 and check["mktrf_rf_agree_1e-6"]
+    assert 0.9 < check["smb_corr_ff3_ff5"] < 1 and np.isclose(check["hml_corr_ff3_ff5"], 1)
+    # A different vintage is reported, not hidden and not raised.
+    other = raw["ff5_factors"].assign(rf=0.0011)
+    _, check2 = merge_ff5(factors, other)
+    assert not check2["mktrf_rf_agree_1e-6"] and np.isclose(check2["rf_max_abs_diff"], 1e-4)
+    with pytest.raises(ValueError, match="percentages"):
+        merge_ff5(factors, raw["ff5_factors"].assign(rmw=20.0))
+    with pytest.raises(ValueError, match="Duplicate"):
+        merge_ff5(factors, pd.concat([raw["ff5_factors"], raw["ff5_factors"].iloc[[0]]]))
+
+
+def test_extract_can_select_tables():
+    from crsp_pipeline.extract import select_tables
+    assert select_tables(None) == list(TABLES) and "ff5_factors" in TABLES
+    assert select_tables("ff5") == ["ff5_factors"] and select_tables("msf,ff5_factors") == ["msf", "ff5_factors"]
+    with pytest.raises(ValueError, match="Unknown"):
+        select_tables("nope")
 
 
 def test_extract_queries_name_every_required_field():

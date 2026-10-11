@@ -8,10 +8,10 @@ import numpy as np
 import pandas as pd
 
 from . import audit, config
-from .normalize import HOLD_SOURCES, build_benchmark, build_panel
+from .normalize import HOLD_SOURCES, build_benchmark, build_panel, merge_ff5
 from .provenance import code_version, sha256
 
-RAW_TABLES = ["msf", "msenames", "msedelist", "msedist", "msi", "ff_factors"]
+RAW_TABLES = ["msf", "msenames", "msedelist", "msedist", "msi", "ff_factors", "ff5_factors"]
 
 
 def load_raw(raw_dir: Path = config.RAW) -> dict[str, pd.DataFrame]:
@@ -76,6 +76,7 @@ def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DAT
     panel = panel.loc[panel["date"].le(pd.Timestamp(end))].reset_index(drop=True)
     validate_panel(panel)
     bench, factors = build_benchmark(raw["msi"], raw["ff_factors"], config.BENCHMARK_START, end)
+    factors, ff5_check = merge_ff5(factors, raw["ff5_factors"])
 
     panel_path = out_dir / config.PANEL_FILE.name
     bench_path = out_dir / config.BENCHMARK_FILE.name
@@ -138,6 +139,9 @@ def build(raw: dict[str, pd.DataFrame] | None = None, out_dir: Path = config.DAT
             "universe_holding_stale_carry_months": int(
                 tables["missing_returns"].set_index("decade").loc["total", "universe_holding_stale_carry"]),
         },
+        "ff5_check": ff5_check,
+        "raw_inputs": ({f"raw/{t}.parquet": sha256(config.RAW / f"{t}.parquet") for t in RAW_TABLES}
+                       if from_disk else None),
         "outputs": {p.name: sha256(p) for p in [panel_path, bench_path, factors_path]},
         "audits": {f"audit/{n}.csv": sha256(audit_dir / f"{n}.csv") for n in tables},
     }
