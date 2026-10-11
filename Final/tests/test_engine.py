@@ -255,3 +255,42 @@ def test_formation_targets_returns_targets_and_counts():
     assert dates[0] == pd.Timestamp("2002-12-31") and all(d.month in (3, 6, 9, 12) for d in dates)
     assert len(counts) == len(dates) and counts["selected_n"].eq(5).all()
     assert counts["low_vol_pool_n"].eq(25).all()
+
+
+# --- Paper controls (Phase 3: Speculative and standalone portfolios) -------------------------
+
+def test_speculative_takes_weakest_scores_in_high_vol_part():
+    # 10 names; permno = vol rank, so the high-vol part is 6..10. Momentum and NPY fall with permno,
+    # so 10 is weakest on both, then 9. Permno 1 is weaker still but sits in the low-vol half.
+    snap = snapshot(10)
+    snap.loc[snap["permno"].eq(1), ["momentum", "npy"]] = [-0.5, -0.5]
+    snap.loc[snap["permno"].eq(8), "npy"] = np.nan
+    w, c = engine.choose_weights(snap, "Speculative", n_universe=10, n_hold=2)
+    assert sorted(w.index) == [9, 10] and np.allclose(w, 0.5)
+    assert c["ranking_pool_n"] == 5 and c["low_vol_pool_n"] is None
+    assert c["pool_missing_npy_n"] == 1 and c["signal_complete_n"] == 4
+    # Odd N: the high-vol part is the N - floor(N/2) names outside the low-vol pool.
+    _, c11 = engine.choose_weights(snapshot(11), "Speculative", n_universe=11, n_hold=2)
+    assert c11["ranking_pool_n"] == 6
+    with pytest.raises(ValueError, match="complete"):
+        engine.choose_weights(snap, "Speculative", n_universe=10, n_hold=5)
+
+
+def test_standalone_selections():
+    snap = snapshot(12)
+    snap["momentum"] = [0.1, 0.9, 0.3, np.nan, 0.5, 0.2, 0.8, 0.0, 0.4, 0.6, 0.7, 0.05]
+    snap["npy"] = [0.01, 0.02, np.nan, 0.09, 0.03, 0.08, 0.04, 0.07, 0.05, 0.06, 0.0, 0.10]
+    w, c = engine.choose_weights(snap, "Standalone momentum", n_universe=12, n_hold=3)
+    assert sorted(w.index) == [2, 7, 11] and c["signal_complete_n"] == 11      # highest momentum; NaN excluded
+    w, c = engine.choose_weights(snap, "Standalone NPY", n_universe=12, n_hold=3)
+    assert sorted(w.index) == [4, 6, 12] and c["signal_complete_n"] == 11
+    w, _ = engine.choose_weights(snap, "Standalone low-vol", n_universe=12, n_hold=3)
+    assert sorted(w.index) == [1, 2, 3]                                         # lowest vol36, signals irrelevant
+    # Each is drawn from the same history-first universe: a name outside it is never chosen.
+    snap.loc[snap["permno"].eq(2), "hist36"] = False
+    w, _ = engine.choose_weights(snap, "Standalone momentum", n_universe=12, n_hold=3)
+    assert 2 not in w.index and sorted(w.index) == [7, 10, 11]
+    # Ties by permno.
+    tie = snapshot(6, momentum=[0.5, 0.5, 0.5, 0.1, 0.1, 0.1])
+    w, c = engine.choose_weights(tie, "Standalone momentum", n_universe=6, n_hold=2)
+    assert sorted(w.index) == [1, 2] and c["score_ties_at_cut"] == 2

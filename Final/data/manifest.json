@@ -1,6 +1,6 @@
 {
   "code": {
-    "git_commit": "574c92b43efb6891524c2fc9a5e70f2d8e21d248",
+    "git_commit": "e8f45682bcd076f8bc55249cf55d54c436392716",
     "uncommitted_changes": true,
     "source_sha256": {
       "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
@@ -10,7 +10,7 @@
       "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
       "crsp_pipeline/extract.py": "9b2f15cad4b0c84cf72d07a753821dd360e1bf2a27e4f80b57976aa16566d8d8",
       "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
-      "crsp_pipeline/normalize.py": "ce68e13ef2ad579676ecaa1e668ef4e5df7a90c3d324844f2c3a75674991391f",
+      "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
       "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
       "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042"
     },
@@ -127,7 +127,8 @@
     "rf_max_abs_diff": 0.0,
     "mktrf_rf_agree_1e-6": false,
     "smb_corr_ff3_ff5": 0.981153451494949,
-    "hml_corr_ff3_ff5": 1.0
+    "hml_corr_ff3_ff5": 1.0,
+    "hml_identical": true
   },
   "raw_inputs": {
     "raw/msf.parquet": "112b3871d0e49a29aca990ea5d8558c8ac8914d2623d5cb2c207135babad2760",
@@ -141,7 +142,7 @@
   "outputs": {
     "crsp_monthly_normalized.parquet": "84e3148292b901400bb33450187b2c22c7fe6f7ce104c4b5d20812e9eb131cdc",
     "benchmark_monthly.csv": "3c6f04909d1d07da22c56be63dc8bcf8535de06d0e4aa63acd1c730ad65bca66",
-    "ff_factors_monthly.csv": "3b70bfbd1a689c39cf975f64c5e02c831f2a0b6834fec8c6d7e9a34172b4535b"
+    "ff_factors_monthly.csv": "c7c4bf167162980e9db6f312ef871f6a4fb46620f1ee5b21dde7d71e1a1d5c53"
   },
   "audits": {
     "audit/formation_coverage.csv": "617841ed74f8e7cae9bf82e0ba146ca2f21ea37beaeddd69b7284d0b3ffe3aa1",

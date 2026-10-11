@@ -1,65 +1,87 @@
 # Critique - Conservative Formula
 
-Updated 2026-10-10. Keep unresolved findings and the latest batch review here; remove verified fixes. Dispositions and detailed implementation logs belong in the task records and memory.
+Updated 2026-10-11. Current Phase 3 batch review only; verified fixes and superseded reviews have been removed. Task records retain dispositions. Other unfinished project work remains in [memory/known_issues.md](memory/known_issues.md); it is not a new finding against this batch.
 
 ## Open findings index
 
-**No new findings blocking acceptance of the five reviewed tasks.** The old Phase 2 selection, signals, holding-return and calendar findings are fixed and have been removed. These carried-forward project issues remain outside this batch; their evidence and closure criteria are in the [issue register](memory/known_issues.md).
-
-| ID | Severity | Status / remaining change |
+| ID | Severity | Status |
 |---|---|---|
-| DATA-003, DATA-006 | medium | Open: quantify share-class switching and investigate the remaining dividend-amount discrepancies. |
-| DATA-005 | medium | Open: qualify the public frozen-release claim or record supporting release metadata; an observed coverage endpoint is insufficient. |
-| RS-001 | critical | Open: deliver the required factor diagnostics, including neutralized exposures, IC/decay, persistence, deciles, hit rates and factor-mimicking portfolios. |
-| RS-002 | high | Open: complete the paper comparison, speculative portfolio, attribution and deviations table. The historical mechanics run now exists; paper reconciliation remains. |
-| RS-003, RS-004 | high | Open: finish trading/reporting requirements and a declared improvement with paired, dependence-aware evaluation. The new rebalance trade log is progress, not the full reporting deliverable. |
-| RS-005, ENV-002 | high | Open: make the empirical presentation/export path runnable and verify access to its rendering dependency. |
-| ENV-003 | medium | Open: settle the reproducible dependency/submission contract. |
+| 2026-10-10-factor-attribution/R1 | medium | Open: distinguish a difference of net long-only returns from a cost-inclusive CMS spread; also affects critical-tests. |
+| 2026-10-10-critical-tests/R1 | medium | Open: complete the specified uncertainty reporting for 2017-2024 summary statistics. |
 
-DATA-011/012 limitations, the RS-006 research tests, and minor DATA-004/ENV-001 items remain in the issue register. They are not new findings from this review.
+## Verification
 
-## Batch verification
+Reviewed the three authoritative `in-review` records against their success criteria, `Instructions.md`, the paper transcription in `docs/DATA_CONVENTIONS.md`, and adopted decisions, including RS-006 and the FF5 factor-set decision. The board still awaits the planner's normal synchronization. No new portfolio rule or parameter tuning was found.
 
-Reviewed the five records whose authoritative status is `in-review`; the planner's board still needs its normal post-review synchronization. Judged against each task's success criterion, `Instructions.md`, the paper transcription in `docs/DATA_CONVENTIONS.md`, and adopted DATA-001/002/010, NB-007 and RS-006 decisions. The logged fixture adjustment, shared checks and counts-only exports are within the batch's scope.
+Read-only tests: **109 passed, 1 deselected**. Command: `python -B -` with `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`, a write/network-blocking audit hook, and `pytest.main(['tests', '-q', '-s', '-p', 'no:cacheprovider', '-p', 'no:logging', '--rootdir=.', '--confcutdir=.', '-k', 'not test_end_to_end_build_writes_outputs_and_manifest', '--tb=short'])`. The excluded test writes build artifacts; the coder records 110 passing tests. Source/test hashes were unchanged during the run. The notebook sync test intercepts its writer; its printed "Created" message did not create a notebook.
 
-Independent read-only run: **93 passed, 1 deselected**. Tests used `python -B -`, `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`, and `pytest.main(['tests', '-q', '-s', '-p', 'no:cacheprovider', '-p', 'no:logging', '--rootdir=.', '--confcutdir=.', '-k', 'not test_end_to_end_build_writes_outputs_and_manifest', '--tb=short'])`, with writes and network access blocked. Pipeline, research, builder and test files were stable throughout. The excluded test writes build artifacts; the coder separately records 94 passing tests. No fresh notebook kernel, extraction or artifact rebuild was launched by the critic; saved executions were inspected and the engine was replayed in memory without reporting performance statistics.
+Replayed the calculation sections of both task scripts through `python -B -`, using their parsed AST, capturing CSV exports in memory and blocking filesystem writes/network access. No notebook, pipeline build or extraction was launched. Saved plots were inspected separately. Only `critique.md` was edited.
 
-## Review: 2026-10-10-research-engine (implementation, 2026-10-10)
+## Review: 2026-10-10-paper-replication (implementation, 2026-10-11)
 
-**Verdict: pass. No outstanding findings.** `research/engine.py:171,190,294` implements the adopted selection order, holdings rule and `ret_hold` accounting. The real-engine history-order, missing-signal partition, ties, small-universe, stale-carry and price-ratio tests pass. Shuffling candidate order leaves selected weights and counts unchanged.
+**Verdict: pass. No outstanding findings.** The new Speculative and standalone selectors match the fixed comparison spec (`research/engine.py:195`). Their fixtures pass, and shuffling a real formation's input rows leaves all four new controls unchanged.
 
-Recomputed all **2,464 formation/strategy rows**, matching `output/crsp/crsp_draft_formation_audit.csv`. Conservative's **352** formations also match the smoke file and pipeline history/universe counts; the smallest low-volatility pool is **196**, with 100 selected at every formation. The independent eight-month synthetic dollar-book calculation, including sales, purchases, fees, nonzero cash interest and terminal cash, matches the engine's net returns to **2.22e-16** and its traded notional to **1e-14**. The smoke-run difference from the earlier approximate holding count is documented and not material to this criterion.
+The replay reproduces **11 runs of 1,056 months**, **1,760 formation rows**, the monthly returns, decade table, Table 4, pct10 sensitivity, reconciliation and turnover decomposition without numerical mismatches. All **42 numeric Table 1 fields** also match an independent recalculation from the saved monthly series. The cost reconciliation is within the required 0.1 percentage point annually at both cost levels. The turnover gap is discussed without retuning; paper targets remain explicitly provisional.
 
-→ planner: 2026-10-10-research-engine reviewed
+DATA-011 is now quantified: **25** held straddling positions, all with resumption prices, **14** with cash distributions; mean lost move **-4.5278%**, median **0%**. The weight-sum approximation reproduces **+0.01503 percentage point/year** of optimistic bias. This is an approximate diagnostic, not a rerun with an alternative execution convention. The saved figures have the required gross/log-scale and partial-decade labels.
 
-## Review: 2026-10-10-notebook-signals (implementation, 2026-10-10)
+→ planner: 2026-10-10-paper-replication reviewed
 
-**Verdict: pass. No outstanding findings.** `research/engine.py:142` preserves all original columns and rows while attaching signals by a one-to-one key merge. Full-panel replay preserved **3,954,476 rows**, expanding 36 columns to 41, in **17.82 seconds**. Re-ran `runpy.run_path("experiments/2026-10-10-notebook-signals/compare_loop_crsp.py")` via `python -B -` under the read-only guard: **200 securities / 27,309 rows**, zero NaN-pattern mismatches, maximum absolute difference **5.33e-15** across the five signals. The hand-calculation, future-input isolation and deliberately leaky-signal rejection tests pass. The notebook and tests no longer retain their old production/reference loops.
+## Review: 2026-10-10-factor-attribution (implementation, 2026-10-11)
 
-→ planner: 2026-10-10-notebook-signals reviewed
+**Verdict: numerical implementation passes; changes requested for R1's result labeling and unresolved interpretation.** All **28** saved attribution rows match an independent QR-based OLS calculation and HAC(12) alpha-influence calculation, including annual alpha, standard error, t-statistic, confidence interval and factor loadings. FF5 rows use **642 months**.
 
-## Review: 2026-10-10-calendar-validation (implementation, 2026-10-10)
+Rebuilding the factor merge in memory from the local raw files reproduces the **1,182 x 10** saved file and unchanged benchmark. FF3/UMD values are unchanged; all four added FF5 columns are missing before July 1963 and complete thereafter; HML identity holds in **738** overlapping months. Rehashed **21** manifest-listed source/output/audit files: zero mismatches; the panel remains `84e31482...`. The previous concern about a hybrid FF5 model is resolved.
 
-**Verdict: pass. No outstanding findings.** `research/engine.py:269` enforces the requested benchmark calendar and first/quarter-end targets. The named failure fixtures, shared Section 7 checks, all-cash flag and second-rebalance reconciliation pass. An additional counterexample using `p, b, targets, start, end = checks.calendar_case('ok')` and `engine.backtest(p, b.drop(end), targets, start, end)` raises `Benchmark lacks 1 month(s) in the window 2020-01-31..2020-06-30; first missing 2020-06-30`.
+### 2026-10-10-factor-attribution/R1 - medium - "net CMS" credits back the short leg's costs
 
-The builder imports the required constants from config, uses `CF_MODE`/`CF_END`, and calls the shared fixture checks without indexing real-security rows. The public run instructions document the switch. Both saved notebooks match the current builder's source through the passing sync check and direct demo/CRSP source comparison.
+**Evidence:** `experiments/2026-10-10-factor-attribution/run_attribution.py:32` passes each leg's net long-only return into the CMS subtraction at `research/stats.py:69`. The main CMS rows are labeled `net 30 bps`; the cost-deducting alternative is only a diagnostic (`run_attribution.py:38`). The same labels/definition propagate at `experiments/2026-10-10-critical-tests/run_critical.py:70`. This ambiguity is already acknowledged in the attribution record at `README.md:99`; it needs a planner disposition, not another undisclosed convention change.
 
-→ planner: 2026-10-10-calendar-validation reviewed
+**Executed counterexample:** `python -B -`, using this stdin:
 
-## Review: 2026-10-10-crsp-notebook-run (implementation, 2026-10-10)
+```python
+import pandas as pd
+from research import report
+idx = pd.date_range('2000-01-31', periods=3, freq='ME')
+g = pd.Series(0.01, index=idx)
+c = report.net_from_gross(pd.DataFrame({'gross': g, 'traded_notional': 0.2}), 30)
+s = report.net_from_gross(pd.DataFrame({'gross': g, 'traded_notional': 0.8}), 30)
+print(round((c-s).iloc[0], 6), round((c-2*g+s).iloc[0], 6))
+```
 
-**Verdict: pass for the Phase 2 mechanics gate. No outstanding findings.** The demo and separate CRSP notebook each contain **11 code cells**, execution counts **1-11**, and **zero error outputs**. Their hashes match the task record (`ba9f5e2019517ffa...`, `07d6b0e3c97c90f2...`); the tracked notebook remains the demo artifact. Saved gate: **11/11 true**.
+Output: **`0.001818 -0.00303`**. Equal gross returns produce a positive spread when the higher-cost Speculative return is subtracted. Deducting both legs' costs produces a loss. In the actual `out/table2.csv:24`, CMS Carhart alpha rises from **7.8103% gross** to **7.8636% "net"**; the existing both-legs diagnostic is **5.8550%**.
 
-Replayed all seven strategies in memory through **1929-01 to 2016-12**, using the current engine. Every saved diagnostics field matches, including **1,056 months per strategy**, zero all-cash months, and Conservative's **58 stale-carry / 0 price-ratio position-months**. All 352 Conservative formation counts match the smoke run. No 2017+ holding return entered this replay, and no performance statistic was reported or interpreted. The result establishes mechanics, not paper agreement or investment merit.
+**Failure scenario:** a reader selects the primary CMS `net 30 bps` row to answer whether alpha survives costs, as the task's goal requests, and treats the short leg's costs as a benefit. Correct regression arithmetic does not make that row a cost-inclusive long-short return. The implementation follows the literal spread specification; the specification and output interpretation need reconciliation.
 
-→ planner: 2026-10-10-crsp-notebook-run reviewed
+**Required change:** retain the calculated spread if useful, but label it explicitly as the **difference of net long-only returns**, not net CMS performance, in both tasks' CSVs and Results. The planner must resolve which CMS cost measure answers RS-006 before acceptance. Keep the existing both-legs diagnostic's assumptions explicit; this finding does not require building the deferred long-short trading engine or silently changing the frozen portfolio series.
 
-## Review: 2026-10-10-ff5-factors (implementation, 2026-10-10)
+→ planner: 2026-10-10-factor-attribution reviewed
 
-**Verdict: pass against the specified data contract. No outstanding implementation findings.** Recomputed `build_benchmark` and `merge_ff5` from local raw files; `pd.testing.assert_frame_equal` matches the saved eight-column factor file and confirms that the FF3/UMD columns and benchmark are unchanged. RMW/CMA are missing before **1963-07**, complete from then through **2024-12**, with **738 overlap months**. Reproduced the reported maximum market-factor difference (**0.0008**), identical rf, and SMB/HML correlations (**0.981153 / 1.0**). The discrepancy is reported rather than hidden.
+## Review: 2026-10-10-critical-tests (implementation, 2026-10-11)
 
-Rehashed **10 source files, 7 raw inputs, 3 normalized outputs and 8 audits**: zero manifest mismatches. Comparison with the prior tracked manifest confirms the panel, benchmark, all eight audits and six original raw extracts are unchanged. Current manifest SHA-256: `2db51cf898e033deea1783ddb8c29334f705d1498f5361a94f95f92b67aaf399`; panel remains `84e3148292b901400bb33450187b2c22c7fe6f7ce104c4b5d20812e9eb131cdc`.
+**Verdict: changes requested for R1 and the shared CMS-labeling finding above.** The numerical replay matches all **60 subperiod rows**, **10 break-even rows**, and **2,066 rolling rows**, with **1,152 months** per underlying strategy. All eight compared 1929-2016 series are bit-identical to the replication outputs. Independent closed-form break-even roots differ from the saved bisection results by at most **0.2241 bp**, within the 0.5 bp criterion. Period counts and FF5 coverage agree with the specification.
 
-**Planner carry-forward, already raised in the task record:** the merged file retains FF3 SMB/MKT-RF and adds FF5 RMW/CMA (`crsp_pipeline/normalize.py:212-239`; task record lines 90-96). Resolve the factor-set choice before labeling a later regression FF5+UMD. This does not block the explicitly specified eight-column extract/merge task, which includes no regression. Also synchronize the planner-owned convention/status documents at triage.
+The current **16 source hashes** match both `source_hashes_before.txt` and `out/run_meta.json`; the manifest hash also matches. The recorded first post-2016 computation is **2026-10-11T00:50:37Z**. This verifies consistency with the saved freeze evidence, not an independently observed historical timestamp.
 
-→ planner: 2026-10-10-ff5-factors reviewed
+### 2026-10-10-critical-tests/R1 - medium - post-sample summary estimates lack required uncertainty
+
+**Evidence:** the spec at `experiments/2026-10-10-critical-tests/README.md:47` requires a standard error and 95% CI next to every 2017-2024 point estimate; success criterion 3 at line 58 requires the listed statistics and CIs. `run_critical.py:102` adds the summary statistics, but lines 107-120 calculate uncertainty only for excess-versus-market returns and factor alphas. `out/subperiods.csv:38` therefore reports Conservative's **11.00% CAGR**, **11.88% arithmetic return**, **16.63% volatility**, Sharpe ratios and drawdown without their uncertainty.
+
+**Executed artifact check:** `python -B -`, using this stdin:
+
+```python
+import pandas as pd
+s = pd.read_csv('experiments/2026-10-10-critical-tests/out/subperiods.csv')
+p = s.loc[s.period.str.startswith('2017')]
+metrics = ['compounded', 'arithmetic', 'volatility', 'sharpe_paper', 'sharpe_excess', 'max_drawdown']
+print(len(p), p.months.unique().tolist())
+print({m: [c for c in s if c.startswith(m+'_') and ('se' in c or 'ci' in c)] for m in metrics})
+```
+
+Output: **`12 [96]`**; every metric maps to **`[]`**. The 96-month warning and the alpha/excess-return confidence intervals are present; they do not provide uncertainty for the other point estimates.
+
+**Failure scenario:** the post-sample comparison carries those summary estimates into the final report as if the promised uncertainty analysis were complete. In particular, the raw arithmetic-return estimate has no interval even though it is one of the explicitly specified statistics.
+
+**Required change:** complete the required post-sample uncertainty fields and associated Results, with a documented dependence-aware method and validation for the nonlinear statistics. The planner should resolve any intended narrower interpretation of "every point estimate" explicitly in the disposition. Preserve the frozen return series and record this as a post-freeze reporting correction rather than overwriting the original freeze claim.
+
+→ planner: 2026-10-10-critical-tests reviewed

@@ -27,9 +27,14 @@ STRATEGIES = ["Conservative", "No momentum", "No payout", "No low-vol screen",
               "Low volatility only", "Universe equal weight", "Universe cap weight"]
 RANKED = {"Conservative": ("momentum", "npy"), "No momentum": ("npy",), "No payout": ("momentum",),
           "No low-vol screen": ("momentum", "npy")}
+# Paper controls (p. 4 and Table 1): the Speculative mirror image and three standalone portfolios.
+PAPER_CONTROLS = ["Speculative", "Standalone low-vol", "Standalone momentum", "Standalone NPY"]
+STANDALONE = {"Standalone low-vol": ("vol36", True), "Standalone momentum": ("momentum", False),
+              "Standalone NPY": ("npy", False)}          # signal, True if low values are best
+ALL_STRATEGIES = STRATEGIES + PAPER_CONTROLS
 COUNT_FIELDS = ["eligible_n", "history_eligible_n", "universe_n", "low_vol_pool_n",
                 "pool_missing_momentum_n", "pool_missing_npy_n", "signal_complete_n", "selected_n",
-                "score_ties_at_cut"]
+                "score_ties_at_cut", "ranking_pool_n"]
 STALE_SOURCES = ("stale_carry", "price_ratio")
 DEFAULT_HOLDINGS = config.HOLDINGS
 SIGNAL_COLUMNS = ["vol36", "momentum", "div_yield", "net_issuance", "npy"]
@@ -191,10 +196,16 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
                    n_hold: int | str = DEFAULT_HOLDINGS) -> tuple[pd.Series, dict]:
     """Target weights (indexed by permno, summing to 1) and per-formation counts for one strategy.
 
-    For the ranked strategies the counts describe the pool the strategy ranks over: the low-vol pool,
-    or the whole universe for "No low-vol screen" (then `low_vol_pool_n` is None).
+    For the ranked strategies the counts describe the pool the strategy ranks over (`ranking_pool_n`):
+    the low-vol pool, the whole universe for "No low-vol screen", or the high-volatility part for
+    "Speculative" (`low_vol_pool_n` is None for the last two).
+
+    Speculative (paper p. 4): the N - floor(N/2) universe members outside the low-vol pool; momentum and
+    NPY are ranked ascending among members with both signals (the weakest gets rank 1) and the
+    `n_hold` lowest mean ranks are held. Standalone portfolios (Table 1): the `n_hold` universe members
+    with the lowest vol36, highest momentum or highest NPY, complete cases on that signal only.
     """
-    if name not in STRATEGIES:
+    if name not in ALL_STRATEGIES:
         raise ValueError(f"Unknown strategy {name!r}")
     universe = select_universe(snapshot, n_universe)
     n = len(universe)
@@ -208,21 +219,28 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
               "history_eligible_n": len(history_eligible(snapshot)), "universe_n": n,
               "low_vol_pool_n": None, "pool_missing_momentum_n": None, "pool_missing_npy_n": None,
               "signal_complete_n": int(universe[["momentum", "npy"]].notna().all(axis=1).sum()),
-              "selected_n": 0, "score_ties_at_cut": 0}
+              "selected_n": 0, "score_ties_at_cut": 0, "ranking_pool_n": None}
 
     by_vol = universe.sort_values(["vol36", "permno"])
     if name.startswith("Universe"):
         sel = universe.set_index("permno")
         weights = (sel["mktcap"] / sel["mktcap"].sum() if name.endswith("cap weight")
                    else pd.Series(1 / n, index=sel.index))
-    elif name == "Low volatility only":
-        if n < hold:
-            raise ValueError(f"Universe has {n} names; need {hold}")
-        chosen, counts["score_ties_at_cut"] = _best(by_vol, by_vol["vol36"], hold)
+    elif name in ("Low volatility only", "Standalone low-vol", "Standalone momentum", "Standalone NPY"):
+        col, low_is_best = STANDALONE.get(name, ("vol36", True))
+        complete = universe.dropna(subset=[col])
+        counts["signal_complete_n"] = len(complete)
+        if len(complete) < hold:
+            raise ValueError(f"Only {len(complete)} universe members with {col} for {name}; need {hold}")
+        score = complete[col] if low_is_best else -complete[col]
+        chosen, counts["score_ties_at_cut"] = _best(complete, score, hold)
         weights = pd.Series(1 / hold, index=chosen["permno"].to_numpy())
     else:
-        pool = universe if name == "No low-vol screen" else by_vol.head(n // 2)
-        if name != "No low-vol screen":
+        speculative = name == "Speculative"
+        pool = (universe if name == "No low-vol screen" else by_vol.iloc[n // 2:] if speculative
+                else by_vol.head(n // 2))
+        counts["ranking_pool_n"] = len(pool)
+        if name not in ("No low-vol screen", "Speculative"):
             counts["low_vol_pool_n"] = len(pool)
         counts["pool_missing_momentum_n"] = int(pool["momentum"].isna().sum())
         counts["pool_missing_npy_n"] = int(pool["npy"].isna().sum())
@@ -230,7 +248,8 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
         counts["signal_complete_n"] = len(complete)
         if len(complete) < hold:
             raise ValueError(f"Only {len(complete)} signal-complete pool members for {name}; need {hold}")
-        ranks = [complete[c].rank(ascending=False, method="average") for c in RANKED[name]]
+        cols = ("momentum", "npy") if speculative else RANKED[name]
+        ranks = [complete[c].rank(ascending=speculative, method="average") for c in cols]
         chosen, counts["score_ties_at_cut"] = _best(complete, sum(ranks) / len(ranks), hold)
         weights = pd.Series(1 / hold, index=chosen["permno"].to_numpy())
     weights.index.name = "permno"

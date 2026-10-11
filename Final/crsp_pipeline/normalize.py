@@ -206,14 +206,16 @@ def build_panel(raw: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, pd.DataFram
     return out, delist_log
 
 
-FACTOR_COLUMNS = ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf"]
+FACTOR_COLUMNS = ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf", "mktrf_ff5", "smb_ff5"]
 
 
 def merge_ff5(factors: pd.DataFrame, ff5: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Add FF5 `rmw` and `cma` to the FF3 + UMD factor file; return it and a coverage check.
+    """Add FF5 `rmw`, `cma`, `mktrf_ff5` and `smb_ff5` to the FF3 + UMD factor file; return it and a check.
 
-    The FF3 + UMD values are kept as they are. RMW and CMA are left NaN outside FF5 coverage
-    (from 1963-07 on WRDS); nothing is filled. Where both files cover a month, the check reports the
+    The FF3 + UMD values are kept as they are. The FF5 columns are left NaN outside FF5 coverage
+    (from 1963-07 on WRDS); nothing is filled. The FF5 + UMD model uses the FF5 file's own market and
+    SMB (decisions.md, "Factor set for the FF5 + UMD robustness alpha"); FF5 HML must equal FF3 HML
+    wherever both exist, so it is asserted rather than duplicated. Where both files cover a month, the check reports the
     largest mktrf and rf differences (they should agree; a different WRDS vintage is reported, not
     hidden) and the correlations of smb and hml, which differ between FF3 and FF5 by construction.
     """
@@ -223,8 +225,13 @@ def merge_ff5(factors: pd.DataFrame, ff5: pd.DataFrame) -> tuple[pd.DataFrame, d
         raise ValueError("Duplicate months in the FF5 factor file")
     if f5[["rmw", "cma", "rf"]].abs().max().max() > 0.5 or f5["mktrf"].abs().max() > 2:
         raise ValueError("FF5 factors look like percentages; expected decimal monthly returns")
-    merged = factors.merge(f5[["date", "rmw", "cma"]], on="date", how="left", validate="one_to_one")
+    add = f5[["date", "rmw", "cma", "mktrf", "smb"]].rename(columns={"mktrf": "mktrf_ff5", "smb": "smb_ff5"})
+    merged = factors.merge(add, on="date", how="left", validate="one_to_one")
     both = factors.merge(f5, on="date", suffixes=("", "_ff5"))
+    hml_diff = (both["hml"] - both["hml_ff5"]).abs()
+    if hml_diff.gt(1e-12).any():
+        raise ValueError(f"FF5 HML differs from FF3 HML in {int(hml_diff.gt(1e-12).sum())} months; "
+                         "the factor-set decision assumes they are identical")
     diff = lambda c: float((both[c] - both[f"{c}_ff5"]).abs().max()) if len(both) else float("nan")
     covered = merged.dropna(subset=["rmw"])
     check = {
@@ -235,6 +242,7 @@ def merge_ff5(factors: pd.DataFrame, ff5: pd.DataFrame) -> tuple[pd.DataFrame, d
         "mktrf_rf_agree_1e-6": bool(len(both)) and max(diff("mktrf"), diff("rf")) <= 1e-6,
         "smb_corr_ff3_ff5": float(both["smb"].corr(both["smb_ff5"])) if len(both) > 2 else None,
         "hml_corr_ff3_ff5": float(both["hml"].corr(both["hml_ff5"])) if len(both) > 2 else None,
+        "hml_identical": bool(len(both)) and not hml_diff.gt(1e-12).any(),
     }
     return merged[FACTOR_COLUMNS], check
 

@@ -459,7 +459,7 @@ def test_end_to_end_build_writes_outputs_and_manifest(tmp_path, monkeypatch):
     assert man["sample"]["ret_hold_stale_carry_rows"] == 3 and man["sample"]["ret_hold_no_prior_row_rows"] == 1
     assert man["sample"]["ret_hold_price_ratio_rows"] == 1
     fac = pd.read_csv(tmp_path / "ff_factors_monthly.csv")
-    assert list(fac.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf"]
+    assert list(fac.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf", "mktrf_ff5", "smb_ff5"]
     assert man["ff5_check"]["first_ff5_month"] == str(MONTHS[FF5_FROM].date())
     assert man["sample"]["universe_holding_stale_carry_months"] == 3      # missing-return holding months
     assert "audit/missing_returns.csv" in man["audits"]
@@ -473,11 +473,12 @@ def test_ff5_merge_keeps_nan_before_coverage():
     raw = make_raw()
     _, factors = build_benchmark(raw["msi"], raw["ff_factors"], "2000-01-31", "2004-12-31")
     merged, check = merge_ff5(factors, raw["ff5_factors"])
-    assert list(merged.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf"]
+    assert list(merged.columns) == ["date", "mktrf", "smb", "hml", "rmw", "cma", "umd", "rf", "mktrf_ff5", "smb_ff5"]
     assert len(merged) == len(factors) and merged["date"].equals(factors["date"])
     before = merged["date"].lt(MONTHS[FF5_FROM])
-    assert merged.loc[before, ["rmw", "cma"]].isna().all().all()          # never filled
-    assert merged.loc[~before, ["rmw", "cma"]].notna().all().all()
+    ff5_cols = ["rmw", "cma", "mktrf_ff5", "smb_ff5"]
+    assert merged.loc[before, ff5_cols].isna().all().all()                # never filled
+    assert merged.loc[~before, ff5_cols].notna().all().all()
     for col in ["mktrf", "smb", "hml", "umd", "rf"]:                      # FF3 + UMD values are kept
         assert merged[col].equals(factors[col]), col
     assert check["first_ff5_month"] == str(MONTHS[FF5_FROM].date()) and check["overlap_months"] == N - FF5_FROM
@@ -491,6 +492,24 @@ def test_ff5_merge_keeps_nan_before_coverage():
         merge_ff5(factors, raw["ff5_factors"].assign(rmw=20.0))
     with pytest.raises(ValueError, match="Duplicate"):
         merge_ff5(factors, pd.concat([raw["ff5_factors"], raw["ff5_factors"].iloc[[0]]]))
+
+
+def test_ff5_columns_and_hml_identity():
+    """F1: the FF5 file's own market and SMB are kept as separate columns; its HML must equal FF3 HML."""
+    raw = make_raw()
+    _, factors = build_benchmark(raw["msi"], raw["ff_factors"], "2000-01-31", "2004-12-31")
+    ff5 = raw["ff5_factors"].assign(mktrf=raw["ff5_factors"]["mktrf"] + 0.0001)    # another vintage
+    merged, check = merge_ff5(factors, ff5)
+    k = merged["date"].ge(MONTHS[FF5_FROM])
+    src = ff5.assign(date=MONTHS[FF5_FROM:]).set_index("date")
+    m = merged.loc[k].set_index("date")
+    assert np.allclose(m["mktrf_ff5"], src["mktrf"]) and np.allclose(m["smb_ff5"], src["smb"])
+    assert np.allclose(m["mktrf"], 0.009)                                  # FF3 market unchanged
+    assert check["hml_identical"]
+    bad = raw["ff5_factors"].copy()
+    bad.loc[bad.index[3], "hml"] += 0.01
+    with pytest.raises(ValueError, match="HML"):
+        merge_ff5(factors, bad)
 
 
 def test_extract_can_select_tables():
