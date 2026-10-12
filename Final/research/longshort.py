@@ -14,6 +14,13 @@ A separate accounting path: `research.engine` (the paper's long-only engine) is 
 - A name with a terminal (exit) month settles at its exit return: its P&L is earned once and the position
   becomes cash, without a trading cost. A held name without a return and without an exit raises.
 - Borrow on shorts is charged per month held on the short value, at a rate set at formation.
+- `rebalance="hold"` keeps each cohort buy-and-hold between opening and unwind (positions drift).
+  `rebalance="monthly"` resets every live cohort's legs to 1/n of NAV, equal weight over the surviving names,
+  at the start of each month (the Jegadeesh-Titman form); the re-weighting trades are in the ledger and costs.
+- **Ruin:** if a month's gross loss reaches 100% of NAV (1 + gross <= 0), the strategy is bankrupt. The month
+  is recorded, `records.attrs["ruined_at"]` is set, and the accounting stops (a negative NAV cannot be rescaled).
+- Capacity aggregates cohort fragments by (date, security, side) before participation (no netting across sides).
+  Stock hit rates count only cohorts held entirely inside the reported window.
 """
 from __future__ import annotations
 
@@ -38,12 +45,15 @@ class Cohort:
 
 
 def simulate(cohorts: dict, returns: pd.DataFrame, rf: pd.Series, months: pd.DatetimeIndex, n: int,
-             borrow: bool = True, keep_positions: bool = False):
+             borrow: bool = True, keep_positions: bool = False, rebalance: str = "hold"):
     """Run the overlapping-cohort long/short over `months`.
 
     Returns (records by month, trade ledger, name-level P&L) and, if keep_positions, a fourth frame of
     start-of-month positions (date, permno, side, value as a fraction of NAV).
     """
+    if rebalance not in ("hold", "monthly"):
+        raise ValueError(f"rebalance must be 'hold' or 'monthly', got {rebalance!r}")
+    ruined_at = None
     ret = {d: g.set_index("permno") for d, g in returns[["date", "permno", "ret_hold", "is_exit"]].groupby("date")}
     live = []                     # [cohort, age, long_ids, long_val, short_ids, short_val, short_rate]
     records, ledger, pnl_rows, pos_rows = [], [], [], []
@@ -76,6 +86,25 @@ def simulate(cohorts: dict, returns: pd.DataFrame, rf: pd.Series, months: pd.Dat
             long_traded += 1 / n
             short_traded += 1 / n
             live.append([f_new, 0, np.array(co.long), lv, np.array(co.short), sv, np.array(co.short_rate, float)])
+        if rebalance == "monthly":                 # reset older cohorts' legs to 1/n of NAV, equal weight
+            for c in live:
+                if c[1] == 0:
+                    continue
+                for li, side, sign in [(3, "long", 1), (5, "short", -1)]:
+                    ids, vals = c[li - 1], c[li]
+                    if len(ids) == 0:
+                        continue
+                    target = np.full(len(ids), 1 / n / len(ids))
+                    trade = target - vals
+                    for pid, tv in zip(ids, trade):
+                        ledger.append((q, c[0], pid, side, "rebalance", sign * tv))
+                    t = float(np.abs(trade).sum())
+                    traded += t
+                    if side == "long":
+                        long_traded += t
+                    else:
+                        short_traded += t
+                    c[li] = target
         if q not in ret:
             raise ValueError(f"No returns for {q.date()}")
         month = ret[q]
@@ -110,15 +139,21 @@ def simulate(cohorts: dict, returns: pd.DataFrame, rf: pd.Series, months: pd.Dat
                 else:
                     c[4], c[5], c[6] = ids[~exited], grown[~exited], c[6][~exited]
         gross = long_pnl - short_pnl + float(rf.loc[q]) - borrow_cost
+        rec_row = {"date": q, "gross": gross, "traded": traded, "long_traded": long_traded,
+                   "short_traded": short_traded, "long_pnl": long_pnl, "short_pnl": short_pnl,
+                   "borrow": borrow_cost, "rf": float(rf.loc[q]), "long_exposure": long_exp,
+                   "short_exposure": short_exp, "live_cohorts": len(live)}
+        if 1 + gross <= 0:                         # bankrupt: record the month and stop
+            records.append(rec_row)
+            ruined_at = q
+            break
         for c in live:
             c[3] = c[3] / (1 + gross)
             c[5] = c[5] / (1 + gross)
             c[1] += 1
-        records.append({"date": q, "gross": gross, "traded": traded, "long_traded": long_traded,
-                        "short_traded": short_traded, "long_pnl": long_pnl, "short_pnl": short_pnl,
-                        "borrow": borrow_cost, "rf": float(rf.loc[q]), "long_exposure": long_exp,
-                        "short_exposure": short_exp, "live_cohorts": len(live)})
+        records.append(rec_row)
     rec = pd.DataFrame(records).set_index("date")
+    rec.attrs["ruined_at"] = ruined_at
     led = pd.DataFrame(ledger, columns=["date", "cohort", "permno", "side", "action", "notional"])
     led["cost_10bps"] = np.where(led["action"].eq("exit"), 0.0, 10e-4 * led["notional"].abs())
     pnl = pd.DataFrame(pnl_rows, columns=["date", "cohort", "permno", "side", "pnl"])
@@ -135,13 +170,59 @@ def net_return(rec: pd.DataFrame, bps: float) -> pd.Series:
 def contributions(rec: pd.DataFrame, bps: float) -> pd.DataFrame:
     """Additive monthly split of the net return: long leg net of rf on its exposure and its own trading cost;
     short leg (rf earned on the short proceeds minus the short P&L) net of its trading cost and borrow; and
-    rf on the remaining collateral. They sum to gross - c x traded, the additive approximation of the
-    multiplicative net (the difference is reported separately)."""
+    rf on the remaining collateral, rf x (1 + long exposure - short exposure), so that the three sum exactly to
+    gross - c x traded. `cost_interaction` = net - that sum = -c x traded x gross, the multiplicative haircut's
+    cross term, kept as its own column."""
     c = bps * 1e-4
     out = pd.DataFrame(index=rec.index)
     out["long"] = rec["long_pnl"] - rec["rf"] * rec["long_exposure"] - c * rec["long_traded"]
     out["short"] = rec["rf"] * rec["short_exposure"] - rec["short_pnl"] - c * rec["short_traded"] - rec["borrow"]
-    out["collateral_rf"] = rec["rf"] * (1 - rec["long_exposure"] + rec["short_exposure"])
-    out["additive_total"] = out.sum(axis=1)
+    out["collateral_rf"] = rec["rf"] * (1 + rec["long_exposure"] - rec["short_exposure"])
+    out["additive_total"] = out[["long", "short", "collateral_rf"]].sum(axis=1)
     out["net"] = net_return(rec, bps)
+    out["cost_interaction"] = out["net"] - out["additive_total"]
     return out
+
+
+def participation_per_dollar(positions: pd.DataFrame, dollar_volume: pd.DataFrame, deflator: pd.Series) -> pd.DataFrame:
+    """Participation in monthly dollar volume per $1 of AUM (2024 dollars), one row per (date, permno, side).
+
+    Fragments of the same security and side (one per live cohort) are summed first, so splitting a position
+    across cohorts cannot change it. Opposite sides of the same security are **not** netted. `dollar_volume`
+    has (date, permno, dollar_volume); `deflator` maps a date to its AUM scale relative to 2024. Rows without
+    positive dollar volume stay, with `covered` False.
+    """
+    agg = (positions.assign(value=positions["value"].abs())
+           .groupby(["date", "permno", "side"], as_index=False, sort=True)["value"].sum())
+    agg = agg.merge(dollar_volume[["date", "permno", "dollar_volume"]], on=["date", "permno"], how="left")
+    with np.errstate(divide="ignore", invalid="ignore"):
+        agg["per_dollar_aum"] = agg["value"] * agg["date"].map(deflator).to_numpy(float) / agg["dollar_volume"]
+    agg["covered"] = agg["dollar_volume"].gt(0) & np.isfinite(agg["per_dollar_aum"])
+    agg.loc[~agg["covered"], "per_dollar_aum"] = np.nan
+    return agg
+
+
+def capacity_aum(per_dollar: pd.Series, limit: float = 0.10, q: float = 0.95) -> float:
+    """AUM (in the deflator's dollars) at which the q-quantile participation reaches `limit`."""
+    x = per_dollar.dropna()
+    return float(limit / x.quantile(q)) if len(x) else np.nan
+
+
+def stock_hit_rates(universe: pd.DataFrame, n: int, first: pd.Timestamp, last: pd.Timestamp) -> dict:
+    """Stock-level hit rates over a reporting window [first, last] of holding months.
+
+    Only cohorts held entirely inside the window count: formation f with f + 1 month >= first and f + n months
+    <= last. A long name (decile 10) hits if its industry-adjusted n-month return `adj_<n>` is positive; a
+    short name (decile 1) hits if it is negative. `universe` has (date = formation, dec, adj_<n>).
+    """
+    f = universe["date"]
+    start = f + pd.offsets.MonthEnd(1)
+    end = f + pd.offsets.MonthEnd(n)
+    adj = universe[f"adj_{n}"]
+    sel = universe["dec"].isin([1, 10]) & start.ge(first) & end.le(last) & adj.notna()
+    lo, hi = sel & universe["dec"].eq(10), sel & universe["dec"].eq(1)
+    wins = int((adj[lo] > 0).sum() + (adj[hi] < 0).sum())
+    rate = lambda k, m: float(k / m) if m else np.nan
+    return {"stock_names": int(sel.sum()), "stock_hit_rate": rate(wins, int(sel.sum())),
+            "stock_hit_rate_long": rate(int((adj[lo] > 0).sum()), int(lo.sum())),
+            "stock_hit_rate_short": rate(int((adj[hi] < 0).sum()), int(hi.sum()))}

@@ -1,0 +1,13 @@
+row,our_gross_basis,paper,ours,difference,definition
+Gross return,compounded,0.1524,0.14849440705315953,-0.0039055929468404804,our compounded gross return 1929-2016; the paper's 15.24% definition is unstated
+Quarterly turnover (single-counted),compounded,0.32,0.3889895485557075,0.06898954855570749,"0.5 x sum |target - drifted| per quarterly rebalance, initial excluded"
+"Cost, low (10 bps)",compounded,0.0026,0.00311191638844566,0.00051191638844566,turnover x 8 x 10 bps (two sides x four quarters)
+"Cost, high (30 bps)",compounded,0.0077,0.00933574916533698,0.001635749165336979,turnover x 8 x 30 bps
+Cost share of return (high),compounded,0.05,0.06286936559162712,0.012869365591627116,high cost / gross return
+Net return (high costs),compounded,0.1447,0.13915865788782256,-0.005541342112177439,gross - high cost
+Gross return,arithmetic,0.1524,0.15377546663758512,0.0013754666375851154,our arithmetic gross return 1929-2016; the paper's 15.24% definition is unstated
+Quarterly turnover (single-counted),arithmetic,0.32,0.3889895485557075,0.06898954855570749,"0.5 x sum |target - drifted| per quarterly rebalance, initial excluded"
+"Cost, low (10 bps)",arithmetic,0.0026,0.00311191638844566,0.00051191638844566,turnover x 8 x 10 bps (two sides x four quarters)
+"Cost, high (30 bps)",arithmetic,0.0077,0.00933574916533698,0.001635749165336979,turnover x 8 x 30 bps
+Cost share of return (high),arithmetic,0.05,0.06071026392876623,0.010710263928766228,high cost / gross return
+Net return (high costs),arithmetic,0.1447,0.14443971747224815,-0.0002602825277518428,gross - high cost

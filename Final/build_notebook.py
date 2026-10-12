@@ -1,549 +1,613 @@
-"""Build the self-contained first-draft notebook. No external data downloads."""
+"""Build the report notebook: a critical replication of the Conservative Formula on CRSP, 1929-2024.
+
+Every result shown is read from the tracked result contract (`results/`, written by `python -m research.run_all`)
+through the hash-checked loader; prose numbers are formatted from `research.summary.numbers()`.
+Run `python build_notebook.py && python execute_notebook.py`.
+"""
 from pathlib import Path
-import nbformat as nbf
 from textwrap import dedent
 
+import nbformat as nbf
+
 ROOT = Path(__file__).resolve().parent
+NOTEBOOK = "conservative_formula_first_draft.ipynb"
 cells = []
-def md(s): cells.append(nbf.v4.new_markdown_cell(dedent(s).strip()))
-def code(s): cells.append(nbf.v4.new_code_cell(dedent(s).strip()))
+
+
+def md(s):
+    cells.append(nbf.v4.new_markdown_cell(dedent(s).strip()))
+
+
+def code(s):
+    cells.append(nbf.v4.new_code_cell(dedent(s).strip()))
+
 
 md(r'''
-# Does the Conservative Formula Still Work?
-## Replication design and extensions of a simple equity strategy
-**MTH 9897 · Project 8 · First draft · September 29, 2026**
-**Team / authors:** [Add names and team number]
+# The Conservative Formula: A Critical Replication on CRSP, 1929–2024
+**MTH 9897 Systematic Trading · Project 8 · Final report**
+**Authors:** [Add names and team number]
 
-> **Draft status: executable research prototype, not an empirical replication.**
-> The saved outputs use seeded, synthetic stock data. No WRDS equity extract was available for this draft.
-> The existing course CSVs in the workspace contain corporate bonds and are not used here.
-> Every chart and results table is labeled accordingly. Do not describe these outputs as evidence that the strategy works.
+**Paper:** David Blitz and Pim van Vliet (2018), "The Conservative Formula: Quantitative Investing Made Easy",
+*The Journal of Portfolio Management* 44(7); working paper [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
 
-**Primary paper:** Pim van Vliet and David Blitz (2018), *The Conservative Formula: Quantitative Investing Made Easy*,
-[March working paper, SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
-The published version lists David Blitz and Pim van Vliet, *The Journal of Portfolio Management*, 44(7).
-
-### Abstract
-This project asks whether combining low volatility, momentum, and shareholder payouts produces a useful equity selection rule.
-The intended study will replicate a quarterly strategy in US stocks using historical CRSP data, then evaluate recent-period
-performance, the incremental contribution of each signal, and sensitivity to trading costs. This first draft specifies the data
-contract and research design and implements the selection and portfolio accounting in Python. A synthetic panel demonstrates
-that the workflow runs; it does not establish profitability or reproduce the paper's estimates. The empirical conclusions remain
-open until the historical equity data and signal definitions have been audited.
-
-### How to run
-Use Python 3.10+ with `numpy`, `pandas`, `matplotlib`, and `ipython` in a Jupyter environment.
-Run **Kernel → Restart Kernel and Run All Cells**. The default demo mode needs no credentials or downloads.
-It generates its own data and saves clearly named outputs under `output/demo/`.
-For real research, follow Section 3 to build the CRSP inputs and start the kernel with the environment variable `CF_MODE=crsp`
-(optionally `CF_END=YYYY-MM-DD` for the last return month; the default is December 2016, the end of the paper's sample).
-Missing real files cause an error, never a silent demo fallback.
+This report replicates the paper's US results on CRSP over its own sample, 1929–2016, and then asks three questions
+that were fixed before any post-2016 return was computed: is the formula's return explained by known factors, has
+its performance decayed, and how much of it survives realistic trading costs? The headline period is 1990–2024.
 ''')
 
-md(r'''
-## 1. Research question and economic intuition
-The main question is: **does combining the three signals improve risk-adjusted performance relative to simple alternatives?**
-Low volatility favors stable stocks; momentum favors recent winners; net payout yield favors companies distributing cash or
-reducing their share count rather than issuing more equity. Combining these signals could offset weaknesses of an individual
-screen, but that is a hypothesis to test, not an assumption embedded in the conclusions.
-
-The paper selects 100 stocks from a universe of the largest 1,000, first screening on 36-month volatility and then ranking on
-momentum and payouts. Holdings are equally weighted and refreshed quarterly. See the
-[paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152) and
-[Robeco's explanatory guide, pages 5–6](https://www.robeco.com/docm/docu-202302-guide-to-conservative-investing.pdf).
-
-**Pre-specified hypotheses**
-1. The combined portfolio has a higher Sharpe ratio and a less severe maximum drawdown than the market benchmark.
-2. Removing momentum or payouts weakens performance relative to the full combination.
-3. Results weaken after trading costs and may differ in the post-publication period.
-
-These comparisons may reject the hypotheses. Negative findings and replication discrepancies are legitimate results.
-The goal is a transparent assessment rather than finding parameters that manufacture outperformance.
-''')
-
-md(r'''
-## 2. Scope, timing, and differences from an exact replication
-The course brief requests a US CRSP backtest beginning in 1929. The empirical target is January 1929 through the latest complete
-calendar year available, with 1926–1928 history for initialization. Freeze an extract date and document its coverage.
-The demo instead uses 2000–2025 artificial observations and starts investing in January 2003 after a 36-month warm-up.
-
-| Component | First-draft convention |
-|---|---|
-| Universe | Point-in-time eligible US common stocks with 36 consecutive monthly returns; the largest 1,000 of these by month-end market cap |
-| Historical shortfall | If fewer than 1,000 such stocks exist (before mid-1964), use all of them and report counts; never use today's constituents |
-| Volatility | Sample standard deviation of 36 consecutive monthly total returns, annualized by √12 |
-| Momentum | 11 compounded monthly price returns, excluding the most recent formation month |
-| Dividend yield | Trailing 12-month split-adjusted cash dividends / current split-adjusted price |
-| Net issuance proxy | Current split-adjusted shares / their trailing 24-month mean − 1 |
-| Net payout proxy | Dividend yield minus the net issuance proxy; larger means more payouts / fewer new shares |
-| Selection | Lower-volatility half of the universe; within it, average ranks on momentum and payout among stocks with both signals; keep best 100 |
-| Rebalancing | Signals at March/June/September/December end; first earned return is the following month |
-| Between rebalances | Weights drift with total returns; dividends are reinvested in the paying stock |
-| Missing monthly returns | A held stock without a CRSP return keeps its last price (zero return), or earns the ratio to an observed price within three months; the next CRSP return applies when trading resumes |
-| Terminal events | Audited terminal return is earned; remaining proceeds become cash until next rebalance |
-| Execution | Idealized quarter-end marks; no within-day execution model; trading costs studied separately |
-
-**Definition requiring reconciliation before calling this a replication:** the paper describes a payout measure using dividend yield
-and the latest share count relative to a 24-month average. The precise dividend window, corporate-action treatment, and source fields
-must be matched with the instructor's example or authors' methodology. This notebook explicitly implements the proxy above.
-It does not replace payouts with dividend yield alone or claim cash buyback amounts are directly observed.
-
-At formation month *t*, volatility uses *t−35,…,t*. Momentum uses *t−11,…,t−1*; the strategy earns returns from *t+1* onward.
-For example, a December formation uses January–November momentum and first earns January's return.
-Inputs observed only after month end must be lagged further. Same-close execution is a research simplification; daily implementation
-would require a subsequent tradable price. Full-window eligibility and share-class treatment may create differences from the paper.
-''')
-
-code('''
+code(r'''
 from pathlib import Path
-import json
 import os
 import platform
+import subprocess
 import sys
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from IPython.display import display, Markdown
+from IPython.display import Image, Markdown, display
 
-# Run from this notebook's folder, or from the parent project workspace.
 BASE = Path.cwd()
-if (BASE / "Final" / "conservative_formula_first_draft.ipynb").exists():
+if (BASE / "Final" / "build_notebook.py").exists():          # opened from the parent folder
     BASE = BASE / "Final"
 sys.path.insert(0, str(BASE))
-from crsp_pipeline import config    # sample dates and portfolio sizes shared with the data pipeline
-from research import engine         # selection, validation and backtest accounting
+from research import results
+from research import summary as S
+from research.summary import ci, ci_num, num, pct, pp
 
-MODE = os.environ.get("CF_MODE", "demo")      # "demo" (default) or "crsp"
-assert MODE in {"demo", "crsp"}, f"CF_MODE must be demo or crsp, got {MODE!r}"
-SEED = 9897
-N_UNIVERSE, N_HOLDINGS = config.UNIVERSE_SIZE, config.HOLDINGS
-COST_BPS = 10                       # per dollar bought OR sold, scenario assumption
-REAL_START = config.FIRST_INVESTMENT
-DEMO_START = "2003-01-31"
-CRSP_END = os.environ.get("CF_END", config.PAPER_END)    # last return month in CRSP mode
-DATA = BASE / "data"
-OUT = BASE / "output" / MODE
-OUT.mkdir(parents=True, exist_ok=True)
-LABEL = "SYNTHETIC DEMO — NOT EMPIRICAL EVIDENCE" if MODE == "demo" else "CRSP — DRAFT CONVENTIONS"
-START = pd.Timestamp(DEMO_START if MODE == "demo" else REAL_START)
-plt.rcParams.update({"figure.figsize": (11, 5), "axes.spines.top": False,
-                     "axes.spines.right": False, "axes.grid": True, "grid.alpha": .18,
-                     "font.size": 10, "figure.dpi": 110})
-pd.set_option("display.max_columns", 12)
-display(Markdown(f"**Active data mode: {LABEL}** (set with the `CF_MODE` environment variable)"))
-print({"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__})
+MODE = os.environ.get("CF_MODE", "crsp")                     # "crsp" (default): empirical; "demo": synthetic only
+assert MODE in {"crsp", "demo"}, f"CF_MODE must be crsp or demo, got {MODE!r}"
+RESULTS = BASE / "results"
+if MODE == "crsp" and os.environ.get("CF_RECOMPUTE") == "1":   # recompute every study from data/ first
+    subprocess.run([sys.executable, "-m", "research.run_all"], cwd=BASE, check=True)
+EMPIRICAL = MODE == "crsp"
+N = S.numbers(RESULTS) if EMPIRICAL else {}
+pd.set_option("display.max_columns", 30, "display.width", 200)
+
+
+def empirical():
+    """True in CRSP mode; in demo mode, say that the empirical section is not shown."""
+    if not EMPIRICAL:
+        display(Markdown("*Empirical section: shown only in CRSP mode (`CF_MODE=crsp`). This run is a synthetic demonstration.*"))
+    return EMPIRICAL
+
+
+def R(study, name, **kw):
+    """A result table from results/, verified against results/manifest.json."""
+    return results.load(study, name, root=RESULTS, **kw)[0]
+
+
+def figure(study, name, width=900):
+    display(Image(filename=str(results.path(study, name, root=RESULTS)), width=width))
+
+
+def say(text):
+    display(Markdown(text))
+
+
+def table(df, pcts=(), nums=(), digits=1, ndigits=2):
+    """Format decimal-return columns as percentages and others as numbers (display only)."""
+    out = df.copy()
+    for c in pcts:
+        out[c] = out[c].map(lambda x: "" if pd.isna(x) else pct(x, digits))
+    for c in nums:
+        out[c] = out[c].map(lambda x: "" if pd.isna(x) else num(x, ndigits))
+    return out
+
+
+say(f"**Data mode: {'CRSP (empirical results from results/)' if EMPIRICAL else 'SYNTHETIC DEMONSTRATION — not empirical evidence'}**")
+''')
+
+code(r'''
+if empirical():
+    h = "1990–2024|net30"
+    say(f"""### Abstract
+On CRSP over the paper's sample (1929–2016), our Conservative portfolio earns {pct(N['rep_cons_compounded'])} a year
+compounded, gross of costs, with {pct(N['rep_cons_volatility'])} volatility (the paper reports {pct(N['paper_cons_compounded'])} and
+{pct(N['paper_cons_volatility'])}); the CRSP value-weighted market earns {pct(N['rep_mkt_compounded'])}. The return is largely a bundle of
+known premia: the Carhart alpha of the long-short contrast (Conservative minus Speculative) is {pct(N['att_cms_carhart_alpha'])}
+against the paper's {pct(N['t2_a_carhart_paper'])}, and over 1963–2016 the Conservative portfolio's alpha on the five Fama–French factors
+plus momentum is {pct(N['att_cons_ff5umd_alpha'], 2)} (NW t {num(N['att_cons_ff5umd_t'])}).
+Performance has decayed: the Carhart alpha falls from {pct(N['ct_alpha|1929–1962|gross'])} (1929–1962) to {pct(N['ct_alpha|1990–2016|gross'])}
+(1990–2016) and {pct(N['ct_alpha|2017–2024|gross'])} (2017–2024, only {N['ct_months|2017–2024']} months). In the headline period 1990–2024,
+net of 30 bps per dollar traded, the excess return over the market is {pct(N['ct_excess|' + h])} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}
+and the Carhart alpha {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the alpha's break-even cost is
+{N['be_alpha|1990–2024']:.0f} bps. The evidence therefore does not show that the formula beats the market on recent data once known
+factors and costs are taken into account; it is an inexpensive way to hold the low-volatility, momentum and payout premia.""")
 ''')
 
 md(r'''
-## 3. Real-data acquisition and required input schema
-The notebook consumes a **normalized, audited extract**, not an arbitrary raw CRSP download. Access to a WRDS account is not
-embedded here. Request the instructor's CRSP cleaning example, then obtain the monthly stock file, historical security names/type
-information, share and price adjustment factors, cash distributions, terminal-event information, and monthly benchmark returns.
+## 1. Question, paper and test design
+The paper proposes a simple rule: among the 1,000 largest US stocks, keep the half with the lowest 36-month
+volatility, rank them on 12-1 momentum and net payout yield (NPY), and hold the best 100 equally weighted, rebalanced
+quarterly. It reports a high return with low risk over 1929–2016 and a large alpha for the contrast between this
+"Conservative" portfolio and its "Speculative" mirror image.
 
-Save `data/crsp_monthly_normalized.parquet` with one row per security-month. The `crsp_pipeline` package
-builds it from WRDS (`python -m crsp_pipeline all --user <wrds_username>`); see README.md.
-
-| Column | Required meaning / units |
-|---|---|
-| `date`, `permno` | Calendar month-end and stable security identifier |
-| `ret_total` | Decimal holding-period total return, including terminal-event effects exactly once |
-| `ret_price` | Decimal price return excluding distributions; split adjusted |
-| `price_adj` | Positive split-adjusted price; same share basis as `div_cash_adj` |
-| `div_cash_adj` | Cash dividends per share during month on that basis; explicit 0 for verified no dividend, missing for unknown |
-| `shares_adj` | Split-adjusted shares outstanding on a consistent basis through time, not raw shares across a split |
-| `mktcap` | Observed security market cap in consistent currency units, normally abs(raw price) × raw shares |
-| `eligible` | 1 if eligible for new positions at that date, otherwise 0; historical common-stock / exchange screens applied upstream |
-| `is_exit` | 1 for an audited terminal observation after which proceeds become cash, otherwise 0 |
-| `hist36` | 1 if the security has 36 calendar-consecutive non-missing total returns ending this month |
-| `ret_hold`, `ret_hold_source` | Holding-period return used by the backtest and its source: `crsp` (equals `ret_total`), `price_ratio`, `stale_carry`, or `no_prior_row` (missing) |
-
-Save `data/benchmark_monthly.csv` with `date`, `market_ret`, `rf`. Both return columns are monthly **decimal returns**,
-not annual yields or percentage units. Prefer the CRSP value-weighted US market including dividends and a documented one-month
-Treasury return series. An S&P 500 price index is not an equivalent benchmark.
-
-**Preparation rules**
-- Include inactive and delisted securities. Merge classifications using historical effective dates. Do not prefilter the full panel
-  to today's eligible names; an ineligible held stock still needs its holding-period returns.
-- Retain missing-return codes as missing until resolved; do not interpret CRSP special numeric codes as returns.
-- Verify split adjustment direction against the installed CRSP field dictionary with a known split. Price, dividends, and shares
-  must be consistent; a split must not appear as issuance. Cash dividends must exclude noncash stock distributions.
-- Decide how multiple share classes map to firms; the current algorithm is security-level and may hold two classes unless the
-  upstream eligibility rule chooses one at each date. Document this deviation or implement company aggregation.
-- Reconcile legacy versus CIZ returns before any delisting merge. CIZ changes monthly return calculations and delisting conventions;
-  do not mechanically append legacy delisting adjustments to an already adjusted series.
-  See [CRSP's CIZ differences guide](https://www.crsp.org/wp-content/uploads/guides/CRSP_US_Stock_%26_Indexes_Databases_Summary_of_CIZ_Differences_to_Legacy_Files.pdf).
-- Missing monthly returns of a held stock follow a disclosed stale-price convention rather than a silent fill. In a month
-  without a CRSP return, the position keeps its last price (`stale_carry`, zero return), or earns the price ratio to its
-  last price when CRSP reports a price in that month and the last price is at most three months old (`price_ratio`).
-  When trading resumes, CRSP's return covers the gap, so a gap that ends within the holding quarter reproduces
-  buy-and-hold. A gap that spans a rebalance loses the price change during the gap, and the position is traded at its
-  last value; this affects 208 universe holding months in CRSP. Total returns, the history screen and all signals keep
-  the missing value, and every case is counted in the audit tables. A held stock without any holding return stops the engine.
-- The pipeline records the extract date, source tables and queries, row counts, conventions, code version, and file hashes
-  in `data/manifest.json`, and writes the coverage, exclusion, missingness, missing-return, delisting, dividend and
-  benchmark audits to `data/audit/`. CRSP licenses may constrain sharing; use the course-approved submission channel for
-  the required data.
-
-This adapter remains a data-preparation task for the empirical version. No live WRDS SQL is presented as tested or guaranteed.
+A replication alone cannot say whether the rule still works. The report therefore treats the 1929–2016 replication as
+a benchmark and then answers three questions, whose tests and periods were fixed before any 2017–2024 return was
+computed:
+1. **Known factors.** Is the return explained by the Carhart four factors (primary) or the five Fama–French factors
+   plus momentum (robustness)? CAPM alphas are shown only for comparison with the paper.
+2. **Decay.** Every headline statistic is reported for 1929–1962, 1963–1989, 1990–2016 and 2017–2024, together with
+   rolling 120-month windows. The headline period is **1990–2024**; 2017–2024 is post-sample and short.
+3. **Costs.** Net returns at 10 and 30 bps per dollar traded, and the break-even cost at which the excess return or
+   the alpha disappears.
+In the critical tests, compounded and arithmetic returns, volatilities and Sharpe ratios carry 12-month block-bootstrap
+95% intervals, and excess returns and alphas Newey–West (12 lags) 95% intervals; maximum drawdown is a path statistic
+and is reported without an interval. Elsewhere the report gives Newey–West t-statistics, and intervals where it states
+them. The course diagnostics, portfolio-construction extensions and one declared improvement follow; each is labeled as an extension and leaves the baseline unchanged.
 ''')
 
-code('''
+md(r'''
+## 2. Data
+The data are the CRSP monthly stock file (legacy format) for US common stocks (share codes 10 and 11) on NYSE, AMEX
+and NASDAQ, with security names, delistings, distributions and the CRSP index file, extracted from WRDS, plus the
+Fama–French factors. A pipeline (`crsp_pipeline`) normalizes them to one row per security-month and writes the audit
+tables below. Conventions that the paper leaves open are fixed and disclosed:
+
+| Item | Convention |
+|---|---|
+| Universe | Eligible common stocks with 36 consecutive monthly returns; the largest 1,000 by security market cap (all of them while fewer exist, before mid-1964) |
+| Share classes | One class per company: the largest common-stock class |
+| Dividends | Implied from total minus price return (legacy `retx` includes special distributions) |
+| Delistings | CRSP delisting returns; missing performance delistings imputed at −30% (NYSE/AMEX) or −55% (NASDAQ) |
+| Missing monthly returns of held stocks | Stale-price carry (zero return), or the price ratio to the last price when CRSP reports a price within three months; CRSP's return applies when trading resumes |
+| Benchmark and risk-free rate | CRSP value-weighted index including distributions; Fama–French one-month T-bill |
+''')
+
+code(r'''
+if empirical():
+    ex = R("data_audit", "extract_summary.json")
+    s = ex["sample"]
+    say(f"""Extracted from `{ex['host']}` at {ex['extracted_at_utc']} (UTC), months {ex['start']} to {ex['end']}:
+{s['panel_rows']:,} security-months of {s['securities']:,} securities, {s['terminal_rows']:,} terminal events
+(delisting returns observed for {s['delist_sources']['observed']:,}, imputed for {s['delist_sources']['imputed_shumway']},
+missing and set to zero for {s['delist_sources']['missing_set_zero']}). The first formation (December 1928) has a universe of
+{s['first_formation_universe_n']} stocks; the full 1,000 is first reached in {s['first_formation_with_full_universe'][:7]}.
+WRDS exposes no release identifier, so the extract is identified by its time stamp and file hashes.""")
+    cov = R("data_audit", "formation_coverage.csv", parse_dates=["date"])
+    cov["decade"] = (cov["date"].dt.year // 10 * 10).astype(str) + "s"
+    display(Markdown("**Universe coverage at quarter-end formations (mean by decade)**"))
+    display(cov.groupby("decade")[["eligible_n", "eligible_hist36_n", "universe_n"]].mean().round(0).astype(int))
+    mr = R("data_audit", "missing_returns.csv").set_index("decade")
+    display(Markdown("**Missing monthly returns: panel rows and universe holding months, by decade**"))
+    display(mr[["nan_ret_rows", "stale_carry_rows", "price_ratio_rows", "universe_holding_months",
+                "universe_holding_stale_carry", "universe_holding_price_ratio"]])
+    dv = R("data_audit", "dividend_reconciliation.csv").set_index("decade")
+    bc = R("data_audit", "benchmark_check.csv").set_index("decade")
+    display(Markdown("**Implied dividends against CRSP distributions, and the CRSP VW index against the Fama–French market**"))
+    display(pd.concat([dv[["agree_ordinary_cash"]].map(lambda x: pct(x)),
+                       bc[["corr_crsp_vw_vs_ff_market"]].round(4)], axis=1))
+''')
+
+md(r'''
+## 3. Baseline rule and deviations from the paper
+At each quarter end the engine applies the paper's order: the history screen, then the 1,000 largest by market cap,
+then the low-volatility half (⌊N/2⌋ names), and only then the momentum and NPY ranks among pool members with both
+signals; the best 100 by average rank are held equally weighted. Weights drift with returns between rebalances; a
+delisted holding earns its delisting return and becomes cash until the next rebalance. Costs are a proportional charge
+per dollar traded against the drifted weights. The Speculative portfolio takes the high-volatility half and the 100
+weakest combined scores; the standalone controls hold the 100 best names on a single signal; "Small" holds the 100
+smallest members of the universe. The paper's Value control (book-to-market) is excluded because the CRSP-only extract
+has no book equity, and Table 2's panels C and D are excluded because the q-factors and the AQR QMJ and BAB factors are
+not in our sources.
+''')
+
+code(r'''
+if empirical():
+    display(Markdown("**Documented deviations from the paper's method**"))
+    display(R("replication", "deviations.csv").set_index("item"))
+''')
+
+md(r'''
+## 4. Replication, 1929–2016
+The comparison uses the paper's own definitions (Table 1): simple return = 12 × mean monthly return; compounded
+return; volatility = √12 × monthly standard deviation; the paper's "Sharpe" = simple return / volatility (no T-bill is
+subtracted, despite its caption); de-risking factor = 16.5% / volatility; and return at the same risk =
+rf + (simple − rf) × 16.5% / volatility. All returns are gross of costs.
+''')
+
+code(r'''
+if empirical():
+    t1 = R("paper_targets", "table1_vs_paper.csv")
+    ratio = t1["row"].isin(["De-risking factor", "Sharpe (simple)"])
+    t1["cell"] = np.where(t1["status"].ne("compared"), np.where(ratio, t1["paper"].map(lambda x: num(x)),
+                                                                t1["paper"].map(lambda x: pct(x))) + " / excluded",
+                 np.where(ratio, t1["paper"].map(lambda x: num(x)) + " / " + t1["ours"].map(lambda x: num(x)),
+                          t1["paper"].map(lambda x: pct(x)) + " / " + t1["ours"].map(lambda x: pct(x))))
+    display(Markdown("**Table 1, paper / ours (gross, 1929–2016)**"))
+    display(t1.pivot(index="row", columns="column", values="cell").loc[t1["row"].unique(),
+            ["Formula", "Market", "Small", "Value", "Momentum", "Lowvol", "NPY"]])
+    say(f"""The replication is close on return and risk: Conservative compounds at {pct(N['rep_cons_compounded'], 2)} with
+{pct(N['rep_cons_volatility'], 2)} volatility (paper {pct(N['paper_cons_compounded'])}, {pct(N['paper_cons_volatility'])}), and the market at
+{pct(N['rep_mkt_compounded'], 2)} with {pct(N['rep_mkt_volatility'], 2)} ({pct(N['paper_mkt_compounded'])}, {pct(N['paper_mkt_volatility'])}).
+The Speculative portfolio compounds at only {pct(N['rep_spec_compounded'], 2)} with {pct(N['rep_spec_volatility'])} volatility.
+Conservative beats the market in {N['decades_cons_beats_mkt']} of {N['decades_n']} decade buckets (partial decades labeled).
+The largest gap is Small's simple return ({pct(N['t1_small_simple'])} against {pct(N['paper_small_simple'])}); its compounded return
+is within one percentage point. Explanations of every gap above the declared thresholds are listed below.""")
+    figure("replication", "fig3.png")
+    figure("replication", "fig4.png")
+    gaps = R("paper_targets", "gaps.csv")
+    display(Markdown("**Gaps above 1 pp (returns, alphas) or 5 pp (turnover), with explanations**"))
+    display(table(gaps[["table", "item", "paper", "ours", "difference", "explanation"]], pcts=["paper", "ours", "difference"]))
+''')
+
+md(r'''
+## 5. Factor attribution (Table 2) and trading costs (Table 4)
+The contrast CMS = R(Conservative) − R(Speculative) is a zero-investment return, regressed on the factors without
+subtracting the risk-free rate. Net of costs, both legs pay their trading costs (no borrow or financing cost). Alphas
+are annualized; the paper's t-values are compared with our OLS t-statistics, with Newey–West t-statistics alongside.
+Panel B uses the five-factor file's own market and size factors.
+''')
+
+code(r'''
+if empirical():
+    t2 = R("paper_targets", "table2_vs_paper.csv")
+    t2 = t2.loc[t2["term"].ne("adj. R2")]
+    display(Markdown("**Table 2, CMS: paper against ours (gross)**"))
+    show = t2[["panel", "model", "sample", "n", "term", "paper", "paper_t", "ours", "ours_t_ols", "ours_t_nw", "status"]].copy()
+    show["n"] = show["n"].map(lambda x: "" if pd.isna(x) else f"{int(x)}")
+    alpha = show["term"].eq("alpha (annual)")
+    for c in ["paper", "ours"]:
+        show[c] = np.where(alpha, show[c].map(lambda x: "" if pd.isna(x) else pct(x, 2)), show[c].map(lambda x: "" if pd.isna(x) else num(x)))
+    display(table(show, nums=["paper_t", "ours_t_ols", "ours_t_nw"]).fillna(""))
+    say(f"""Over 1963–2016 (panel B, N = {N['t2_b_capm_n']}) the CMS alphas reproduce the paper almost exactly: CAPM
+{pct(N['t2_b_capm_ours'], 2)} against {pct(N['t2_b_capm_paper'])}, FF3 {pct(N['t2_b_ff3_ours'], 2)} against {pct(N['t2_b_ff3_paper'])},
+FF5 {pct(N['t2_b_ff5_ours'], 2)} against {pct(N['t2_b_ff5_paper'])} and FF5 plus momentum {pct(N['t2_b_ff5mom_ours'], 2)} against
+{pct(N['t2_b_ff5mom_paper'])}. Over 1929–2016 (panel A) our CAPM and Carhart alphas, {pct(N['t2_a_capm_ours'], 2)} and
+{pct(N['t2_a_carhart_ours'], 2)}, are below the paper's {pct(N['t2_a_capm_paper'])} and {pct(N['t2_a_carhart_paper'])}, so the gap sits in the
+pre-1963 period, where our universe is smaller. For the long-only Conservative portfolio the Carhart alpha is
+{pct(N['att_cons_carhart_alpha'], 2)} (NW t {num(N['att_cons_carhart_t'])}), and over 1963–2016 the five factors plus momentum leave
+{pct(N['att_cons_ff5umd_alpha'], 2)} (t {num(N['att_cons_ff5umd_t'])}): profitability and investment explain the rest. Net of 30 bps
+with both legs paying, the CMS Carhart alpha is {pct(N['att_cms_carhart_net30_alpha'], 2)} (t {num(N['att_cms_carhart_net30_t'])}).""")
+    t4 = R("paper_targets", "table4_vs_paper.csv")
+    display(Markdown("**Table 4, costs = turnover × 8 × cost per dollar (paper; ours on compounded and arithmetic gross bases)**"))
+    t4w = t4.pivot(index="row", columns="our_gross_basis", values="ours").loc[t4["row"].unique()]
+    t4w.insert(0, "paper", t4.drop_duplicates("row").set_index("row")["paper"])
+    display(t4w.map(lambda x: pct(x, 2)))
+    td = R("replication", "turnover_decomposition.csv").set_index("era")
+    say(f"""One-way quarterly turnover is {pct(N['rep_turnover'])} against the paper's {pct(N['paper_turnover'], 0)}. The decomposition
+below shows that it is almost entirely name replacement and that it is higher after 1964, so the smaller early universe
+does not explain it; the paper does not state how its turnover is measured. At the paper's cost levels the cost drag is
+small: net of 30 bps Conservative compounds at {pct(N['rep_cons_net30_compounded'], 2)}.""")
+    display(table(td, pcts=["one_way", "bought_new_names", "sold_dropped_names", "reweight_kept_names", "cash_reinvested"],
+                  nums=["names_replaced"], ndigits=1))
+''')
+
+md(r'''
+## 6. Critical tests: known factors, decay and costs, 1929–2024
+The rules and periods below were fixed before any 2017–2024 return was computed; the time stamp of the first load of
+post-2016 data is printed from the run record. The 1929–2016 part of the extended run is bit-identical to the
+replication. Excess returns over the market and alphas are arithmetic annual figures with Newey–West (12 lags) 95%
+intervals; compounded returns, volatilities and Sharpe ratios carry 12-month block-bootstrap 95% intervals (5,000
+draws). Maximum drawdown is a path statistic and has no interval.
+''')
+
+code(r'''
+if empirical():
+    say(f"First load of 2017–2024 data: **{N['freeze_utc']}** (UTC), after the rules were frozen.")
+    sp = R("critical_tests", "subperiods.csv")
+    c = sp.loc[sp["portfolio"].eq("Conservative") & sp["returns"].isin(["gross", "net30"])].copy()
+    for col in ("compounded", "volatility"):
+        c[f"{col} [95% CI]"] = [f"{pct(a)} {ci(lo, hi)}" for a, lo, hi in zip(c[col], c[f"{col}_ci95_low"], c[f"{col}_ci95_high"])]
+    for col, label in [("sharpe_paper", "Sharpe (paper)"), ("sharpe_excess", "Sharpe (excess)")]:
+        c[f"{label} [95% CI]"] = [f"{num(a)} {ci_num(lo, hi)}" for a, lo, hi in zip(c[col], c[f"{col}_ci95_low"], c[f"{col}_ci95_high"])]
+    c["excess [95% CI]"] = [f"{pct(a, 2)} {ci(lo, hi)}" for a, lo, hi in zip(c.excess_vs_market, c.excess_ci95_low, c.excess_ci95_high)]
+    c["Carhart alpha (NW t) [95% CI]"] = [f"{pct(a, 2)} ({num(t)}) {ci(lo, hi)}" for a, t, lo, hi in
+                                          zip(c.carhart_alpha, c.carhart_t_nw, c.carhart_ci95_low, c.carhart_ci95_high)]
+    c["FF5+UMD alpha (NW t) [95% CI]"] = [("" if pd.isna(a) else f"{pct(a, 2)} ({num(t)}) {ci(lo, hi)}") for a, t, lo, hi in
+                                          zip(c.ff5umd_alpha, c.ff5umd_t_nw, c.ff5umd_ci95_low, c.ff5umd_ci95_high)]
+    c["max drawdown (path, no CI)"] = c["max_drawdown"].map(pct)
+    display(Markdown("**Conservative by fixed period: gross and net of 30 bps** (Sharpe (paper) = arithmetic return / volatility; "
+                     "Sharpe (excess) subtracts the T-bill; FF5+UMD alphas start in 1963)"))
+    display(c.set_index(["period", "returns"])[["months", "compounded [95% CI]", "volatility [95% CI]", "Sharpe (paper) [95% CI]",
+            "Sharpe (excess) [95% CI]", "excess [95% CI]", "Carhart alpha (NW t) [95% CI]", "FF5+UMD alpha (NW t) [95% CI]",
+            "max drawdown (path, no CI)"]])
+    figure("critical_tests", "fig_rolling.png")
+    be = R("critical_tests", "breakeven.csv")
+    be["break-even (bps per dollar traded)"] = [f"{b:.0f}" if s == "found" else s.replace("<= 0", "none: gross value ≤ 0")
+                                                for b, s in zip(be.breakeven_bps, be.status)]
+    display(Markdown("**Break-even cost of Conservative by period**"))
+    display(be.pivot(index="period", columns="measure", values="break-even (bps per dollar traded)").assign(
+        one_way_turnover_per_quarter=be.groupby("period")["one_way_turnover_per_quarter"].first().map(pct)))
+    h, g = "1990–2024|net30", "1990–2024|gross"
+    say(f"""**Headline, 1990–2024.** Gross of costs, Conservative's excess return over the market is {pct(N['ct_excess|' + g], 2)}
+{ci(N['ct_excess_lo|' + g], N['ct_excess_hi|' + g])} and its Carhart alpha {pct(N['ct_alpha|' + g], 2)} (t {num(N['ct_alpha_t|' + g])})
+{ci(N['ct_alpha_lo|' + g], N['ct_alpha_hi|' + g])}. Net of 30 bps the excess return is {pct(N['ct_excess|' + h], 2)}
+{ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])} and the alpha {pct(N['ct_alpha|' + h], 2)} (t {num(N['ct_alpha_t|' + h])})
+{ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the five factors plus momentum give {pct(N['ct_ff5_alpha|' + h], 2)}
+(t {num(N['ct_ff5_t|' + h])}) {ci(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h], 2)}, which is
+{S.significance(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h])}. The break-even cost is {N['be_excess|1990–2024']:.0f} bps for the
+excess return and {N['be_alpha|1990–2024']:.0f} bps for the alpha, at {pct(N['be_turnover|1990–2024'])} one-way turnover a quarter.
+Conservative still compounded at {pct(N['ct_comp|' + g])} {ci(N['ct_comp_lo|' + g], N['ct_comp_hi|' + g])} gross
+({pct(N['ct_comp|' + h])} {ci(N['ct_comp_lo|' + h], N['ct_comp_hi|' + h])} net of 30 bps) with {pct(N['ct_vol|' + g])}
+{ci(N['ct_vol_lo|' + g], N['ct_vol_hi|' + g])} volatility, against the market's {pct(N['ct_mkt_compounded|1990–2024'])}
+{ci(N['ct_mkt_comp_lo|1990–2024'], N['ct_mkt_comp_hi|1990–2024'])} and {pct(N['ct_mkt_vol|1990–2024'])}
+{ci(N['ct_mkt_vol_lo|1990–2024'], N['ct_mkt_vol_hi|1990–2024'])}; its Sharpe ratio is {num(N['ct_sharpe|' + g])}
+{ci_num(N['ct_sharpe_lo|' + g], N['ct_sharpe_hi|' + g])} gross (paper definition; {num(N['ct_sharpe_x|' + g])}
+{ci_num(N['ct_sharpe_x_lo|' + g], N['ct_sharpe_x_hi|' + g])} over the T-bill). The edge is mainly lower risk, not higher return.
+The cost-inclusive CMS keeps a Carhart alpha of {pct(N['ct_cms_net30_alpha|1990–2024'], 2)} (t {num(N['ct_cms_net30_t|1990–2024'])})
+{ci(N['ct_cms_net30_lo|1990–2024'], N['ct_cms_net30_hi|1990–2024'])}.
+
+**Decay.** The gross Carhart alpha is {pct(N['ct_alpha|1929–1962|gross'], 2)} (t {num(N['ct_alpha_t|1929–1962|gross'])}) in 1929–1962,
+{pct(N['ct_alpha|1963–1989|gross'], 2)} (t {num(N['ct_alpha_t|1963–1989|gross'])}) in 1963–1989, {pct(N['ct_alpha|1990–2016|gross'], 2)}
+(t {num(N['ct_alpha_t|1990–2016|gross'])}) in 1990–2016 and {pct(N['ct_alpha|2017–2024|gross'], 2)} (t {num(N['ct_alpha_t|2017–2024|gross'])})
+in 2017–2024. **The 2017–2024 period has only {N['ct_months|2017–2024']} months:** its interval
+{ci(N['ct_alpha_lo|2017–2024|gross'], N['ct_alpha_hi|2017–2024|gross'])} includes sizable positive values, so it shows no evidence of
+outperformance rather than proof of failure. Early-period break-even costs are high, but so were the actual trading costs of that era,
+which were well above 30 bps.""")
+''')
+
+md(r'''
+## 7. Signal diagnostics
+These diagnostics study the three signals, not the paper's two-stage selection. Each signal is computed in the monthly
+universe, demeaned within Fama–French 12 industries, standardized by its cross-sectional standard deviation and clipped
+to ±3; the composite is the equal-weight mean of the three neutralized exposures. (The composite factor-mimicking
+portfolio below is a different object: the sum of the three unit-exposure signal portfolios, which has unit exposure to
+each signal.) Forward returns are industry-adjusted and include delisting returns. The
+information coefficient (IC) is the rank correlation of exposure and forward return; "mean/sd" is the literal ratio,
+reported apart from the Newey–West t-statistic (lags h − 1 + 12). Factor-mimicking portfolios come from monthly
+cross-sectional weighted least squares on the exposures, size and industry dummies; they are gross, levered paper
+portfolios, not investable as they stand.
+''')
+
+code(r'''
+if empirical():
+    ic = R("diagnostics", "ic.csv")
+    ic["IC: mean (mean/sd; NW t)"] = [f"{num(m, 3)} ({num(r)}; {num(t, 1)})" for m, r, t in zip(ic["mean"], ic.mean_over_sd_literal, ic.t_nw)]
+    display(Markdown("**Rank IC by horizon h (months)**"))
+    display(ic.pivot(index="exposure", columns="h", values="IC: mean (mean/sd; NW t)"))
+    figure("diagnostics", "fig_ic_ma.png")
+    figure("diagnostics", "fig_decay.png")
+    ds = R("diagnostics", "deciles_subperiods.csv")
+    ds = ds.loc[ds["h"].eq(1) & ds["decile"].eq("D10-D1")]
+    ds["D10−D1 (NW t)"] = [f"{pct(m, 2)} ({num(t)})" for m, t in zip(ds.mean_er, ds.t_nw)]
+    display(Markdown("**Top-minus-bottom decile spread of industry-adjusted 1-month returns, by period**"))
+    display(ds.pivot(index="exposure", columns="sample", values="D10−D1 (NW t)"))
+    figure("diagnostics", "fig_deciles.png")
+    say(f"""The composite's 1-month IC is {num(N['ic_comp_h1'], 3)} (NW t {num(N['ic_comp_h1_t'], 1)}). Its decile spread is concentrated
+in 1963–2016: {pct(N['dec_comp_spread|1963–1989'], 2)} (t {num(N['dec_comp_t|1963–1989'])}) in 1963–1989 and
+{pct(N['dec_comp_spread|1990–2016'], 2)} (t {num(N['dec_comp_t|1990–2016'])}) in 1990–2016, against {pct(N['dec_comp_spread|1929–1962'], 2)}
+before 1963 and {pct(N['dec_comp_spread|2017–2024'], 2)} (t {num(N['dec_comp_t|2017–2024'])}) in 2017–2024. Low volatility has a
+positive rank IC but a flat mean spread, because the high-volatility deciles are strongly right-skewed: rank and mean
+measures answer different questions.""")
+    pm = R("fmp", "paper_metrics.csv")
+    pm = pm.loc[pm["period"].isin(["1929–2024", "2017–2024"])]
+    display(Markdown("**Lagged composite factor-mimicking paper portfolio (active over CRSP VW, gross)**"))
+    display(table(pm[["K", "weighting", "period", "mean_annual", "vol_annual", "ir", "max_drawdown_active", "skew",
+                      "excess_kurtosis", "corr_benchmark", "turnover_one_way_monthly"]],
+                  pcts=["mean_annual", "vol_annual", "turnover_one_way_monthly"],
+                  nums=["ir", "max_drawdown_active", "skew", "excess_kurtosis", "corr_benchmark"]).set_index(["K", "weighting", "period"]))
+    figure("fmp", "fig_cum.png")
+    say(f"""Lagging the composite trades information for turnover: the information ratio is {num(N['fmp_ir_K1'])} at K = 1 with
+{pct(N['fmp_turn_K1'])} monthly turnover, and {num(N['fmp_ir_K12'])} at K = 12 with {pct(N['fmp_turn_K12'])}. In 2017–2024 the
+K = 1 information ratio is {num(N['fmp_ir_2017_K1'])}.""")
+''')
+
+md(r'''
+## 8. Portfolio construction
+**Decile long/short.** Each month a cohort goes long the top composite decile and short the bottom decile, equally
+weighted, each leg 1/n of capital, and is held n months (n ∈ {1, 3, 6, 12}); collateral earns the risk-free rate, and
+shorts pay a borrow fee of 2–25 bps a month by size decile. Every trade is recorded in a ledger that reconciles to the
+turnover and the profit and loss. The pre-specified buy-and-hold cohorts are ruined in the 1932–33 rally of
+low-quality stocks, when short positions grew to several times capital; cohorts re-weighted to 1/n each month
+(the Jegadeesh–Titman form) are therefore the primary convention, **a choice made after the ruin was observed**.
+Capacity is the assets under management (2024 dollars) at which the 95th percentile of a position's share of its
+stock's monthly dollar volume reaches 10%; there is no price-impact model.
+
+**Linear optimization.** Each quarter a linear program maximizes the composite exposure minus trading costs, long
+only with a 2% cap per stock, subject to industry bands of ±δ around the universe's cap-weight industry mix and a
+two-way turnover budget τ; costs rise for small and volatile stocks. The grid crosses δ ∈ {2%, 5%, none},
+τ ∈ {20%, 40%, 80%, none} and two cost levels, so selecting its best cell is itself a selection exercise; the whole
+grid is shown. A variant that scales the alpha into return units (information coefficient × volatility × exposure)
+was added after the grid was specified and is shown separately as a sensitivity. Quadratic mean-variance
+optimization is excluded: no commercial risk model is available.
+''')
+
+code(r'''
+if empirical():
+    nx = R("longshort", "nxc.csv")
+    jt = nx.loc[nx["convention"].eq("monthly re-weighted (JT)") & nx["borrow"].eq("with")].copy()
+    jt["ER / IR"] = [f"{pct(e, 2)} / {num(i)}" for e, i in zip(jt.er_over_rf_annual, jt.ir)]
+    display(Markdown("**Long/short, monthly re-weighted cohorts (primary, chosen after the buy-and-hold ruin), with borrow: "
+                     "annual excess return over rf / information ratio, by n and cost per dollar traded (bps)**"))
+    display(jt.pivot(index="n", columns="cost_bps", values="ER / IR"))
+    say(f"""With n = 3 at 10 bps the long/short earns {pct(N['ls_er'], 2)} a year over the risk-free rate (IR {num(N['ls_ir'])}), with a
+maximum drawdown of {pct(N['ls_mdd'], 2)} in 1932 and a correlation of {num(N['ls_corr'])} with the market; borrow costs
+{pct(N['ls_borrow'])} a year. The pre-specified buy-and-hold cohorts are ruined for n ≥ 3 (at {', '.join(N['ls_ruin_dates'])}).""")
+    sub = R("longshort", "subperiods_n3_c10.csv")
+    sub = sub.loc[sub["borrow"].eq("with")]
+    display(Markdown("**n = 3, 10 bps, with borrow, by period (each period starts with fresh capital)**"))
+    display(table(sub[["convention", "period", "months", "er_over_rf_annual", "ir", "max_drawdown", "long_contribution_annual",
+                       "short_contribution_annual", "stock_hit_rate"]],
+                  pcts=["er_over_rf_annual", "max_drawdown", "long_contribution_annual", "short_contribution_annual", "stock_hit_rate"],
+                  nums=["ir"]).set_index(["convention", "period"]))
+    ia = R("longshort", "industry_attribution.csv")
+    display(Markdown("**Industry attribution: regression on the 12 equal-weight industry excess returns (NW 12)**"))
+    display(table(ia[["convention", "series", "first", "last", "r2", "residual_alpha_annual", "alpha_t_nw"]],
+                  pcts=["residual_alpha_annual"], nums=["r2", "alpha_t_nw"]))
+    cap = R("longshort", "capacity.csv")
+    cap = cap.loc[cap["convention"].eq("monthly re-weighted (JT)")]
+    display(Markdown("**Capacity of the n = 3 long/short (2024 dollars; positions summed by stock and side)**"))
+    display(cap.set_index("decade")[["capacity_aum_2024usd_p95_at_10pct", "median_participation_$1B", "p95_participation_$1B"]].assign(
+        capacity_aum_2024usd_p95_at_10pct=lambda d: d.iloc[:, 0].map(lambda x: f"${x / 1e9:.2f}B" if x >= 1e9 else f"${x / 1e6:.0f}M"),
+        **{"median_participation_$1B": lambda d: d.iloc[:, 1].map(lambda x: pct(x, 2)),
+           "p95_participation_$1B": lambda d: d.iloc[:, 2].map(lambda x: pct(x, 1))}))
+    figure("longshort", "fig_longshort.png")
+''')
+
+code(r'''
+if empirical():
+    g = R("optimization", "grid.csv")
+    spec = g.loc[g["role"].eq("spec")].copy()
+    spec["ER / IR / turnover"] = [f"{pct(e, 2)} / {num(i)} / {pct(t)}" for e, i, t in
+                                  zip(spec.er_over_bench_annual, spec.ir, spec.turnover_one_way_per_quarter)]
+    display(Markdown("**Optimization grid, full sample 1929–2024, net: excess return over CRSP VW / IR / one-way quarterly turnover**"))
+    display(spec.pivot(index=["delta", "tau"], columns="c0_bps", values="ER / IR / turnover"))
+    gs = R("optimization", "grid_subperiods.csv")
+    gs = gs.loc[gs["c0_bps"].eq(30) & gs["period"].isin(["1990–2024", "2017–2024"])].copy()
+    gs["Carhart alpha (NW t) [95% CI]"] = [f"{pct(a, 2)} ({num(t)}) {ci(lo, hi)}" for a, t, lo, hi in
+                                           zip(gs.carhart_alpha_annual, gs.carhart_alpha_t_nw, gs.carhart_alpha_ci95_low, gs.carhart_alpha_ci95_high)]
+    for role, label in [("spec", "Specified grid"), ("sensitivity: Grinold alpha (not in spec)",
+                                                     "Sensitivity added after the grid was specified: alpha in return units")]:
+        display(Markdown(f"**{label}, c0 = 30 bps: Carhart alpha net of costs**"))
+        display(gs.loc[gs["role"].eq(role)].pivot(index=["delta", "tau"], columns="period", values="Carhart alpha (NW t) [95% CI]"))
+    figure("optimization", "fig_frontier.png")
+    say(f"""Over 1990–2024, net of 30 bps, the specified configurations with 2–5% industry bands and a 20–40% turnover budget have
+Carhart alphas of {pct(N['opt_alpha_9024_min'], 2)} to {pct(N['opt_alpha_9024_max'], 2)}, above the paper rule's
+{pct(N['ct_alpha|1990–2024|net30'], 2)}; {N['opt_ci_9024_text']}. These are unadjusted, nominal intervals for configurations
+selected from a {N['opt_runs_spec']}-run grid, so they overstate the evidence. The gain comes from limiting turnover and from
+the industry-neutral composite, not from a new signal. In 2017–2024 the specified configurations' alphas range from
+{pct(N['opt_alpha_1724_min'], 2)} to {pct(N['opt_alpha_1724_max'], 2)}, and {N['opt_ci_1724_text']}. These are long-only tilts,
+highly correlated with the market.""")
+''')
+
+md(r'''
+## 9. Declared improvement: a rank buffer
+One improvement was declared, with its parameter and success criterion, before any variant result existed. The
+binding constraint in the critical tests is cost, so the rule targets turnover: at each rebalance a current holding is
+kept if it is still in the low-volatility pool and ranks within the best **150** by combined score; the remaining
+slots are filled with the best-ranked other names, equally weighted. No other buffer size was run. The primary metric
+is the paired monthly difference (buffer − baseline) in returns net of 30 bps over 1990–2024, with a Newey–West
+interval; the rule is called a success if one-way turnover falls by at least 25% **and** the paired difference is
+positive, without requiring statistical significance. The 2017–2018 and 2019–2024 rows use data already seen in the
+critical tests and are **not a holdout**.
+''')
+
+code(r'''
+if empirical():
+    pr = R("rank_buffer", "paired.csv")
+    pr["mean difference (NW SE) [95% CI]"] = [f"{pct(m, 2)} ({pct(s, 2)}) {ci(lo, hi, 2)}" for m, s, lo, hi in
+                                              zip(pr.mean_diff_annual, pr.se_nw_annual, pr.ci95_low, pr.ci95_high)]
+    pr["Carhart alpha of difference (NW t)"] = [f"{pct(a, 2)} ({num(t)})" for a, t in zip(pr.carhart_alpha_diff_annual, pr.carhart_alpha_diff_t_nw)]
+    display(Markdown("**Paired difference, buffer − baseline (annualized)**"))
+    display(pr.loc[pr["returns"].isin(["gross", "net30"])].set_index(["period", "returns"])[
+        ["months", "mean difference (NW SE) [95% CI]", "Carhart alpha of difference (NW t)"]].unstack("returns"))
+    tc = R("rank_buffer", "turnover_concentration.csv")
+    display(Markdown("**Turnover, holding period and industry concentration**"))
+    display(table(tc[["strategy", "period", "turnover_one_way_per_quarter", "mean_holding_quarters", "hhi_ff12", "max_industry_weight"]],
+                  pcts=["turnover_one_way_per_quarter", "max_industry_weight"], nums=["mean_holding_quarters", "hhi_ff12"]).set_index(["period", "strategy"]))
+    figure("rank_buffer", "fig_paired_cum.png")
+    say(f"""**Verdict under the declared rule: {N['buf_verdict']}.** Over 1990–2024 one-way quarterly turnover falls from
+{pct(N['buf_turn_base'])} to {pct(N['buf_turn_buf'])} ({pct(N['buf_turn_red'])} lower), and the paired net-of-30-bps difference is
+{pct(N['buf_diff'], 2)} a year {ci(N['buf_lo'], N['buf_hi'], 2)}, so it is not statistically significant; the Carhart alpha of the difference
+is {pct(N['buf_alpha'], 2)} (t {num(N['buf_alpha_t'])}). Gross of costs the difference is {pct(N['buf_gross_diff'], 2)}: the buffer
+gives up no signal and saves costs. It recovers part of the cost drag but does not change the answer to the critical tests.""")
+''')
+
+md(r'''
+## 10. Conclusion and limitations
+''')
+
+code(r'''
+if empirical():
+    h = "1990–2024|net30"
+    say(f"""**Replication.** On the paper's sample the formula is reproduced closely on return and risk, and the 1963–2016 factor
+attribution of the Conservative-minus-Speculative contrast matches the paper almost exactly; turnover is higher than reported
+({pct(N['rep_turnover'])} against {pct(N['paper_turnover'], 0)} a quarter), which the paper's unstated definition leaves unexplained.
+
+**Known factors.** The return is largely a bundle of known premia. The long-only portfolio's Carhart alpha over 1929–2016 is
+{pct(N['att_cons_carhart_alpha'], 2)}, and over 1963–2016 the five factors plus momentum leave {pct(N['att_cons_ff5umd_alpha'], 2)}.
+
+**Decay and costs.** Carhart alphas are positive and significant before 1990 and not significant afterwards. In the headline period
+1990–2024, net of 30 bps, the excess return over the market is {pct(N['ct_excess|' + h], 2)} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}
+and the Carhart alpha {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the alpha's break-even cost is
+{N['be_alpha|1990–2024']:.0f} bps. **The evidence does not support the claim that the formula beats the market on recent data once known
+factors and realistic costs are taken into account.** It remains a cheap, transparent way to hold the low-volatility, momentum and payout
+premia with lower volatility than the market, and the contrast between low- and high-risk stocks persists more than the long-only edge
+over the market.
+
+**Extensions.** The declared rank buffer cuts turnover and adds {pct(N['buf_diff'], 2)} a year net (not significant); a turnover-budgeted,
+industry-banded optimizer does better than the paper rule over 1990–2024 ({pct(N['opt_alpha_9024_min'], 2)}–{pct(N['opt_alpha_9024_max'], 2)}
+alpha; {N['opt_ci_9024_text']}, unadjusted for the selection from a {N['opt_runs_spec']}-run grid), and its 2017–2024 alphas lie
+between {pct(N['opt_alpha_1724_min'], 2)} and {pct(N['opt_alpha_1724_max'], 2)}. The decile long/short barely
+survives costs and borrow fees.""")
+''')
+
+md(r'''
+**Limitations.**
+- *Data release:* WRDS exposes no release identifier; the extract is identified by its time stamp, coverage and file
+  hashes, and later CRSP revisions could change individual returns.
+- *Dividends:* NPY uses dividends implied by the difference between total and price returns, which includes special
+  cash distributions; it agrees with CRSP's ordinary cash distributions in the large majority of stock-months.
+- *Share classes and size:* one class per company and security-level market cap may change membership at the margin
+  of the 1,000-stock universe relative to the paper's unstated choice.
+- *Turnover:* our turnover exceeds the paper's, and the paper does not state its measure.
+- *Selection across grids:* the optimization grid and the long/short n × cost table contain many configurations; their
+  best cells are selected results. The long/short convention and the optimizer's alpha-scaling sensitivity were chosen
+  after results were seen and are labeled so.
+- *Post-sample length:* 2017–2024 covers only eight years, and it was seen before the declared improvement was tested.
+- *Costs:* proportional costs per dollar traded, with no market-impact model; capacity figures rest on stated volume
+  and participation assumptions.
+''')
+
+md(r'''
+## 11. Reproducibility
+```bash
+python -m crsp_pipeline extract --user <wrds_username>   # WRDS -> data/raw/ (licensed; not in the repository)
+python -m crsp_pipeline build                            # data/raw -> data/ panel, benchmark, factors, audits
+python -m research.run_all                               # every study -> results/ (aggregates) + results/manifest.json
+python build_notebook.py && python execute_notebook.py   # this notebook, reading results/
+python presentation/build_deck.py                        # the slide deck and speaker notes
+```
+Every table and figure above is read from `results/`, whose files are checked against the sha256 hashes in
+`results/manifest.json`; security-level rows never leave the git-ignored `output/` folder. Setting
+`CF_RECOMPUTE=1` reruns every study from `data/` before the notebook reads the results.
+''')
+
+code(r'''
+if empirical():
+    man = results.manifest(RESULTS)
+    say(f"""Results manifest: {len(man['files'])} files from {len(man['studies'])} studies, last updated {man['updated_utc']} (UTC);
+data manifest sha256 `{man['data_manifest_sha256'][:16]}…`; packages {', '.join(f'{k} {v}' for k, v in man['packages'].items())}.""")
+    display(pd.DataFrame({s: {"seconds": v["seconds"], "files": v["files"], "run (UTC)": v["run_utc"]}
+                          for s, v in man["studies"].items()}).T)
+print({"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__, "mode": MODE})
+''')
+
+md(r'''
+## Appendix: synthetic demonstration (no data required)
+With `CF_MODE=demo` the notebook skips every empirical section and instead runs the same selection and accounting
+engine on a seeded synthetic panel. The demonstration only shows that the code runs; its numbers are artificial and
+are not evidence about the strategy.
+''')
+
+code(r'''
 if MODE == "demo":
-    panel, benchmark = engine.make_demo(seed=SEED)
+    from research import engine
+    LABEL = "SYNTHETIC DEMO — NOT EMPIRICAL EVIDENCE"
+    panel, bench = engine.validate_inputs(*engine.make_demo(seed=9897))
+    sig = engine.attach_signals(panel)
+    start, end = pd.Timestamp("2003-01-31"), sig["date"].max()
+    targets, _ = engine.formation_targets(sig, ["Conservative", "Universe equal weight"], start=start, last=end)
+    demo = pd.DataFrame({n: engine.backtest(panel, bench, t, start, end, 10)["net"] for n, t in targets.items()})
+    demo["Market"] = bench["market_ret"].reindex(demo.index)
+    from research import report
+    display(Markdown(f"### {LABEL}"))
+    display(report.table({c: demo[c] for c in demo}, bench["rf"]).round(4))
+    fig, ax = plt.subplots(figsize=(10, 4.5), layout="constrained")
+    for c in demo:
+        ax.plot(demo.index, (1 + demo[c]).cumprod(), label=c)
+    ax.set(yscale="log", title=f"Growth of $1, net of 10 bps | {LABEL}")
+    ax.legend()
+    plt.show()
 else:
-    panel = pd.read_parquet(config.PANEL_FILE)
-    benchmark = pd.read_csv(config.BENCHMARK_FILE, parse_dates=["date"])
-    # Nothing after the chosen end month enters the analysis.
-    panel = panel.loc[panel.date.le(pd.Timestamp(CRSP_END))].reset_index(drop=True)
-    benchmark = benchmark.loc[benchmark.date.le(pd.Timestamp(CRSP_END))]
-
-panel, benchmark = engine.validate_inputs(panel, benchmark)
-END = panel.date.max()
-if MODE == "crsp":
-    assert END == pd.Timestamp(CRSP_END), f"Panel ends {END.date()}, before the requested end {CRSP_END}"
-display(Markdown(f"### Input audit — {LABEL}"))
-display(pd.DataFrame({"value": [len(panel), panel.permno.nunique(),
-    panel.date.min().date(), panel.date.max().date(), int(panel.is_exit.sum()),
-    int(panel.ret_total.isna().sum())]},
-    index=["security-month rows", "securities", "first month", "last month", "terminal rows", "missing total returns"]))
-display(panel.ret_hold_source.value_counts().rename("holding-return source (rows)").to_frame())
-display(panel.head())
+    print("CRSP mode: the synthetic demonstration is not run (set CF_MODE=demo to run it instead of the empirical sections).")
 ''')
 
 md(r'''
-## 4. Signal construction
-For a quarter-end formation date (t), the prototype defines
-
-\[
-\sigma_{i,t}=\sqrt{12}\,\operatorname{sd}(r_{i,t-35},\ldots,r_{i,t}),\qquad
-M_{i,t}=\prod_{j=1}^{11}(1+r^{price}_{i,t-j})-1,
-\]
-\[
-DY_{i,t}=\frac{\sum_{j=0}^{11}D^{adj}_{i,t-j}}{P^{adj}_{i,t}},\qquad
-NPY^{proxy}_{i,t}=DY_{i,t}+1-\frac{S^{adj}_{i,t}}{\frac{1}{24}\sum_{j=0}^{23}S^{adj}_{i,t-j}}.
-\]
-
-Every window must consist of calendar-consecutive months with no missing input: a missing month invalidates the window
-instead of allowing 36 observations spread over more than 36 months. No future observations are used or backfilled.
-Missing dividends are not turned into zero, and missing shares are not carried forward without audit.
-The signals are computed by the same vectorized function that the data pipeline audits use, and are attached to the
-panel one-to-one on security and month, so every panel field (eligibility, history, holding returns) is kept alongside them.
-''')
-
-code('''
-signals = engine.attach_signals(panel)
-display(Markdown(f"### Latest signal snapshot — {LABEL}"))
-display(signals.loc[signals.date.eq(signals.date.max()),
-    ["date", "permno", "vol36", "momentum", "div_yield", "net_issuance", "npy"]].head(8).round(4))
-''')
-
-md(r'''
-## 5. Portfolio construction and controlled comparisons
-Selection at each quarter-end follows the order described in the paper. The history screen comes first: only eligible stocks
-with 36 consecutive monthly returns qualify, and the universe is the largest 1,000 of them by market capitalization (all of
-them when fewer exist, as before mid-1964). The universe is then split at the volatility median: the low-volatility pool
-consists of the ⌊N/2⌋ members with the lowest 36-month volatility. Only after this partition are missing signals handled:
-momentum and payout are ranked within the pool among members with both signals, and a member missing either cannot be
-selected. Higher momentum and payout get smaller (better) ranks; the average rank determines selection, and ties in final
-scores are broken by the stable security identifier. The engine stops if fewer complete members remain than holdings required.
-
-The ablations keep the same universe, pool and complete-signal requirement, so a comparison changes the signal and not the
-data availability. The low-volatility-only portfolio takes the lowest-volatility names of the universe directly. Counts of
-eligible, history-eligible, universe, pool, missing-signal and selected names are recorded at every formation.
-
-| Portfolio | Purpose |
-|---|---|
-| Conservative | Low-volatility half; best combined momentum and payout ranks |
-| No momentum | Same low-volatility half; rank only payouts |
-| No payout | Same low-volatility half; rank only momentum |
-| No low-vol screen | Rank momentum and payouts across complete cases |
-| Low volatility only | Lowest-volatility 100 complete cases |
-| Universe equal weight | Equal-weight largest eligible stocks; measures the role of equal weighting |
-| Universe cap weight | Capitalization-weight largest eligible stocks; same quarterly schedule |
-| Market | External market total-return benchmark; not a reconstruction from today's stocks |
-
-Sector constraints are a proposed follow-up, not part of the original baseline or this first implementation.
-''')
-
-code('''
-STRATEGIES = engine.STRATEGIES
-targets, audit_table = engine.formation_targets(signals, STRATEGIES, start=START, last=END,
-                                                n_universe=N_UNIVERSE, n_hold=N_HOLDINGS)
-count_cols = [c for c in engine.COUNT_FIELDS if c != "eligible_n"]
-display(Markdown(f"### Formation counts by strategy (minimum and maximum) — {LABEL}"))
-display(audit_table.groupby("strategy", sort=False)[count_cols].agg(["min", "max"]).T)
-conservative_counts = audit_table.loc[audit_table.strategy.eq("Conservative")]
-decade = (conservative_counts.formation.dt.year // 10 * 10).astype(str) + "s"
-display(Markdown(f"### Conservative formation counts by decade (mean per formation) — {LABEL}"))
-display(conservative_counts.groupby(decade)[engine.COUNT_FIELDS].mean().round(1))
-''')
-
-md(r'''
-## 6. Monthly backtest with weight drift and transaction costs
-The engine carries actual portfolio weights between quarter ends. It measures traded notional against these drifted weights,
-including the initial purchase. Buying 100% of NAV costs one unit of traded notional; selling a full portfolio and buying a
-disjoint one costs two. Reported **one-way turnover** is half this sum; costs use the full sum to avoid understating expenses.
-
-For total traded stock notional (T_t=\sum_i|w^{target}_{i,t}-w^{pre}_{i,t}|) and per-dollar charge (c),
-\[
-1+R^{net}_{t+1}=(1-cT_t)(1+R^{gross}_{t+1}).
-\]
-This is a proportional NAV haircut approximation: target holdings are subsequently scaled to the remaining NAV.
-It does not solve a fully self-financing execution optimization, model market impact, or charge terminal cash settlements as trades.
-Cash earns the supplied monthly risk-free return. Terminal proceeds move to cash after the final return.
-Holdings grow with the holding-period return of Section 3. A held position in a month without a CRSP return keeps its last
-price or earns the observed price ratio, and these position-months are counted; a held position with no holding return at all
-raises an exception rather than creating optimistic performance. At a rebalance during such a gap, the position is traded at
-its last value.
-''')
-
-code('''
-runs = {name: engine.backtest(panel, benchmark, target, START, END, COST_BPS) for name, target in targets.items()}
-returns = pd.DataFrame({name: run.net for name, run in runs.items()})
-returns["Market"] = benchmark.market_ret.reindex(returns.index)
-assert not returns.isna().any().any()
-print(f"{LABEL}: {len(returns)} investment months ({START.date()} to {END.date()}); "
-      f"costs = {COST_BPS} bps per dollar traded.")
-diagnostics = pd.DataFrame({name: {
-    "months": len(run), "first_month": run.index.min().date(), "last_month": run.index.max().date(),
-    "stale_position_months": int(run.stale_held_n.sum()), "stale_carry": int(run.stale_carry_n.sum()),
-    "price_ratio": int(run.price_ratio_n.sum()), "max_stale_weight": run.stale_weight.max(),
-    "all_cash_months": int(run.all_cash.sum()), "min_holdings": int(run.holdings_n.min()),
-    "max_holdings": int(run.holdings_n.max())} for name, run in runs.items()}).T
-display(Markdown(f"### Run diagnostics: calendar, positions without a CRSP return, all-cash months — {LABEL}"))
-display(diagnostics)
-''')
-
-md(r'''
-## 7. Accounting and timing checks
-These checks test errors that can materially distort a trading backtest: accidentally using future data, failing to skip the
-latest momentum month, disguising calendar gaps, ignoring portfolio drift, omitting trading costs, or dropping delisted holdings.
-Each check builds a small synthetic example with a hand-computed answer and runs it through the same engine code as the
-analysis above. The calendar checks confirm that a missing benchmark month, a late benchmark start, a missing formation
-target, or a month without stock returns stops the backtest instead of shortening it silently. A second rebalance after
-drift confirms that security-level trades equal the target minus the drifted weights, that traded notional and costs
-reconcile, and that cash from a terminal exit is reinvested at the next rebalance.
-Passing them establishes implementation behavior, not investment merit or exact agreement with the paper.
-''')
-
-code('''
-from research import checks
-check_results = pd.DataFrame({"check": [c.__name__.removeprefix("check_").replace("_", " ") for c in checks.ALL_CHECKS],
-                              "what passed": checks.run_all()})
-display(check_results)
-
-# On the actual run: all targets are long-only and fully invested, and positive costs never raise a monthly return.
-assert all(np.isclose(w.sum(), 1) and w.gt(0).all() for ts in targets.values() for w in ts.values())
-assert all((run.net <= run.gross+1e-12).all() for run in runs.values())
-print(f"PASS: {len(check_results)} fixture checks; target weights and cost ordering hold on the {MODE} run.")
-''')
-
-md(r'''
-## 8. Performance report
-CAGR uses compounded returns. Volatility and Sharpe use monthly observations with √12 scaling; Sharpe subtracts the aligned
-monthly risk-free return. Maximum drawdown includes the initial wealth of 1, so a first-month loss is not omitted.
-The market benchmark is gross of implementation fees; the constructed portfolios below pay the stated trading-cost scenario.
-Sharpe estimates are descriptive and may be unreliable in short subperiods.
-''')
-
-code('''
-def drawdown(r):
-    wealth = (1+r).cumprod()
-    return wealth/wealth.cummax().clip(lower=1)-1
-
-def performance(r, rf):
-    r = r.dropna()
-    excess = r-rf.reindex(r.index)
-    assert excess.notna().all()
-    std = excess.std(ddof=1)
-    return pd.Series({"Months": len(r), "CAGR": np.prod(1+r)**(12/len(r))-1,
-        "Ann. volatility": r.std(ddof=1)*np.sqrt(12),
-        "Sharpe": excess.mean()/std*np.sqrt(12) if std > 0 else np.nan,
-        "Max drawdown": drawdown(r).min(), "Positive months": r.gt(0).mean()})
-
-summary = pd.DataFrame({name: performance(returns[name], benchmark.rf) for name in returns}).T
-summary["Ann. one-way turnover"] = pd.Series({name: run.one_way_turnover.mean()*12 for name,run in runs.items()})
-display(Markdown(f"### Performance table — {LABEL}"))
-display(summary.round(4))
-
-shown = ["Conservative", "Low volatility only", "Universe equal weight", "Market"]
-fig, axes = plt.subplots(2, 1, figsize=(11, 8), sharex=True, layout="constrained")
-for name in shown:
-    wealth = (1+returns[name]).cumprod()
-    wealth = pd.concat([pd.Series([1.], index=[returns.index[0]-pd.offsets.MonthEnd(1)]), wealth])
-    axes[0].plot(wealth.index, wealth, label=name, lw=1.7)
-    axes[1].plot(returns.index, drawdown(returns[name])*100, label=name, lw=1.3)
-axes[0].set_yscale("log")
-axes[0].set_ylabel("Growth of $1 (log scale)")
-axes[0].legend(ncol=2, fontsize=9)
-axes[1].set_ylabel("Drawdown (%)")
-fig.suptitle(f"Conservative Formula | {LABEL}", fontsize=12)
-fig.savefig(OUT / "wealth_and_drawdown.png", dpi=150)
-plt.show()
-''')
-
-md(r'''
-## 9. Extension A — what does each signal contribute?
-Compare the full formula with the same portfolio size and rebalancing frequency after dropping one component. These are
-controlled comparisons, not independent discoveries. A change in Sharpe alone is insufficient: check CAGR, drawdown, turnover,
-and exposure changes. The low-volatility-only portfolio provides an additional simple reference.
-
-The demo generator assigns no calibrated economic premium to these signals. Its relative performance is a property of artificial
-data and random sampling, not an estimate of the value of momentum or payouts in US equities.
-''')
-
-code('''
-ablation_names = STRATEGIES[:5]
-ablation = summary.loc[ablation_names].copy()
-ablation["CAGR minus full"] = ablation.CAGR-summary.loc["Conservative", "CAGR"]
-display(Markdown(f"### Signal comparisons — {LABEL}"))
-display(ablation.round(4))
-fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
-ax.barh(ablation_names, ablation.Sharpe, color=["#176B87"]+["#9CAFB7"]*4)
-ax.set_xlabel("Annualized Sharpe ratio")
-ax.set_title(f"Signal comparisons | {LABEL}", fontsize=11)
-fig.savefig(OUT / "signal_comparisons.png", dpi=150)
-plt.show()
-''')
-
-md(r'''
-## 10. Extension B — performance through time
-The intended empirical split is the original sample through December 2016, a separate 2017–2018 transition period, and a
-post-publication evaluation from January 2019. January 2019 is chosen to exclude the 2018 publication year; it is not selected from
-the returns. Use fixed rules across all periods. A historical post-publication sample is not a prospective untouched holdout for a
-researcher working in 2026, so avoid overstating its independence.
-
-The demonstration has only 2003 onward investable returns and cannot cover the original 1929–2016 sample.
-Subperiod rows are reported only when at least 12 monthly observations exist, with actual coverage displayed.
-''')
-
-code('''
-periods = {"Through 2016": (REAL_START, config.PAPER_END),
-           "Transition 2017–2018": ("2017-01-01", "2018-12-31"),
-           "Post-publication 2019+": ("2019-01-01", "2099-12-31")}
-period_rows = []
-for period, (lo, hi) in periods.items():
-    for name in ["Conservative", "Market", "Low volatility only"]:
-        r = returns.loc[lo:hi, name]
-        if len(r) >= 12:
-            row = performance(r, benchmark.rf).to_dict()
-            period_rows.append({"period": period, "portfolio": name,
-                "actual_start": str(r.index.min().date()), "actual_end": str(r.index.max().date()), **row})
-subperiods = pd.DataFrame(period_rows)
-display(Markdown(f"### Period analysis — {LABEL}"))
-display(subperiods.round(4))
-''')
-
-md(r'''
-## 11. Extension C — implementation costs
-Use 0, 10, 25, and 50 basis points per dollar traded as **illustrative scenarios**, not measured historical costs.
-The same positions are used in every scenario; no parameters are tuned to rescue the strategy.
-The analysis omits taxes, financing, and nonlinear price impact. Since the strategy is long-only, stock-borrow fees are not modeled.
-''')
-
-code('''
-cost_rows = []
-for bps in [0, 10, 25, 50]:
-    run = engine.backtest(panel, benchmark, targets["Conservative"], START, END, bps)
-    row = performance(run.net, benchmark.rf).to_dict()
-    cost_rows.append({"bps per dollar traded": bps,
-                      "Ann. cost approximation": run.cost_fraction.mean()*12, **row})
-cost_table = pd.DataFrame(cost_rows).set_index("bps per dollar traded")
-display(Markdown(f"### Cost sensitivity — {LABEL}"))
-display(cost_table.round(4))
-assert cost_table.CAGR.is_monotonic_decreasing
-fig, ax = plt.subplots(figsize=(9, 4), layout="constrained")
-ax.plot(cost_table.index, cost_table.CAGR*100, marker="o", color="#176B87")
-ax.set(xlabel="Cost per dollar traded (basis points)", ylabel="CAGR (%)",
-       title=f"Trading-cost sensitivity | {LABEL}")
-fig.savefig(OUT / "cost_sensitivity.png", dpi=150)
-plt.show()
-''')
-
-md(r'''
-## 12. Draft interpretation and limitations
-**What is established now:** the notebook provides a reproducible selection rule, quarterly targets, monthly portfolio accounting,
-weight drift, cash settlement handling, diagnostic tables, and a fixed set of comparisons. The tests check several consequential
-implementation errors. The saved demo results establish only that this pipeline executes.
-
-**What is not established:** whether the strategy outperforms, whether the published results can be reproduced, whether its alpha
-survives factor controls, or whether it remains practical after real trading frictions. No empirical conclusion can be drawn from
-the synthetic charts. The demo is a fixed-universe simulation; terminal-event accounting is tested separately with a toy example.
-
-When real data are available, the discussion should answer:
-1. How closely do the sample, signal conventions, gross returns, volatility, and drawdowns match the paper?
-2. Does the full formula beat equal-weight and capitalization-weight universe controls, or is weighting driving the result?
-3. Which omitted signal changes outcomes most, and is the result stable after costs and in later periods?
-4. Are the findings concentrated in certain sectors, stock sizes, or unusually favorable decades?
-5. Which discrepancies reflect database revisions, historical eligibility, terminal events, payout definitions, or implementation?
-
-**Inference remains future work.** For the empirical draft, estimate market beta and factor-model alpha using aligned factor data
-and heteroskedasticity/autocorrelation-robust standard errors. A paired block bootstrap can quantify uncertainty in strategy
-differences while preserving serial dependence. Do not report a positive average return or a higher sample Sharpe as statistical
-significance. Multiple extensions increase the chance of finding a favorable result by luck.
-
-### First-draft conclusion
-The Conservative Formula is a tractable research topic because its economic story maps to transparent portfolio rules and
-testable component comparisons. This draft implements that research design. The central investment question remains unanswered
-pending an audited historical equity dataset and reconciliation of the payout construction. The empirical version should preserve
-these baseline rules, disclose deviations, and report unfavorable findings as carefully as favorable ones.
-''')
-
-md(r'''
-## 13. Export results and next submission milestones
-Exports carry the mode in both their folder and filenames. The notebook is self-contained in demo mode; its generator and the
-executed outputs can be archived with it. For the final course submission, include the actual required data and any helper files
-so the notebook can run from beginning to end in the approved environment.
-
-**Before an empirical first submission**
-- Confirm Project 8 availability and the team roster under the course's first-come-first-served policy.
-- Obtain the instructor's CRSP example and audit the normalization against several stocks, a split, an issuance, and a delisting.
-- Confirm the payout proxy, stock/company universe convention, pre-1929 warm-up, and benchmark mapping.
-- Replace demo inputs, rerun all cells, investigate failures rather than bypassing them, and replace the draft discussion with actual findings.
-- Add factor attribution and uncertainty estimates if time permits. A sector-constraint extension is optional and should follow a clean baseline.
-
-The final deliverable should distinguish replication results from extensions and explain every departure from the paper.
-''')
-
-code('''
-prefix = "synthetic_demo" if MODE == "demo" else "crsp_draft"
-summary.to_csv(OUT / f"{prefix}_performance.csv")
-returns.to_csv(OUT / f"{prefix}_monthly_returns.csv")
-audit_table.to_csv(OUT / f"{prefix}_formation_audit.csv", index=False)
-diagnostics.to_csv(OUT / f"{prefix}_run_diagnostics.csv", index_label="strategy")
-subperiods.to_csv(OUT / f"{prefix}_subperiods.csv", index=False)
-cost_table.to_csv(OUT / f"{prefix}_cost_sensitivity.csv")
-manifest = {"mode": MODE, "label": LABEL, "seed": SEED if MODE == "demo" else None,
-    "universe_cap": N_UNIVERSE, "holdings": N_HOLDINGS, "cost_bps": COST_BPS,
-    "first_return": str(returns.index.min().date()), "last_return": str(returns.index.max().date()),
-    "payout_definition": "Trailing 12m cash dividend yield + 1 - shares / trailing 24m mean shares",
-    "status": "Demonstration only" if MODE == "demo" else "Normalized CRSP input; draft conventions require audit",
-    "python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__}
-(OUT / f"{prefix}_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-print(f"Saved {prefix} tables, charts, and manifest to {OUT}")
-print("No real equity performance has been established." if MODE == "demo" else
-      "Review provenance and replication deviations before drawing conclusions.")
-''')
-
-md(r'''
-## References and source notes
-1. Van Vliet, P., and Blitz, D. (2018). *The Conservative Formula: Quantitative Investing Made Easy*.
-   [SSRN working-paper record](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
-   The working-paper and journal versions use different author ordering. Use a single version consistently in the final bibliography.
-2. Robeco (2023). *The Introductory Guide to Conservative Investing*.
-   [Guide and further reading](https://www.robeco.com/docm/docu-202302-guide-to-conservative-investing.pdf).
-   This provides accessible context and references on low-risk investing; it is also a manager publication, not independent validation.
-3. CRSP. *Summary of CIZ Differences to Legacy Files*.
-   [Database methodology](https://www.crsp.org/wp-content/uploads/guides/CRSP_US_Stock_%26_Indexes_Databases_Summary_of_CIZ_Differences_to_Legacy_Files.pdf).
-   Record the database version actually used in the empirical study.
-4. MTH 9897. *Final Projects 2026*, provided course brief, pages 1 and 5: submission requirements and Project 8.
-
-**Further literature to read, not results replicated here:** the paper's references on the low-volatility effect, momentum, and
-shareholder payouts are natural starting points for expanding the literature review. Read the originals before attributing specific
-mechanisms or numerical findings to them.
-
-**Reproducibility note:** demonstration data are generated by `make_demo` using the fixed seed above. They are artificial and not
-derived from CRSP. No live trading, external submission, or upload occurs when running this notebook.
+## References
+1. Blitz, D., and van Vliet, P. (2018). The Conservative Formula: Quantitative Investing Made Easy. *The Journal of
+   Portfolio Management* 44(7), 24–38. Working paper: [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
+2. Carhart, M. M. (1997). On Persistence in Mutual Fund Performance. *The Journal of Finance* 52(1), 57–82.
+3. Fama, E. F., and French, K. R. (2015). A Five-Factor Asset Pricing Model. *Journal of Financial Economics* 116(1), 1–22.
+4. Jegadeesh, N., and Titman, S. (1993). Returns to Buying Winners and Selling Losers. *The Journal of Finance* 48(1), 65–91.
+5. Newey, W. K., and West, K. D. (1987). A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation
+   Consistent Covariance Matrix. *Econometrica* 55(3), 703–708.
+6. Shumway, T. (1997). The Delisting Bias in CRSP Data. *The Journal of Finance* 52(1), 327–340.
+7. Grinold, R. C., and Kahn, R. N. (2000). *Active Portfolio Management*, 2nd ed. McGraw-Hill.
+8. Center for Research in Security Prices (CRSP), US Stock Database (legacy monthly files), via WRDS; Kenneth R. French
+   Data Library (factors).
 ''')
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={
@@ -551,6 +615,7 @@ nb = nbf.v4.new_notebook(cells=cells, metadata={
     "language_info": {"name": "python", "version": "3.12"},
 })
 nbf.validate(nb)
-path = ROOT / "conservative_formula_first_draft.ipynb"
-nbf.write(nb, path)
-print(f"Created {path}: {len(cells)} cells")
+if __name__ == "__main__":
+    path = ROOT / NOTEBOOK
+    nbf.write(nb, path)
+    print(f"Created {path}: {len(cells)} cells")

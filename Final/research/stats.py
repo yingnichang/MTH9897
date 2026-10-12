@@ -48,7 +48,7 @@ def ols(y: pd.Series, factors: pd.DataFrame, nw_lags: int = 12) -> dict:
            "alpha_t_ols": float(b[0] / se_ols[0]) if se_ols[0] > 0 else np.nan,
            "alpha_ci95_low": float(12 * (b[0] - Z95 * se_nw[0])), "alpha_ci95_high": float(12 * (b[0] + Z95 * se_nw[0])),
            "adj_r2": float(1 - (1 - r2) * (n - 1) / (n - k)) if names and n > k else np.nan,
-           "betas": b[1:], "se_nw": se_nw, "factors": names}
+           "betas": b[1:], "se_nw": se_nw, "se_ols": se_ols, "factors": names}
     for name, beta in zip(names, b[1:]):
         out[f"beta_{name}"] = float(beta)
     return out

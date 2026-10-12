@@ -18,24 +18,30 @@
 > averages can be driven by early, less efficient markets with small universes and high real costs,
 > and published anomalies often weaken after publication.
 
-Open `conservative_formula_first_draft.ipynb` in JupyterLab or VS Code from this `Final` folder.
-Install the packages in `requirements.txt`, then restart the kernel and run all cells.
+The report is `conservative_formula_first_draft.ipynb`: a critical replication on CRSP, 1929–2024,
+in eleven sections (question, data, rules and deviations, replication, attribution and costs,
+critical tests, signal diagnostics, portfolio construction, declared improvement, conclusion,
+reproducibility). Open it in JupyterLab or VS Code from this `Final` folder after installing
+`requirements.txt`.
 
-The notebook runs offline in **demo mode**. Saved outputs use seeded synthetic data, not CRSP or
-real investment results. The environment variable `CF_MODE` selects the mode when the kernel
-starts: unset or `CF_MODE=demo` gives the demo; `CF_MODE=crsp` reads the normalized CRSP panel
-produced by the pipeline below and stops with an error if it is missing (there is no silent demo
-fallback). In CRSP mode, `CF_END` sets the last return month (default `2016-12-31`, the end of the
-paper's sample); data after it are dropped on load. For example:
+The notebook reads every table, figure and number from the tracked aggregate results in `results/`
+(see below) through the hash-checked loader, so it runs in seconds and shows no licensed
+security-level rows. The environment variable `CF_MODE` selects the mode when the kernel starts:
+
+| Mode | What runs |
+|---|---|
+| `CF_MODE=crsp` (default) | empirical sections from `results/`; with `CF_RECOMPUTE=1`, `python -m research.run_all` recomputes every study from `data/` first (~25 min) |
+| `CF_MODE=demo` | no data needed: every empirical section is skipped and the same engine runs on a seeded synthetic panel, labeled synthetic |
 
 ```bash
-CF_MODE=crsp CF_END=2016-12-31 python execute_notebook.py    # PowerShell: $env:CF_MODE="crsp"; python execute_notebook.py
+python build_notebook.py && python execute_notebook.py        # executes the tracked notebook in place (CRSP mode)
+CF_MODE=demo python execute_notebook.py                        # synthetic demonstration -> output/demo_run.ipynb
+# PowerShell: $env:CF_MODE="demo"; python execute_notebook.py
 ```
 
-The previous homework folders are not inputs to this project.
-
-`build_notebook.py` rebuilds the unexecuted notebook; do not run it over your edited notebook
-without preserving your changes. Outputs go to `output/demo/` or `output/crsp/`.
+`build_notebook.py` generates the notebook; edit the builder, never the `.ipynb`
+(`tests/test_notebook.py` checks that they agree and that no output shows a security identifier
+column). The previous homework folders are not inputs to this project.
 
 Selection, input validation and the backtest live in `research/engine.py`, which the notebook and
 the tests import. At each quarter-end the engine applies the paper's order: eligible stocks with
@@ -43,6 +49,93 @@ the tests import. At each quarter-end the engine applies the paper's order: elig
 before mid-1964), then the low-volatility half of that universe, and only then the momentum and
 payout ranks among pool members with both signals; the best 100 are held equally weighted. Holdings
 grow with `ret_hold` (see the conventions below), and every formation records its counts.
+
+Analyses beyond the paper's rule are separate, named extensions that leave the baseline unchanged:
+factor diagnostics (`research/diagnostics.py`), factor-mimicking portfolios (`research/fmp.py`), the
+decile long/short with a trade ledger (`research/longshort.py`), the linear industry-constrained
+optimizer (`research/optimize.py`, which needs `scipy`) and the "Conservative buffer" rank-buffer
+variant in `research/engine.py`.
+
+## Environment
+
+Tested with **Python 3.14.7** on Windows 11. `requirements.txt` gives lower bounds; `requirements-lock.txt`
+pins the exact versions of the tested environment (the dependency closure of `requirements.txt`):
+
+```bash
+python -m venv .venv && .venv/Scripts/python -m pip install -r requirements-lock.txt   # macOS/Linux: .venv/bin/python
+```
+
+Some pinned packages are Windows-specific (`pywinpty`); on another platform install
+`requirements.txt` instead. `legacy/wrds_test.ipynb` is an early connection probe with the `wrds`
+package, superseded by `crsp_pipeline/extract.py`; nothing imports `wrds`.
+
+## For the grader: data package and run order
+
+Git carries the code, the tests, the tracked aggregate results (`results/`), the data audits
+(`data/audit/`, except the licensed worked examples) and `data/manifest.json`. It does **not** carry the
+licensed CRSP data. The data package travels through the course submission channel, never a public
+repository, and contains either:
+
+- **the raw extract** `data/raw/*.parquet` (`msf`, `msenames`, `msedelist`, `msedist`, `msi`, `ff_factors`,
+  `ff5_factors`, plus `extract_log.json`), from which `build` recreates everything; or
+- **the normalized package**: `data/crsp_monthly_normalized.parquet`, `data/benchmark_monthly.csv`,
+  `data/ff_factors_monthly.csv`, plus `data/raw/msedist.parquet` and `data/raw/msi.parquet` (read by the
+  replication's DATA-011 check and the long/short capacity estimate).
+
+Expected sha256 hashes are in `data/manifest.json` (`raw_inputs`, `outputs`); for example the panel is
+`84e3148292b9…` and the benchmark `3c6f04909d1d…`. Run order, from `Final/`:
+
+```bash
+python -m crsp_pipeline extract --user <wrds_username>   # 1. WRDS -> data/raw/ (needs a WRDS account)
+python -m crsp_pipeline build                            # 2. data/raw -> normalized data/ (~1-2 min)
+python -m research.run_all                               # 3. every study -> results/ (~25 min)
+python build_notebook.py && python execute_notebook.py   # 4. the report notebook (seconds)
+python presentation/build_deck.py                        # 5. the slide deck and speaker notes
+python -m pytest tests -q                                # fixture tests (offline)
+```
+
+With the normalized package, skip steps 1–2. With neither, steps 4–5 still run from the tracked
+`results/`, and `CF_MODE=demo python execute_notebook.py` runs a synthetic demonstration.
+
+## Results pipeline and result contract
+
+Every study runs from tracked code with one entry point. It reads only `data/` and writes aggregate
+results to `results/<study>/` together with `results/manifest.json`:
+
+```bash
+python -m research.run_all                                  # every study (~25 min; the optimizer uses 3 processes)
+python -m research.run_all --only critical_tests            # one study; its dependencies must be current in results/
+python -m research.run_all --only critical_tests --with-deps   # also recompute stale or absent dependencies
+python -m research.run_all --only data_audit replication attribution paper_targets --end 2016-12-31 --results results_rehearsal   # paper-period rehearsal (~3 min), never over results/
+```
+
+A shortened `--end` applies only to studies whose sample can end early. The 1929–2016 studies
+(`replication`, `attribution`, `paper_targets`) always stop at 2016-12, `critical_tests` follows `--end`,
+and `diagnostics`, `fmp`, `longshort`, `optimization` and `rank_buffer` are fixed at 2024-12: `run_all`
+rejects them with another `--end` before it writes anything.
+
+| Study (`research/studies/`) | Content |
+|---|---|
+| `data_audit` | the pipeline's aggregate audit tables and an extract summary (time stamp, coverage, hashes) |
+| `replication` | Tables 1 and 4, Figures 3 and 4, reconciliation, deviations, pct10 sensitivity, DATA-011 (1929–2016) |
+| `attribution` | Table 2: CAPM, FF3, Carhart and FF5 + momentum regressions of Conservative, Speculative and CMS (1929–2016) |
+| `critical_tests` | fixed periods, net returns, break-even costs, rolling alpha (1929–2024); keeps the original freeze record |
+| `paper_targets` | Tables 1, 2 and 4 against the paper under its own definitions; the Small control |
+| `diagnostics` | neutralized exposures, IC, decay, persistence, deciles (writes the security-level cache to `output/`) |
+| `fmp` | factor-mimicking portfolios and the lagged composite paper portfolio |
+| `longshort` | decile long/short n × cost tables, borrow, long versus short, industry attribution, capacity (ledgers in `output/`) |
+| `optimization` | linear industry-constrained optimization grid, capacity, relaxations |
+| `rank_buffer` | the declared rank-buffer improvement: paired differences, verdict, turnover and concentration |
+
+`results/manifest.json` lists every file with its sha256, study, description, sample window, gross or
+net returns and role (primary, exploratory or check). Each study's entry records its run time, end month
+and provenance: the data manifest hash, the hashes of the source files it imports, the hash of every
+dependency file it read and a fingerprint of each dependency study. A partial run refuses a dependency
+whose provenance no longer matches the current data and code, or whose files changed, unless
+`--with-deps` recomputes it; studies read each other's files only after a hash check against the manifest. `research.results.load(study, name)` returns a table and its
+metadata, and refuses a file whose hash differs from the manifest. `results/` holds aggregates only
+(portfolio, decile or formation rows); `tests/test_results.py` fails on any security identifier, and
+security-level rows (trade ledgers, the diagnostics universe cache) stay in the git-ignored `output/`.
 
 ## CRSP data pipeline
 
@@ -83,7 +176,7 @@ months; they all straddle a rebalance, and their move into the in-gap price is r
 Two further runs fail the audit's price-only check only because a special distribution fell in
 the gap; CRSP's return includes it and is correct. In the other 208 months the gap straddles a
 rebalance: the price change during the gap is lost, and the position is rebalanced at its last
-traded price (`data/audit/missing_returns.csv`). The backtest does not yet use `ret_hold`.
+traded price (`data/audit/missing_returns.csv`). The backtest grows holdings with `ret_hold`.
 
 ### Sources
 
@@ -101,8 +194,10 @@ Legacy-format (SIZ) CRSP monthly tables in schema `crsp` (override with `--libra
 
 The extract covers every security that ever had share code 10 or 11, for all months from
 1925-12-31 through 2024-12-31. Eligibility is then applied month by month, so a stock that leaves
-the universe keeps its subsequent holding-period returns. The legacy files were frozen at the
-December 2024 release, which fixes the endpoint. CRSP's newer CIZ files compute monthly returns
+the universe keeps its subsequent holding-period returns. The observed coverage of the legacy monthly
+file is `max(msf.date) = 2024-12-31`, and the extract was taken on 2026-10-10 at 01:16 UTC. WRDS exposes
+no release identifier that we could record, so the extract is identified by that time stamp, its row
+counts and its file hashes (`data/manifest.json`). CRSP's newer CIZ files compute monthly returns
 and delistings differently, and support for them is not implemented. Before querying, the extractor
 checks every table's columns against `information_schema` and stops if a field is missing.
 `data/raw/extract_log.json` records the SQL, row counts, file hashes, extract time, and the latest
@@ -152,23 +247,19 @@ change when later inputs change. The net-issuance denominator is the mean of the
 100 MB. The raw files and panel must reach the grader through the course-approved channel. CRSP
 license terms apply.
 
-### Next work, in order
-
-1. Add expected-calendar and initial-formation checks to the backtest (critique item 7). Then
-   run 1929–2016 for comparison with the paper, before extending to 2024.
-
 ## Reference-paper review
 
 The [paper-alignment review](PAPER_ALIGNMENT_REVIEW.md) compares this draft
 with the March 2018 reference paper and the Project 8 requirements. It documents
 the supported share-count payout method, needed universe-selection changes,
 missing paper comparisons, and the priorities for a real CRSP replication.
-These are review findings and proposed revisions; the notebook remains the
-original synthetic first draft.
+Its findings were addressed in the CRSP replication; the report notebook documents the remaining
+deviations and exclusions.
 
 ## Presentation
 
-The [22-slide PDF](presentation/conservative_formula_presentation.pdf) accompanies the first
-draft; its numbers are the synthetic demonstration and are labeled as such. The
-[presentation folder](presentation/) contains the generator source, data snapshot, speaker notes,
-and rebuild instructions.
+`python presentation/build_deck.py` builds `presentation/conservative_formula.pptx` (14 slides) and
+`presentation/speaker_notes.md` from `results/` with `python-pptx`; every slide number comes from the
+loader. A PDF needs LibreOffice (`soffice --headless --convert-to pdf`); see
+[presentation/README.md](presentation/README.md). The superseded first-draft deck, built on synthetic data
+with a private runtime, is kept in `presentation/legacy/`.

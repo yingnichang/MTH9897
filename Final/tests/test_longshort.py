@@ -93,3 +93,98 @@ def test_exit_settles_once():
     assert not ((ledger["permno"] == 1) & ledger["action"].eq("close")).any()   # not closed again at the unwind
     with pytest.raises(ValueError, match="Missing return"):
         ls.simulate(cohorts, ret.loc[ret["permno"].ne(2) | ret["date"].le(m[0])], pd.Series(0.0, index=m), m, n=3, borrow=False)
+
+
+def test_ruin_stops_accounting():
+    # n = 1: the short name triples; the month's loss exceeds NAV, so the strategy is ruined and stops there.
+    ret = flat_returns([1, 2])
+    ret.loc[ret["date"].eq(MONTHS[1]) & ret["permno"].eq(2), "ret_hold"] = 2.0
+    rec, ledger, _ = ls.simulate(monthly_cohorts(long=(1,), short=(2,)), ret, pd.Series(0.0, index=MONTHS), MONTHS,
+                                 n=1, borrow=False)
+    assert rec.attrs["ruined_at"] == MONTHS[1] and len(rec) == 2 and rec["gross"].iloc[-1] <= -1
+    assert ledger["date"].max() <= MONTHS[1]
+    ok, _, _ = ls.simulate(monthly_cohorts(long=(1,), short=(2,)), flat_returns([1, 2]), pd.Series(0.0, index=MONTHS),
+                           MONTHS, n=1, borrow=False)
+    assert ok.attrs["ruined_at"] is None and len(ok) == len(MONTHS)
+
+
+def test_monthly_reweighting_resets_each_cohort_to_one_over_n():
+    rng = np.random.default_rng(2)
+    ret = flat_returns([1, 2, 3, 4]).assign(ret_hold=lambda d: rng.normal(0.01, 0.08, len(d)))
+    rf = pd.Series(0.001, index=MONTHS)
+    rec, ledger, pnl = ls.simulate(monthly_cohorts(), ret, rf, MONTHS, n=3, borrow=False, rebalance="monthly")
+    full = rec.loc[rec["live_cohorts"].eq(3)]
+    assert np.allclose(full["long_exposure"], 1.0) and np.allclose(full["short_exposure"], 1.0)  # 1/n per leg per cohort
+    assert ledger["action"].eq("rebalance").any()
+    traded = ledger.loc[ledger["action"].isin(["open", "close", "rebalance"])].groupby("date")["notional"].apply(lambda x: x.abs().sum())
+    assert np.allclose(traded.reindex(rec.index, fill_value=0), rec["traded"], atol=1e-12)
+    assert np.allclose(pnl.groupby("date")["pnl"].sum(), rec["long_pnl"] - rec["short_pnl"], atol=1e-12)
+    # The month's long/short P&L is then the average of the live cohorts' equal-weight leg returns, divided by n.
+    m = MONTHS[3]
+    r = ret.loc[ret["date"].eq(m)].set_index("permno")["ret_hold"]
+    assert np.isclose(rec.loc[m, "long_pnl"] - rec.loc[m, "short_pnl"], r[[1, 2]].mean() - r[[3, 4]].mean())
+    with pytest.raises(ValueError, match="rebalance"):
+        ls.simulate(monthly_cohorts(), ret, rf, MONTHS, n=3, rebalance="weekly")
+
+
+def test_contributions_reconcile_unequal_exposure_nonzero_rf():
+    # Drift makes the legs unequal (the long name gains 20% in month 1); rf and borrow are nonzero.
+    m = MONTHS[:3]
+    f = m[0] - pd.offsets.MonthEnd(1)
+    cohorts = {f: ls.Cohort(f, np.array([1]), np.array([2]), np.array([ls.borrow_rate(3)]))}
+    ret = flat_returns([1, 2], months=m)
+    ret.loc[ret["date"].eq(m[0]) & ret["permno"].eq(1), "ret_hold"] = 0.2
+    ret.loc[ret["date"].eq(m[1]) & ret["permno"].eq(2), "ret_hold"] = 0.05
+    rec, _, _ = ls.simulate(cohorts, ret, pd.Series(0.01, index=m), m, n=2, borrow=True)
+    assert (rec["long_exposure"] - rec["short_exposure"]).abs().max() > 0.05      # the fixture really is unequal
+    for bps in (0, 10, 30):
+        s = ls.contributions(rec, bps)
+        assert np.allclose(s["long"] + s["short"] + s["collateral_rf"], rec["gross"] - bps * 1e-4 * rec["traded"],
+                           rtol=0, atol=1e-15)
+        assert np.allclose(s["collateral_rf"], rec["rf"] * (1 + rec["long_exposure"] - rec["short_exposure"]), rtol=0, atol=1e-15)
+        # The multiplicative cost haircut's interaction with the gross return is its own column.
+        assert np.allclose(s["additive_total"] + s["cost_interaction"], s["net"], rtol=0, atol=1e-15)
+        assert np.allclose(s["cost_interaction"], -bps * 1e-4 * rec["traded"] * rec["gross"], rtol=0, atol=1e-15)
+    assert np.allclose(ls.contributions(rec, 0)["additive_total"], ls.net_return(rec, 0), rtol=0, atol=1e-15)
+
+
+def test_capacity_invariant_to_cohort_splitting():
+    d = MONTHS[0]
+    dv = pd.DataFrame({"date": [d, d, d], "permno": [1, 2, 3], "dollar_volume": [1e6, 2e6, 0.0]})
+    defl = pd.Series(0.5, index=[d])
+    one = pd.DataFrame({"date": [d] * 4, "permno": [1, 2, 1, 3], "side": ["long", "long", "short", "short"],
+                        "value": [0.03, 0.01, 0.02, 0.01]})
+    # The same book split into three identical cohorts (three fragments per security and side).
+    split = pd.DataFrame([(r.date, r.permno, r.side, r.value / 3) for r in one.itertuples() for _ in range(3)],
+                         columns=one.columns)
+    a, b = ls.participation_per_dollar(one, dv, defl), ls.participation_per_dollar(split, dv, defl)
+    pd.testing.assert_frame_equal(a, b)
+    assert len(a) == 4                                     # one row per (date, security, side): no netting across sides
+    assert int(a["covered"].sum()) == 3                    # zero dollar volume is excluded and counted, not dropped
+    x = a.loc[a["permno"].eq(1) & a["side"].eq("long"), "per_dollar_aum"].iloc[0]
+    assert np.isclose(x, 0.03 * 0.5 / 1e6)
+    assert ls.capacity_aum(a.loc[a["covered"], "per_dollar_aum"]) == ls.capacity_aum(b.loc[b["covered"], "per_dollar_aum"])
+    assert np.isclose(ls.capacity_aum(pd.Series([2e-9] * 5)), 0.10 / 2e-9)
+
+
+def test_hit_rate_ignores_data_after_window():
+    forms = pd.date_range("1999-11-30", periods=8, freq="ME")
+    rng = np.random.default_rng(5)
+    u = pd.DataFrame([(f, p, dec) for f in forms for p, dec in [(1, 10), (2, 10), (3, 1), (4, 1), (5, 5)]],
+                     columns=["date", "permno", "dec"])
+    u["adj_3"] = rng.normal(0, 0.05, len(u))
+    first, last = pd.Timestamp("2000-01-31"), pd.Timestamp("2000-05-31")
+    h = ls.stock_hit_rates(u, 3, first, last)
+    # Cohorts held entirely inside the window: formed 1999-12 (held 2000-01..03) through 2000-02 (held 03..05).
+    inside = u["date"].between(pd.Timestamp("1999-12-31"), pd.Timestamp("2000-02-29")) & u["dec"].isin([1, 10])
+    w = u.loc[inside]
+    win = np.where(w["dec"].eq(10), w["adj_3"] > 0, w["adj_3"] < 0)
+    assert h["stock_names"] == 12 and np.isclose(h["stock_hit_rate"], win.mean())
+    assert np.isclose(h["stock_hit_rate_long"], (w.loc[w["dec"].eq(10), "adj_3"] > 0).mean())
+    assert np.isclose(h["stock_hit_rate_short"], (w.loc[w["dec"].eq(1), "adj_3"] < 0).mean())
+    # Changing data for cohorts whose horizon ends after the window (or that start before it) changes nothing.
+    v = u.copy()
+    outside = ~v["date"].between(pd.Timestamp("1999-12-31"), pd.Timestamp("2000-02-29"))
+    v.loc[outside & v["dec"].eq(10), "adj_3"] = 1.0
+    v.loc[outside & v["dec"].eq(1), "adj_3"] = -1.0
+    assert ls.stock_hit_rates(v, 3, first, last) == h

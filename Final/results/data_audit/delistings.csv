@@ -1,0 +1,11 @@
+category,delist_source,placement,events,in_universe,rows_after_dropped,mean_dlret_used
+200 merger,missing_set_zero,same_month,15,3,0,0.0
+200 merger,observed,same_month,12390,2503,0,0.027492130750605328
+300 exchange change,missing_set_zero,same_month,1,0,0,0.0
+300 exchange change,observed,same_month,664,111,0,0.011291977409638554
+400 liquidation,missing_set_zero,same_month,2,0,0,0.0
+400 liquidation,observed,same_month,610,65,0,0.058601898360655734
+500 dropped (performance and other),imputed_shumway,same_month,110,6,0,-0.48409090909090907
+500 dropped (performance and other),missing_set_zero,same_month,6,1,0,0.0
+500 dropped (performance and other),observed,same_month,9068,206,0,-0.24174243250992503
+other,missing_set_zero,same_month,3,0,0,0.0

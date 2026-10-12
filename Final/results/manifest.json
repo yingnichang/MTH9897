@@ -1,0 +1,1159 @@
+{
+  "files": {
+    "attribution/reconciliation_table2.csv": {
+      "path": "attribution/reconciliation_table2.csv",
+      "study": "attribution",
+      "sha256": "97707e8142e8df3db48fc6038bd0f1809b50568a38af636898e7975a4b1b841f",
+      "bytes": 1538,
+      "description": "Table 2A CMS alphas against the paper, with explanations",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "attribution/table2.csv": {
+      "path": "attribution/table2.csv",
+      "study": "attribution",
+      "sha256": "191471ae04dbe55788261d58829ef1503c3b0237f5871d63c00a30ebef6fbad9",
+      "bytes": 7868,
+      "description": "Table 2: CAPM, FF3, Carhart and FF5+UMD regressions of Conservative, Speculative and CMS (NW 12); gross, net 30 (cost-inclusive CMS) and the labeled difference of net long-only returns",
+      "window": "1929-01 .. 2016-12 (FF5+UMD from 1963-07)",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "critical_tests/breakeven.csv": {
+      "path": "critical_tests/breakeven.csv",
+      "study": "critical_tests",
+      "sha256": "80112d9a213a52169c62aa7550b1ff4b0f4e686ffad8a87201ec9b6f252cdc03",
+      "bytes": 1509,
+      "description": "Break-even cost per dollar traded for the excess return and the Carhart alpha, by period",
+      "window": "1929-01 .. 2024-12; RS-006 periods",
+      "returns": "net",
+      "role": "primary"
+    },
+    "critical_tests/fig_rolling.png": {
+      "path": "critical_tests/fig_rolling.png",
+      "study": "critical_tests",
+      "sha256": "afa35c046bde3e3f3ea54de01fd8d75ca5fc4a60a8f8079b42cf6ac1cc71e299",
+      "bytes": 272210,
+      "description": "Rolling 120-month excess return and Carhart alpha",
+      "window": "windows ending 1938-12 .. 2024-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "critical_tests/freeze_record.json": {
+      "path": "critical_tests/freeze_record.json",
+      "study": "critical_tests",
+      "sha256": "8bccd705f22071a3d664e76e79ee1e0ee92dd4c63e5111412ac7326c76d97043",
+      "bytes": 2197,
+      "description": "Freeze record: the first load of 2017+ data (2026-10-11T00:50:37Z), copied unchanged from the original run",
+      "window": "run record",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "critical_tests/rerun_record_2026-10-11T145121.json": {
+      "path": "critical_tests/rerun_record_2026-10-11T145121.json",
+      "study": "critical_tests",
+      "sha256": "cb9bc3ae79a35602e0740dec66bde173c0283b8d296b1432fd7bc8e8ccea7215",
+      "bytes": 2197,
+      "description": "Record of the reporting rerun of 2026-10-11 (bootstrap CIs, cost-inclusive CMS), copied unchanged",
+      "window": "run record",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "critical_tests/returns_monthly.csv": {
+      "path": "critical_tests/returns_monthly.csv",
+      "study": "critical_tests",
+      "sha256": "cbedb911321a0a9678d303685ec2cd1314b7f6e578dbea0cf151cca6766043f5",
+      "bytes": 296314,
+      "description": "Monthly Conservative, Speculative and CMS series (gross, net 10, net 30; cost-inclusive CMS and the labeled difference of net long-only returns), CRSP VW, rf",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "critical_tests/rolling.csv": {
+      "path": "critical_tests/rolling.csv",
+      "study": "critical_tests",
+      "sha256": "d4d94daff3a7c7b8f2814f777c92f76d9efa6e04ef7832bec8359695dbffdf3b",
+      "bytes": 161346,
+      "description": "Rolling 120-month excess return and Carhart alpha of Conservative",
+      "window": "windows ending 1938-12 .. 2024-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "critical_tests/run_meta.json": {
+      "path": "critical_tests/run_meta.json",
+      "study": "critical_tests",
+      "sha256": "71ce6e7a4825e492ab387400ccc8b96f7c7136d61cd6c1e0087dc84ee92479c2",
+      "bytes": 2853,
+      "description": "This run: data load time, end month, source hashes and the 1929-2016 identity check",
+      "window": "run record",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "critical_tests/subperiods.csv": {
+      "path": "critical_tests/subperiods.csv",
+      "study": "critical_tests",
+      "sha256": "fa786c32eab67cb840d105ba91369e18c97dd8b135c882eb000979d22bc7ac28",
+      "bytes": 46106,
+      "description": "RS-006 headline statistics by fixed period: returns, block-bootstrap CIs, excess over the market, Carhart and FF5+UMD alphas (NW 12)",
+      "window": "1929-01 .. 2024-12; RS-006 periods",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "data_audit/benchmark_check.csv": {
+      "path": "data_audit/benchmark_check.csv",
+      "study": "data_audit",
+      "sha256": "d80e38efa9b2e60fee8ba3fe3070823f3dfe6d3c75755912f73043536c9d477f",
+      "bytes": 1103,
+      "description": "CRSP VW market against the Fama-French market, by decade",
+      "window": "1926-07 .. 2024-12",
+      "returns": "gross",
+      "role": "check"
+    },
+    "data_audit/delistings.csv": {
+      "path": "data_audit/delistings.csv",
+      "study": "data_audit",
+      "sha256": "227367a7a0bf239c101fea4248e65f34f8546e598dea4074020905eed410c4e9",
+      "bytes": 760,
+      "description": "Delisting events by category and source (observed, Shumway-imputed, missing set to zero)",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/dividend_reconciliation.csv": {
+      "path": "data_audit/dividend_reconciliation.csv",
+      "study": "data_audit",
+      "sha256": "24bc8e980e90716b236453466b695613d5590f4d28414f026d1e0cbe95edb596",
+      "bytes": 3162,
+      "description": "Implied dividends (ret - retx) against CRSP distributions, by decade",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/exclusions_by_decade.csv": {
+      "path": "data_audit/exclusions_by_decade.csv",
+      "study": "data_audit",
+      "sha256": "d517fffb43ad557a7a0f37bf607688a85b673138ff3aabccdbcc6cac8da9267e",
+      "bytes": 519,
+      "description": "Rows excluded from eligibility by reason and decade",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/extract_summary.json": {
+      "path": "data_audit/extract_summary.json",
+      "study": "data_audit",
+      "sha256": "6da591e83adfe41609f59df936d88384caa5fdfa793da88e6f327ead892f7644",
+      "bytes": 2322,
+      "description": "Extract time and host, coverage, sample counts, conventions, table row counts and data file hashes (from data/manifest.json; no SQL text)",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/formation_coverage.csv": {
+      "path": "data_audit/formation_coverage.csv",
+      "study": "data_audit",
+      "sha256": "617841ed74f8e7cae9bf82e0ba146ca2f21ea37beaeddd69b7284d0b3ffe3aa1",
+      "bytes": 30009,
+      "description": "Universe coverage at each quarter-end formation: eligible, history-eligible and universe counts, size cut-offs",
+      "window": "formations 1928-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/missing_returns.csv": {
+      "path": "data_audit/missing_returns.csv",
+      "study": "data_audit",
+      "sha256": "d52fe14d95353afb76cbad7b3096f90723734b6c65d3d8b9113f9cf9da76f449",
+      "bytes": 1153,
+      "description": "Missing monthly returns and the stale-carry / price-ratio holding returns, panel-wide and in universe holdings, by decade",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "data_audit/missingness_by_decade.csv": {
+      "path": "data_audit/missingness_by_decade.csv",
+      "study": "data_audit",
+      "sha256": "32fa55b9c1b127ec0f3efc22923650ff41aa660d9015122339b8146751e46907",
+      "bytes": 1381,
+      "description": "Missing returns, dividends, shares and industries among eligible rows, by decade",
+      "window": "1925-12 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "diagnostics/clip_counts.csv": {
+      "path": "diagnostics/clip_counts.csv",
+      "study": "diagnostics",
+      "sha256": "fd287fddfaf41b40b35a9eb8a628a78f3b8361a9c0307b7bdc6233c81e8383a9",
+      "bytes": 1034,
+      "description": "Values, missing and clipped counts of each neutralized signal, by decade",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "diagnostics/deciles.csv": {
+      "path": "diagnostics/deciles.csv",
+      "study": "diagnostics",
+      "sha256": "e497b6b0512ec9f323e0473c08f8c455d35db626a2ed05f3ede8ac06c9a1e190",
+      "bytes": 27142,
+      "description": "Decile industry-adjusted returns, hit rates and D10-D1 spreads (literal ER/sd and NW t)",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/deciles_subperiods.csv": {
+      "path": "diagnostics/deciles_subperiods.csv",
+      "study": "diagnostics",
+      "sha256": "648c571d13be5bcccee82a7405a0118dabd12751863f1f0ffd791674d04478dc",
+      "bytes": 103214,
+      "description": "Decile results by RS-006 period",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/fig_decay.png": {
+      "path": "diagnostics/fig_decay.png",
+      "study": "diagnostics",
+      "sha256": "2b65b531ff778b942ae3d08b50f9573b68ca6e40bb9071614d680959a00a28f2",
+      "bytes": 124039,
+      "description": "IC decay and exposure persistence",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/fig_deciles.png": {
+      "path": "diagnostics/fig_deciles.png",
+      "study": "diagnostics",
+      "sha256": "e96a6942bea07ddd5100ec6ae23ad9448b46f6b893b84c7cd65484e3d5838297",
+      "bytes": 96534,
+      "description": "Decile mean returns at h = 1 and 12",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/fig_ic_ma.png": {
+      "path": "diagnostics/fig_ic_ma.png",
+      "study": "diagnostics",
+      "sha256": "334fe79dea9d5bd7d4902a3626575feeb962ba04536ea1eccca54fc04762604b",
+      "bytes": 370294,
+      "description": "12-month moving average of the 1-month rank IC",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/forward_checks.csv": {
+      "path": "diagnostics/forward_checks.csv",
+      "study": "diagnostics",
+      "sha256": "279861a5b6c42ae5d1f0a4f4db0f2500259de22cdd0d123866e6a2808aeba85e",
+      "bytes": 114,
+      "description": "Forward-return checks: missing inside the data window, exits within each horizon",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "diagnostics/ic.csv": {
+      "path": "diagnostics/ic.csv",
+      "study": "diagnostics",
+      "sha256": "8be676fb3e5b274971e32017b304e691ad4897a558b8f1ff64adc589a0c86d42",
+      "bytes": 2332,
+      "description": "Rank IC at h = 1, 3, 6, 12: mean, sd, literal mean/sd, NW t",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/ic_decay.csv": {
+      "path": "diagnostics/ic_decay.csv",
+      "study": "diagnostics",
+      "sha256": "ade8fabe2d875565d9b4196c1a29a5628b11597727a33a66adfbd2e9be667f7e",
+      "bytes": 5744,
+      "description": "Rank IC by horizon h = 1..12 (decay)",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/ic_monthly.csv": {
+      "path": "diagnostics/ic_monthly.csv",
+      "study": "diagnostics",
+      "sha256": "a7bf0771f9e2f22a31b0c8bbc01f19fc800f7bfc40c85ac0a3a223fb9615b5d4",
+      "bytes": 386944,
+      "description": "Monthly rank IC series by exposure and horizon",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "diagnostics/persistence.csv": {
+      "path": "diagnostics/persistence.csv",
+      "study": "diagnostics",
+      "sha256": "ed5d0af6984d6299c1ac9d1e567de63b5adf31d12a34ac610437a213a995cfc4",
+      "bytes": 6610,
+      "description": "Exposure persistence: rank correlation of exposures at t and t + h",
+      "window": "formations 1928-12 .. 2024-11 (returns to 2024-12)",
+      "returns": "n/a",
+      "role": "primary"
+    },
+    "fmp/carhart_crosscheck.csv": {
+      "path": "fmp/carhart_crosscheck.csv",
+      "study": "fmp",
+      "sha256": "2d988807f9055d9ae559a3f6fe344d4ed2f4a326cfb731684b85a08ba2bf4414",
+      "bytes": 307,
+      "description": "Cross-check (not part of 7D-F): K = 1 composite on Carhart factors",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross",
+      "role": "exploratory"
+    },
+    "fmp/factor_returns.csv": {
+      "path": "fmp/factor_returns.csv",
+      "study": "fmp",
+      "sha256": "7e8e0a0f9200345bec50549ae2d3dc0c01e8522a4aa9c28602e8412ab7d845a1",
+      "bytes": 265565,
+      "description": "Monthly unit-exposure FMP returns (WLS with industries and size), leverage and the composite exposure check",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "fmp/fig_cum.png": {
+      "path": "fmp/fig_cum.png",
+      "study": "fmp",
+      "sha256": "33335c8cb65440ae812eb510a3e8069635401c0eaf1424b1cbf19260f99f7635",
+      "bytes": 252281,
+      "description": "Cumulative active return of the paper portfolio and cumulative factor returns",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "fmp/fmp_leverage.csv": {
+      "path": "fmp/fmp_leverage.csv",
+      "study": "fmp",
+      "sha256": "1086cb58d1cb32f6a8300532660b8d1e185bbf48752ec54fd6b6e6631030037e",
+      "bytes": 1444,
+      "description": "FMP gross leverage and breadth by decade",
+      "window": "1929-01 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "fmp/paper_metrics.csv": {
+      "path": "fmp/paper_metrics.csv",
+      "study": "fmp",
+      "sha256": "c4a34b5257494525c5b08a2e763fcdc34075b482c2dff52fcda4c12ee35d30d5",
+      "bytes": 10006,
+      "description": "Paper portfolio metrics (IR, turnover, drawdown, skew, kurtosis, benchmark correlation) by K, weighting and period",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "fmp/paper_portfolio.csv": {
+      "path": "fmp/paper_portfolio.csv",
+      "study": "fmp",
+      "sha256": "eb30f2fab30098685233693be4d3b5b7b1d53e485ad949325893d37d5e931e0f",
+      "bytes": 570788,
+      "description": "Lagged composite paper portfolio (K = 1, 3, 6, 12; equal and exponential): active return, turnover, leverage",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "fmp/size_clip_counts.csv": {
+      "path": "fmp/size_clip_counts.csv",
+      "study": "fmp",
+      "sha256": "93e1bdf7d56d13d2b2562fed66da231b380c40212a3badf947ee141fce886b46",
+      "bytes": 51,
+      "description": "Size exposure clip counts",
+      "window": "1929-01 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "longshort/capacity.csv": {
+      "path": "longshort/capacity.csv",
+      "study": "longshort",
+      "sha256": "f002defe1cff20f80638ffae390cfd0948b33544df21c5ffde8deac39fc02918",
+      "bytes": 4552,
+      "description": "Capacity: participation in monthly dollar volume by decade, positions aggregated by security and side (2024 dollars; no impact model)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "n/a",
+      "role": "primary"
+    },
+    "longshort/engine_unchanged.csv": {
+      "path": "longshort/engine_unchanged.csv",
+      "study": "longshort",
+      "sha256": "98d1a5a9173775551f74d0bd93b65ae008f6b3b5646706bade0a526ba907de6a",
+      "bytes": 97,
+      "description": "Check: paper engine Conservative 1929-2016 bit-identical to the replication series",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "check"
+    },
+    "longshort/fig_longshort.png": {
+      "path": "longshort/fig_longshort.png",
+      "study": "longshort",
+      "sha256": "2f3c1f4d41ce036e69fef206ccd87f675ee5cbc5799521bba06e2cecc53e27ca",
+      "bytes": 204186,
+      "description": "Long/short wealth (monthly re-weighted, 10 bps, borrow) and IR by n and cost",
+      "window": "1929-01 .. 2024-12",
+      "returns": "net",
+      "role": "primary"
+    },
+    "longshort/industry_attribution.csv": {
+      "path": "longshort/industry_attribution.csv",
+      "study": "longshort",
+      "sha256": "70f40d7671c0bc6cfb9600207dd0e53a3490d2c89902319cdbd5dde30e89f374",
+      "bytes": 1865,
+      "description": "Industry attribution (bonus): regression on 12 EW industry excess returns, residual alpha (NW 12)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "longshort/ledger_reconciliation.csv": {
+      "path": "longshort/ledger_reconciliation.csv",
+      "study": "longshort",
+      "sha256": "93000c929b89001f66c482b08af8328716278b0ab418549becc71d4041402ba2",
+      "bytes": 1583,
+      "description": "Check: trade ledger reconciles to turnover and P&L for every run (ledgers in output/)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "longshort/nxc.csv": {
+      "path": "longshort/nxc.csv",
+      "study": "longshort",
+      "sha256": "2c9559d884f5f35587a8c03ec3eaed06aeb54c834d03330c419a01e47bcbdc52",
+      "bytes": 35446,
+      "description": "Joint n x cost table (n = 1, 3, 6, 12; 0-30 bps; with and without borrow) for both cohort conventions: monthly re-weighted primary (chosen after the buy-and-hold ruin was observed), buy-and-hold pre-specified (ruined)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "longshort/subperiods_n3_c10.csv": {
+      "path": "longshort/subperiods_n3_c10.csv",
+      "study": "longshort",
+      "sha256": "a61134c48663832db9f2ea6cf5c05881417bb2816369abc3458df374570ee212",
+      "bytes": 7558,
+      "description": "n = 3, 10 bps, by RS-006 period (fresh capital per period), both conventions",
+      "window": "RS-006 periods",
+      "returns": "net",
+      "role": "primary"
+    },
+    "optimization/capacity.csv": {
+      "path": "optimization/capacity.csv",
+      "study": "optimization",
+      "sha256": "66e22a0ab74e0279fe18f6098b3dadd9f3ed8cd3015da163ac66d4a478815059",
+      "bytes": 103970,
+      "description": "Capacity of each run by decade (positions at formation; 2024 dollars; no impact model)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "n/a",
+      "role": "primary"
+    },
+    "optimization/engine_unchanged.csv": {
+      "path": "optimization/engine_unchanged.csv",
+      "study": "optimization",
+      "sha256": "98d1a5a9173775551f74d0bd93b65ae008f6b3b5646706bade0a526ba907de6a",
+      "bytes": 97,
+      "description": "Check: paper engine Conservative 1929-2016 bit-identical to the replication series",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "check"
+    },
+    "optimization/fig_frontier.png": {
+      "path": "optimization/fig_frontier.png",
+      "study": "optimization",
+      "sha256": "137511d807a21e095340c8877eaa0f6c8c51945c724ec1b2688ebcd44c7c5ef3",
+      "bytes": 159502,
+      "description": "IR against realized turnover by industry band, cost level and variant",
+      "window": "1929-01 .. 2024-12",
+      "returns": "net",
+      "role": "primary"
+    },
+    "optimization/grid.csv": {
+      "path": "optimization/grid.csv",
+      "study": "optimization",
+      "sha256": "270c2de1b5f90a1e42a2110aca2d021d6d8ed007ef40e7980f0fe16fcb38649d",
+      "bytes": 31079,
+      "description": "Optimization grid, full sample: delta x tau x c0 for the spec (z-score alpha, size/volatility costs), the flat-cost comparison and the Grinold-alpha sensitivity (post-spec; see the role column)",
+      "window": "1929-01 .. 2024-12",
+      "returns": "net",
+      "role": "primary"
+    },
+    "optimization/grid_subperiods.csv": {
+      "path": "optimization/grid_subperiods.csv",
+      "study": "optimization",
+      "sha256": "5814d52faf81b35319360a855dedfdcd147ae06e710646b048c2d26c213e6d58",
+      "bytes": 157196,
+      "description": "Optimization grid by RS-006 period",
+      "window": "RS-006 periods",
+      "returns": "net",
+      "role": "primary"
+    },
+    "optimization/relaxations.csv": {
+      "path": "optimization/relaxations.csv",
+      "study": "optimization",
+      "sha256": "36399c16f9065ac9adbeb3970ad291f5ccab4eda4a341149ba36aa6306f92779",
+      "bytes": 10215,
+      "description": "Check: band and turnover-budget relaxations per run, solver tolerances, LP vs engine turnover",
+      "window": "formations 1928-12 .. 2024-09",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "optimization/trailing_ic.csv": {
+      "path": "optimization/trailing_ic.csv",
+      "study": "optimization",
+      "sha256": "3de84258839007babc0a5b6dfbdc3449f0dc17a88cd86aa9558572948ce759d0",
+      "bytes": 59619,
+      "description": "Composite 3-month rank IC and its trailing (completed-horizon) mean used by the Grinold sensitivity",
+      "window": "formations 1928-12 .. 2024-11",
+      "returns": "gross",
+      "role": "exploratory"
+    },
+    "paper_targets/engine_unchanged.csv": {
+      "path": "paper_targets/engine_unchanged.csv",
+      "study": "paper_targets",
+      "sha256": "98d1a5a9173775551f74d0bd93b65ae008f6b3b5646706bade0a526ba907de6a",
+      "bytes": 97,
+      "description": "Check: Conservative 1929-2016 re-run bit-identical to the replication series",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "check"
+    },
+    "paper_targets/gaps.csv": {
+      "path": "paper_targets/gaps.csv",
+      "study": "paper_targets",
+      "sha256": "f1551f06d35c16a89fdc73cd31d7192a3bcf262d973b0a4e95889f39ebaa7fd2",
+      "bytes": 3194,
+      "description": "Gaps above 1 pp (returns, alphas) or 5 pp (turnover), with explanations",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "paper_targets/small_monthly.csv": {
+      "path": "paper_targets/small_monthly.csv",
+      "study": "paper_targets",
+      "sha256": "46036bb056c4e9263b5c2a46b9a0f94b4381656db97760821bebcec15e495691",
+      "bytes": 61095,
+      "description": "Small control (100 smallest universe members): monthly gross return, turnover, holdings",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "paper_targets/table1_vs_paper.csv": {
+      "path": "paper_targets/table1_vs_paper.csv",
+      "study": "paper_targets",
+      "sha256": "e6283adff0de324b04cf98d29aa21e998b6643580196a583d7fc423088d510f0",
+      "bytes": 6261,
+      "description": "Table 1 against the paper under its definitions (Value excluded: no book equity)",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "paper_targets/table2_vs_paper.csv": {
+      "path": "paper_targets/table2_vs_paper.csv",
+      "study": "paper_targets",
+      "sha256": "2cde34c678c01d031c06ff48983cd83acd3dfb1c262c356a873ecd227f826b1a",
+      "bytes": 5971,
+      "description": "Table 2 CMS rows of panels A and B against the paper (OLS and NW t); panels C and D excluded",
+      "window": "1929-01 .. 2016-12; panel B 1963-07 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "paper_targets/table4_vs_paper.csv": {
+      "path": "paper_targets/table4_vs_paper.csv",
+      "study": "paper_targets",
+      "sha256": "aacf30c5eff88730685628a39b9627889cf354b696fd105efad3b67c961acd8f",
+      "bytes": 1592,
+      "description": "Table 4 against the paper on our compounded and arithmetic gross bases",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "rank_buffer/baseline_unchanged.csv": {
+      "path": "rank_buffer/baseline_unchanged.csv",
+      "study": "rank_buffer",
+      "sha256": "8d79c520bf5c6f32bbc7b287c09c72fd4e82551b1cd84703612f4107d2cc17fd",
+      "bytes": 149,
+      "description": "Check: baseline Conservative 1929-2024 bit-identical to the critical-tests series",
+      "window": "1929-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "rank_buffer/fig_paired_cum.png": {
+      "path": "rank_buffer/fig_paired_cum.png",
+      "study": "rank_buffer",
+      "sha256": "5e5915392c1fa62a0da5fb8b40e82863c3e1fba97cfdd428b37b3fb1db067abf",
+      "bytes": 181440,
+      "description": "Cumulative paired difference and turnover per rebalance",
+      "window": "1929-01 .. 2024-12; primary 1990-2024",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "rank_buffer/paired.csv": {
+      "path": "rank_buffer/paired.csv",
+      "study": "rank_buffer",
+      "sha256": "6144b3331d633bb8a695f3056926bada55e21986e130cf29643e2769d6b9dfb6",
+      "bytes": 7633,
+      "description": "Paired monthly difference, buffer (150) minus baseline: mean, NW SE and CI, Carhart alpha of the difference, by period (2017-2018 and 2019-2024 seen, not a holdout)",
+      "window": "1929-01 .. 2024-12; primary 1990-2024",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "rank_buffer/turnover_concentration.csv": {
+      "path": "rank_buffer/turnover_concentration.csv",
+      "study": "rank_buffer",
+      "sha256": "b19d9d0dedba7dacda14af8ae70edfa8a27c1fccecc3526363c7dd28a392774e",
+      "bytes": 5478,
+      "description": "Turnover, holding period, FF12 concentration and names per industry, baseline and buffer, by period",
+      "window": "1929-01 .. 2024-12; primary 1990-2024",
+      "returns": "n/a",
+      "role": "primary"
+    },
+    "rank_buffer/verdict.csv": {
+      "path": "rank_buffer/verdict.csv",
+      "study": "rank_buffer",
+      "sha256": "3d51dce0793e5f9a6ad4166a6dd68079a516ef990a287a06eb0b06a9330441b7",
+      "bytes": 352,
+      "description": "Verdict against the declared trade-off (turnover down 25% and positive net-30 difference, 1990-2024)",
+      "window": "1990-01 .. 2024-12",
+      "returns": "net",
+      "role": "primary"
+    },
+    "replication/data011.csv": {
+      "path": "replication/data011.csv",
+      "study": "replication",
+      "sha256": "e8c5b15c11db933fe7cb89d8ed345e4807b3d8563e8c73286b8bac8692a9008a",
+      "bytes": 392,
+      "description": "DATA-011: straddling missing-return gaps in Conservative holdings and the implied bias",
+      "window": "1929-01 .. 2016-12",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "replication/decades.csv": {
+      "path": "replication/decades.csv",
+      "study": "replication",
+      "sha256": "d63d21affa7dcd1662110163a2ef044c7355c8261b513a0b5b5fbbfcb635fa6f",
+      "bytes": 815,
+      "description": "Figure 4: compounded return by decade (partial decades labeled)",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "replication/deviations.csv": {
+      "path": "replication/deviations.csv",
+      "study": "replication",
+      "sha256": "dcb01a2b5b4ba2390b121fba0f9216bd0c5e2d24187ff95cfbf1a51256960bd5",
+      "bytes": 1794,
+      "description": "Documented deviations from the paper's method, with direction or magnitude",
+      "window": "1929-01 .. 2016-12",
+      "returns": "n/a",
+      "role": "primary"
+    },
+    "replication/fig3.png": {
+      "path": "replication/fig3.png",
+      "study": "replication",
+      "sha256": "aacc470a7670cb5f0baaf3a23336a9b6cae278358ee16dc82da50b8ee32e6e6f",
+      "bytes": 133829,
+      "description": "Figure 3: growth of $100 (Conservative, Speculative, CRSP VW)",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "replication/fig4.png": {
+      "path": "replication/fig4.png",
+      "study": "replication",
+      "sha256": "b628d7e88a60c68e07126a2d8fa27e4888b3b099b7e9fb907b9ab75bd2e30ebd",
+      "bytes": 60112,
+      "description": "Figure 4: returns by decade",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "replication/formation_counts.csv": {
+      "path": "replication/formation_counts.csv",
+      "study": "replication",
+      "sha256": "7f43208aaa9400812ae35777a2303d23a009d69d2b5fbd62a883c42a5c5f1e2c",
+      "bytes": 108413,
+      "description": "Per-formation universe, pool, missing-signal, selection and tie counts by strategy",
+      "window": "formations 1928-12 .. 2016-09",
+      "returns": "n/a",
+      "role": "check"
+    },
+    "replication/reconciliation.csv": {
+      "path": "replication/reconciliation.csv",
+      "study": "replication",
+      "sha256": "f2a74a3975129dc2a6bafb65131589469921daeceac7317ab24dad0e01878d37",
+      "bytes": 2302,
+      "description": "Paper targets (Tables 1 and 4) against ours, with explanations",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "replication/returns_monthly.csv": {
+      "path": "replication/returns_monthly.csv",
+      "study": "replication",
+      "sha256": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d",
+      "bytes": 227243,
+      "description": "Monthly gross returns of Conservative, Speculative and the standalone controls; Conservative and Speculative net of 10 and 30 bps; CRSP VW market; rf",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "replication/sensitivity_pct10.csv": {
+      "path": "replication/sensitivity_pct10.csv",
+      "study": "replication",
+      "sha256": "4d3f8a578d42ef972d799d1b17bac7d44b4daf59c80ac67b62e90a781662c0b9",
+      "bytes": 471,
+      "description": "DATA-001 sensitivity: Conservative with 10% of the universe instead of 100 names",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "replication/table1.csv": {
+      "path": "replication/table1.csv",
+      "study": "replication",
+      "sha256": "ebdd13f7655bc416bf633d4d79b330e971eb7b9178e034e327f2df5a54dfd7e5",
+      "bytes": 1045,
+      "description": "Table 1 statistics (compounded, arithmetic, volatility, Sharpe definitions, drawdown) by portfolio",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross",
+      "role": "primary"
+    },
+    "replication/table4.csv": {
+      "path": "replication/table4.csv",
+      "study": "replication",
+      "sha256": "1daad57659f1e5e82a38220016baff88c542a30257ae3aef4137e5ce62080ff1",
+      "bytes": 621,
+      "description": "Table 4: Conservative gross and net returns, one-way quarterly turnover, implied and engine cost drag",
+      "window": "1929-01 .. 2016-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "replication/turnover_decomposition.csv": {
+      "path": "replication/turnover_decomposition.csv",
+      "study": "replication",
+      "sha256": "7b3e3a037d20452095fb69cb672776ccedee78b0f0aca697a2dd590e69dbdb0c",
+      "bytes": 527,
+      "description": "Turnover decomposition (names replaced, re-weighting, cash) by era (DATA-013)",
+      "window": "1929-01 .. 2016-12",
+      "returns": "n/a",
+      "role": "check"
+    }
+  },
+  "studies": {
+    "data_audit": {
+      "run_utc": "2026-10-12T17:51:32+00:00",
+      "seconds": 0.0,
+      "end": "2024-12-31",
+      "files": 8,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/data_audit.py": "78457bb2169507274dc6dbaf278407a7218508a77a101ae59641dbcc0afaeb50"
+        },
+        "inputs": {},
+        "depends": {},
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "replication": {
+      "run_utc": "2026-10-12T17:53:30+00:00",
+      "seconds": 117.6,
+      "end": "2024-12-31",
+      "files": 12,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/data/replication_explanations.json": "33728ceddc971557c8019aa7cba06ceddd0fb4fd2e2ba0429a4713851c63e534",
+          "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5"
+        },
+        "inputs": {},
+        "depends": {},
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "attribution": {
+      "run_utc": "2026-10-12T17:53:30+00:00",
+      "seconds": 0.2,
+      "end": "2024-12-31",
+      "files": 2,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/attribution.py": "8513a0de38d2454a82c40f0923609b91d3dc4e5c161c7ba8a3be7aa943be4dc8",
+          "research/studies/data/attribution_explanations.json": "b8b778975b53a64835b93f7f2fac306af3f447c8854bb103891e5438b19c800e"
+        },
+        "inputs": {
+          "replication/returns_monthly.csv": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d"
+        },
+        "depends": {
+          "replication": "9d9e5e81f36a00b7bfb43e8d67cacb89d2aa2566b2b724ccb81a5770aadcb4f1"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "critical_tests": {
+      "run_utc": "2026-10-12T17:54:48+00:00",
+      "seconds": 77.9,
+      "end": "2024-12-31",
+      "files": 8,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
+          "research/studies/data/critical_tests_freeze_record.json": "8bccd705f22071a3d664e76e79ee1e0ee92dd4c63e5111412ac7326c76d97043",
+          "research/studies/data/critical_tests_rerun_record_2026-10-11T145121.json": "cb9bc3ae79a35602e0740dec66bde173c0283b8d296b1432fd7bc8e8ccea7215"
+        },
+        "inputs": {
+          "replication/returns_monthly.csv": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d"
+        },
+        "depends": {
+          "replication": "9d9e5e81f36a00b7bfb43e8d67cacb89d2aa2566b2b724ccb81a5770aadcb4f1"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "paper_targets": {
+      "run_utc": "2026-10-12T17:55:18+00:00",
+      "seconds": 29.5,
+      "end": "2024-12-31",
+      "files": 6,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/data/paper_targets_explanations.json": "54af5535e94112e249e89353b2665a7c48f05c13f9d8abb4562d4ae62031d3e0",
+          "research/studies/paper_targets.py": "0d73096338c5c78f4214f3400d15068a9778f2c69cb68ae6b364be1da947d1bf"
+        },
+        "inputs": {
+          "attribution/table2.csv": "191471ae04dbe55788261d58829ef1503c3b0237f5871d63c00a30ebef6fbad9",
+          "replication/returns_monthly.csv": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d",
+          "replication/table4.csv": "1daad57659f1e5e82a38220016baff88c542a30257ae3aef4137e5ce62080ff1"
+        },
+        "depends": {
+          "replication": "9d9e5e81f36a00b7bfb43e8d67cacb89d2aa2566b2b724ccb81a5770aadcb4f1",
+          "attribution": "d5edde6e7dabcbd57c2fcd62e67e478d737328f00658a3852981323950f6d9b0"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "diagnostics": {
+      "run_utc": "2026-10-12T17:57:44+00:00",
+      "seconds": 145.7,
+      "end": "2024-12-31",
+      "files": 11,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/diagnostics.py": "7f935aadfb5b94f21e8e56dfd6547e630d5c64fb9f28633950a85e81c524f27b"
+        },
+        "inputs": {},
+        "depends": {},
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "fmp": {
+      "run_utc": "2026-10-12T17:57:55+00:00",
+      "seconds": 10.9,
+      "end": "2024-12-31",
+      "files": 7,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+          "research/fmp.py": "46f602c93d9ae30c9d2dd81336635a2a73eb3f13b099c65f3f0f154c2f51bdd5",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/fmp.py": "36a916cb6dc66c05238fcfaa745d4f47a863061150df765e8698f85d8a0c7b09"
+        },
+        "inputs": {},
+        "depends": {
+          "diagnostics": "5ea0d7b2835293a8887f5d668c41c2ffe98f1e6041d4ed0fd696442e207b584a"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "longshort": {
+      "run_utc": "2026-10-12T18:01:17+00:00",
+      "seconds": 201.7,
+      "end": "2024-12-31",
+      "files": 7,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/longshort.py": "f15f7828975388b0e0210fbe5c27c2da621aae31eebc9d99093f0349b86be757"
+        },
+        "inputs": {
+          "replication/returns_monthly.csv": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d"
+        },
+        "depends": {
+          "replication": "9d9e5e81f36a00b7bfb43e8d67cacb89d2aa2566b2b724ccb81a5770aadcb4f1",
+          "diagnostics": "5ea0d7b2835293a8887f5d668c41c2ffe98f1e6041d4ed0fd696442e207b584a"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "optimization": {
+      "run_utc": "2026-10-12T18:13:06+00:00",
+      "seconds": 709.3,
+      "end": "2024-12-31",
+      "files": 7,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
+          "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/optimization.py": "17b171e9505013e08f3c45973e19121c751a3e21bc60c9c7a2dff24ccb225681"
+        },
+        "inputs": {
+          "replication/returns_monthly.csv": "a7b5f933fea135e06590c9e73c7cb98c18741e0428f71e8f1c5d3f4629f46c6d"
+        },
+        "depends": {
+          "replication": "9d9e5e81f36a00b7bfb43e8d67cacb89d2aa2566b2b724ccb81a5770aadcb4f1",
+          "diagnostics": "5ea0d7b2835293a8887f5d668c41c2ffe98f1e6041d4ed0fd696442e207b584a"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    },
+    "rank_buffer": {
+      "run_utc": "2026-10-12T18:13:43+00:00",
+      "seconds": 36.9,
+      "end": "2024-12-31",
+      "files": 5,
+      "provenance": {
+        "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+        "sources": {
+          "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+          "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+          "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+          "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4"
+        },
+        "inputs": {
+          "critical_tests/returns_monthly.csv": "cbedb911321a0a9678d303685ec2cd1314b7f6e578dbea0cf151cca6766043f5"
+        },
+        "depends": {
+          "critical_tests": "5b2c04a68fda1f34bdbfbe81f63e47777530661964b5d6dc74f2b168bc0ebc47",
+          "diagnostics": "5ea0d7b2835293a8887f5d668c41c2ffe98f1e6041d4ed0fd696442e207b584a"
+        },
+        "packages": {
+          "python": "3.14.7",
+          "numpy": "2.5.3",
+          "pandas": "3.0.6",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "25.0.1"
+        }
+      }
+    }
+  },
+  "updated_utc": "2026-10-12T18:13:43+00:00",
+  "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+  "packages": {
+    "python": "3.14.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "pyarrow": "25.0.1"
+  },
+  "last_run": {
+    "studies": [
+      "data_audit",
+      "replication",
+      "attribution",
+      "critical_tests",
+      "paper_targets",
+      "diagnostics",
+      "fmp",
+      "longshort",
+      "optimization",
+      "rank_buffer"
+    ],
+    "seconds": 1331.1,
+    "argv": [],
+    "source_sha256": {
+      "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+      "crsp_pipeline/__main__.py": "ec44dab290ce4211b19b7418e558eb2ac2c5e6744f40b2bcc35b84dac2e79359",
+      "crsp_pipeline/audit.py": "85a1e744a4f138af2bbe4a24d63403b9e779d681850fc2910d853d9557019f24",
+      "crsp_pipeline/build.py": "08977adf7e072c16ff88caadadd3ecc7a0035522a8d28f50120b970558ecaf37",
+      "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+      "crsp_pipeline/extract.py": "9b2f15cad4b0c84cf72d07a753821dd360e1bf2a27e4f80b57976aa16566d8d8",
+      "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+      "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+      "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
+      "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
+      "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
+      "research/checks.py": "dff48995847925ba114c57562c9805de15eee3d8d316586cb3d041cfd42d851a",
+      "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+      "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+      "research/fmp.py": "46f602c93d9ae30c9d2dd81336635a2a73eb3f13b099c65f3f0f154c2f51bdd5",
+      "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
+      "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
+      "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+      "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+      "research/run_all.py": "c59bb0f4723d73a567b859c398314237d99c32a359582e7d55bbc25087f9ad30",
+      "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+      "research/studies/__init__.py": "fbeb56d4680879bbcabf6a54d564cc5047f986650fc3ac3eaf692cf5ee725f08",
+      "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+      "research/studies/attribution.py": "8513a0de38d2454a82c40f0923609b91d3dc4e5c161c7ba8a3be7aa943be4dc8",
+      "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
+      "research/studies/data/attribution_explanations.json": "b8b778975b53a64835b93f7f2fac306af3f447c8854bb103891e5438b19c800e",
+      "research/studies/data/critical_tests_freeze_record.json": "8bccd705f22071a3d664e76e79ee1e0ee92dd4c63e5111412ac7326c76d97043",
+      "research/studies/data/critical_tests_rerun_record_2026-10-11T145121.json": "cb9bc3ae79a35602e0740dec66bde173c0283b8d296b1432fd7bc8e8ccea7215",
+      "research/studies/data/paper_targets_explanations.json": "54af5535e94112e249e89353b2665a7c48f05c13f9d8abb4562d4ae62031d3e0",
+      "research/studies/data/replication_explanations.json": "33728ceddc971557c8019aa7cba06ceddd0fb4fd2e2ba0429a4713851c63e534",
+      "research/studies/data_audit.py": "78457bb2169507274dc6dbaf278407a7218508a77a101ae59641dbcc0afaeb50",
+      "research/studies/diagnostics.py": "7f935aadfb5b94f21e8e56dfd6547e630d5c64fb9f28633950a85e81c524f27b",
+      "research/studies/fmp.py": "36a916cb6dc66c05238fcfaa745d4f47a863061150df765e8698f85d8a0c7b09",
+      "research/studies/longshort.py": "f15f7828975388b0e0210fbe5c27c2da621aae31eebc9d99093f0349b86be757",
+      "research/studies/optimization.py": "17b171e9505013e08f3c45973e19121c751a3e21bc60c9c7a2dff24ccb225681",
+      "research/studies/paper_targets.py": "0d73096338c5c78f4214f3400d15068a9778f2c69cb68ae6b364be1da947d1bf",
+      "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4",
+      "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5",
+      "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"
+    }
+  }
+}

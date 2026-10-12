@@ -1,0 +1,2 @@
+period,turnover_baseline,turnover_buffer,turnover_reduction,condition_a_turnover_down_25pct,net30_mean_diff_annual,net30_ci95_low,net30_ci95_high,condition_b_positive,ci_excludes_0,verdict
+1990–2024,0.39774098015774345,0.2837584626624031,0.28657473879139894,True,0.0033758736506496545,-0.001005453783869197,0.007757201085168506,True,False,succeeds

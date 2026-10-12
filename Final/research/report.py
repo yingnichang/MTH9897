@@ -42,6 +42,26 @@ def statistics(r: pd.Series, rf: pd.Series) -> dict:
             "max_drawdown": max_drawdown(r)}
 
 
+# --- Paper Table 1 definitions (decisions.md 2026-10-11: targets confirmed from the PDF) ---------------
+
+PAPER_TARGET_VOL = 0.165        # Table 1: the Formula's volatility, the common risk level
+
+
+def sharpe_simple(simple: float, vol: float) -> float:
+    """Table 1 "Sharpe": simple (arithmetic) return / volatility, with no T-bill subtracted."""
+    return simple / vol
+
+
+def derisking_factor(vol: float, target: float = PAPER_TARGET_VOL) -> float:
+    """Table 1 "De-risking factor": target volatility / volatility."""
+    return target / vol
+
+
+def return_same_risk(simple: float, vol: float, rf: float, target: float = PAPER_TARGET_VOL) -> float:
+    """Table 1 "Return same risk": rf + (simple - rf) x target / vol."""
+    return rf + (simple - rf) * derisking_factor(vol, target)
+
+
 def rebalance_months(index: pd.DatetimeIndex) -> pd.DatetimeIndex:
     """Months in which a quarter-end target is traded (the month after March, June, September, December)."""
     prev = index - pd.offsets.MonthEnd(1)

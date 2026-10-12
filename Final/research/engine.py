@@ -26,12 +26,15 @@ from crsp_pipeline.signals import build_signals
 STRATEGIES = ["Conservative", "No momentum", "No payout", "No low-vol screen",
               "Low volatility only", "Universe equal weight", "Universe cap weight"]
 RANKED = {"Conservative": ("momentum", "npy"), "No momentum": ("npy",), "No payout": ("momentum",),
-          "No low-vol screen": ("momentum", "npy")}
+          "No low-vol screen": ("momentum", "npy"), "Conservative buffer": ("momentum", "npy")}
 # Paper controls (p. 4 and Table 1): the Speculative mirror image and three standalone portfolios.
-PAPER_CONTROLS = ["Speculative", "Standalone low-vol", "Standalone momentum", "Standalone NPY"]
+PAPER_CONTROLS = ["Speculative", "Standalone low-vol", "Standalone momentum", "Standalone NPY", "Small"]
 STANDALONE = {"Standalone low-vol": ("vol36", True), "Standalone momentum": ("momentum", False),
               "Standalone NPY": ("npy", False)}          # signal, True if low values are best
-ALL_STRATEGIES = STRATEGIES + PAPER_CONTROLS
+# Phase 5 declared improvement (decisions.md 2026-10-11; experiments/2026-10-11-rank-buffer): a named extension.
+EXTENSIONS = ["Conservative buffer"]
+BUFFER_N = 150                  # keep a holding still in the low-vol pool and ranked within the top 150 (declared)
+ALL_STRATEGIES = STRATEGIES + PAPER_CONTROLS + EXTENSIONS
 COUNT_FIELDS = ["eligible_n", "history_eligible_n", "universe_n", "low_vol_pool_n",
                 "pool_missing_momentum_n", "pool_missing_npy_n", "signal_complete_n", "selected_n",
                 "score_ties_at_cut", "ranking_pool_n"]
@@ -192,8 +195,23 @@ def _best(candidates: pd.DataFrame, score: pd.Series, n: int) -> tuple[pd.DataFr
     return chosen, ties
 
 
+def _buffered(candidates: pd.DataFrame, score: pd.Series, n: int, holdings: pd.Series | None,
+              buffer_n: int) -> tuple[pd.DataFrame, int, int]:
+    """Rank buffer: keep current holdings ranked within the best `buffer_n`, fill up to n with the best others.
+    Returns the chosen rows, the ties at the fill cut and the number kept."""
+    ranked = candidates.assign(_score=score).sort_values(["_score", "permno"])
+    held = set() if holdings is None else set(holdings.index)
+    keep = ranked.head(buffer_n).loc[lambda d: d["permno"].isin(held)]
+    if len(keep) > n:
+        raise ValueError(f"{len(keep)} kept holdings exceed the {n} slots")
+    others = candidates.loc[~candidates["permno"].isin(keep["permno"])]
+    fill, ties = _best(others, score.loc[others.index], n - len(keep)) if n > len(keep) else (others.iloc[:0], 0)
+    return pd.concat([keep.drop(columns="_score"), fill.drop(columns="_score", errors="ignore")]), ties, len(keep)
+
+
 def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.UNIVERSE_SIZE,
-                   n_hold: int | str = DEFAULT_HOLDINGS) -> tuple[pd.Series, dict]:
+                   n_hold: int | str = DEFAULT_HOLDINGS, holdings: pd.Series | None = None,
+                   buffer_n: int = BUFFER_N) -> tuple[pd.Series, dict]:
     """Target weights (indexed by permno, summing to 1) and per-formation counts for one strategy.
 
     For the ranked strategies the counts describe the pool the strategy ranks over (`ranking_pool_n`):
@@ -204,6 +222,14 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
     NPY are ranked ascending among members with both signals (the weakest gets rank 1) and the
     `n_hold` lowest mean ranks are held. Standalone portfolios (Table 1): the `n_hold` universe members
     with the lowest vol36, highest momentum or highest NPY, complete cases on that signal only.
+
+    Small (Table 1; paper-targets task): the `n_hold` smallest universe members by market cap (ties by
+    permno), equal weight.
+
+    Conservative buffer (Phase 5 extension): the Conservative pool and combined score; a current holding
+    (`holdings`, the previous formation's target) is kept if it is a signal-complete pool member ranked within
+    the best `buffer_n` (order: score, then permno); the other slots are filled with the best-ranked
+    non-holdings; equal weight. Every other strategy ignores `holdings`.
     """
     if name not in ALL_STRATEGIES:
         raise ValueError(f"Unknown strategy {name!r}")
@@ -222,7 +248,10 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
               "selected_n": 0, "score_ties_at_cut": 0, "ranking_pool_n": None}
 
     by_vol = universe.sort_values(["vol36", "permno"])
-    if name.startswith("Universe"):
+    if name == "Small":
+        chosen, counts["score_ties_at_cut"] = _best(universe, universe["mktcap"], hold)
+        weights = pd.Series(1 / hold, index=chosen["permno"].to_numpy())
+    elif name.startswith("Universe"):
         sel = universe.set_index("permno")
         weights = (sel["mktcap"] / sel["mktcap"].sum() if name.endswith("cap weight")
                    else pd.Series(1 / n, index=sel.index))
@@ -250,7 +279,12 @@ def choose_weights(snapshot: pd.DataFrame, name: str, n_universe: int = config.U
             raise ValueError(f"Only {len(complete)} signal-complete pool members for {name}; need {hold}")
         cols = ("momentum", "npy") if speculative else RANKED[name]
         ranks = [complete[c].rank(ascending=speculative, method="average") for c in cols]
-        chosen, counts["score_ties_at_cut"] = _best(complete, sum(ranks) / len(ranks), hold)
+        score = sum(ranks) / len(ranks)
+        if name == "Conservative buffer":
+            chosen, counts["score_ties_at_cut"], counts["buffer_kept_n"] = _buffered(complete, score, hold,
+                                                                                     holdings, buffer_n)
+        else:
+            chosen, counts["score_ties_at_cut"] = _best(complete, score, hold)
         weights = pd.Series(1 / hold, index=chosen["permno"].to_numpy())
     weights.index.name = "permno"
     counts["selected_n"] = len(weights)
@@ -266,18 +300,22 @@ def formation_dates(dates, start: pd.Timestamp, last: pd.Timestamp | None = None
 
 
 def formation_targets(signals: pd.DataFrame, strategies=STRATEGIES, start=None, last=None,
-                      n_universe: int = config.UNIVERSE_SIZE, n_hold: int | str = DEFAULT_HOLDINGS):
+                      n_universe: int = config.UNIVERSE_SIZE, n_hold: int | str = DEFAULT_HOLDINGS,
+                      buffer_n: int = BUFFER_N):
     """Targets {strategy: {formation: weights}} and a counts table (one row per formation and strategy).
 
-    `signals` is the panel with `vol36`, `momentum` and `npy` merged on (permno, date).
+    `signals` is the panel with `vol36`, `momentum` and `npy` merged on (permno, date). Formations run in
+    date order; each strategy's previous target is passed as `holdings` (only the buffer uses it).
     """
     targets = {s: {} for s in strategies}
     rows = []
     cols = ["date", "permno", "eligible", "hist36", "is_exit", "mktcap", "vol36", "momentum", "npy"]
     snaps = signals.loc[signals["date"].isin(formation_dates(signals["date"], start, last)), cols]
+    prev = {}
     for date, snap in snaps.groupby("date", sort=True):
         for name in strategies:
-            w, c = choose_weights(snap, name, n_universe, n_hold)
+            w, c = choose_weights(snap, name, n_universe, n_hold, holdings=prev.get(name), buffer_n=buffer_n)
+            prev[name] = w
             targets[name][pd.Timestamp(date)] = w
             rows.append({"formation": pd.Timestamp(date), "strategy": name, **c})
     return targets, pd.DataFrame(rows)
@@ -311,7 +349,7 @@ def validate_calendar(bench: pd.DataFrame, target_map: dict, start, end) -> pd.D
 
 
 def backtest(p: pd.DataFrame, bench: pd.DataFrame, target_map: dict, start, end, cost_bps: float = 0,
-             trade_log: list | None = None) -> pd.DataFrame:
+             trade_log: list | None = None, name_costs: dict | None = None) -> pd.DataFrame:
     """Monthly long-only backtest with drift, a proportional cost haircut, exits to cash and rf on cash.
 
     `bench` is indexed by month-end date with an `rf` column. A target dated at formation month t is
@@ -319,7 +357,15 @@ def backtest(p: pd.DataFrame, bench: pd.DataFrame, target_map: dict, start, end,
     calendar `start`..`end` (`validate_calendar`). `all_cash` flags months that end fully in cash.
     If `trade_log` is a list, one frame per rebalance is appended with security-level pre-trade weights,
     targets and signed trades (cash is not a security; a trade's cash leg is not counted).
+
+    Extensions (linear-optimization task; the paper baseline passes neither and is unchanged):
+    - a `target_map` value may be a callable `f(holdings, cash) -> weights`, called at its formation with the
+      drifted pre-trade weights (a copy) and cash, for targets that depend on the current portfolio;
+    - `name_costs` {formation: Series permno -> cost per dollar traded (a fraction)} replaces `cost_bps`: the
+      rebalance charge is sum_i c_i |trade_i|. A traded name without a cost raises.
     """
+    if name_costs is not None and cost_bps != 0:
+        raise ValueError("Pass cost_bps or name_costs, not both")
     calendar = validate_calendar(bench, target_map, start, end)
     cols = ["date", "permno", "ret_hold", "ret_hold_source", "is_exit"]
     p = p.loc[p["date"].between(calendar[0], calendar[-1]), cols]
@@ -329,13 +375,22 @@ def backtest(p: pd.DataFrame, bench: pd.DataFrame, target_map: dict, start, end,
     records = []
     for date in calendar:
         prev = date - pd.offsets.MonthEnd(1)
-        traded = 0.0
+        traded = name_charge = 0.0
         if prev in target_map:
             new = target_map[prev]
+            if callable(new):
+                new = new(holdings.copy(), cash)
             assert new.ge(0).all() and np.isclose(new.sum(), 1)
             keys = holdings.index.union(new.index)
             pre, tgt = holdings.reindex(keys, fill_value=0), new.reindex(keys, fill_value=0)
             traded = float((tgt - pre).abs().sum())
+            if name_costs is not None:
+                size = (tgt - pre).abs()
+                c = name_costs[prev].reindex(keys) if prev in name_costs else pd.Series(np.nan, index=keys)
+                missing = c.isna() & size.gt(0)
+                if missing.any():
+                    raise ValueError(f"No cost at {prev.date()} for traded names {keys[missing.to_numpy()].tolist()[:8]}")
+                name_charge = float((size * c.fillna(0)).sum())
             if trade_log is not None:
                 trade_log.append(pd.DataFrame({"formation": prev, "permno": keys, "pre_weight": pre.to_numpy(),
                                                "target_weight": tgt.to_numpy(), "trade": (tgt - pre).to_numpy(),
@@ -362,7 +417,7 @@ def backtest(p: pd.DataFrame, bench: pd.DataFrame, target_map: dict, start, end,
         gross_factor = float(grown.sum() + cash * (1 + rf))
         if gross_factor <= 0:
             raise ValueError("Portfolio exhausted")
-        charge = cost_bps / 10000 * traded
+        charge = name_charge if name_costs is not None else cost_bps / 10000 * traded
         if charge >= 1:
             raise ValueError("Costs exceed NAV")
         exit_cash = float(grown.loc[exited].sum())
