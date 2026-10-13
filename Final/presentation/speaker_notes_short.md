@@ -1,0 +1,77 @@
+# Short Speaking Notes for the Conservative Formula
+
+**Authors:** Yingni Chang and Yikai Shen
+
+Brief script for all 18 slides: approximately 740 words, or 5.7 minutes at 130 words per minute. Allow about 6-8 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-18.
+
+## 1. Replicating the Conservative Formula
+
+Hello everyone. We're Yingni Chang and Yikai Shen. Our project tests a simple stock strategy that combines low volatility, momentum and shareholder payout. We reproduce the paper's historical results and examine how the strategy performs in more recent data.
+
+## 2. What we test
+
+We ask three questions: Can we reproduce the paper? How much of the return comes from familiar market factors? And does the strategy still perform well after trading costs? These comparisons help us judge both the historical result and its recent relevance.
+
+## 3. The data
+
+We use monthly CRSP stock data through 2024, together with delistings, dividends and factor returns. Earlier observations provide the history needed to begin investing in 1929. We retain disappearing stocks and use historical classifications to avoid looking only at companies that survived.
+
+## 4. The portfolio rule
+
+Each quarter, we select the largest one thousand stocks with enough return history. We keep the lower-volatility half, then choose one hundred using momentum and net payout. We invest equally, allow weights to drift with returns and rebalance quarterly.
+
+## 5. Building the signals
+
+Volatility uses thirty-six months of total returns. Momentum uses eleven months of price returns, skipping the latest month. Net payout combines dividends with changes in split-adjusted shares, so it includes a proxy for repurchases after issuance.
+
+## 6. Our results versus the paper
+
+Our paper-period annual return is 14.80 percent, compared with 15.1 percent in the paper. Volatility is also close. The main gap is quarterly turnover: 38.9 percent versus 32 percent. We reproduce the broad pattern, but not every result.
+
+## 7. Factor-adjusted returns
+
+A high return does not automatically mean high alpha. Carhart alpha is the average return remaining after accounting for market, size, value and momentum exposures. Adding profitability and investment factors weakens the long-only alpha estimate, showing that the model matters.
+
+## 8. How costs change the result
+
+Trading costs reduce the strategy's advantage. For 1990 to 2024, about 36 basis points per dollar traded eliminates Carhart alpha; about 52 eliminates the average return above the market. These are break-even cost levels, not return percentages. We charge purchases and sales.
+
+## 9. Results by period
+
+The long history hides differences across periods. Earlier factor-adjusted results are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only eight years, so its confidence interval is wide and does not establish positive alpha.
+
+## 10. The recent sample: 1990–2024
+
+For 1990 to 2024, annual Carhart alpha after thirty-basis-point costs is only 0.20 percent, and its confidence interval includes zero. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
+
+## 11. Dividends and share repurchases
+
+The professor warned against using dividends alone. We also include the change in adjusted shares to capture net repurchases. The dividends-only comparison performs worse over the paper period. Share changes remain a proxy, rather than directly observed buyback spending.
+
+## 12. Industry allocation and stock selection
+
+We separate industry allocation from stock selection using the same eligible universe as a reference. We also test an industry-quota portfolio. The original paper ranks across industries, so the quota changes the strategy and is an exploratory comparison, not the baseline rule.
+
+## 13. Signal tests
+
+We test whether the signals predict later returns after removing industry effects. The rank correlations are positive, but that alone does not guarantee a profitable trading strategy. Factor-mimicking portfolios help examine the exposures; their gross results do not include a complete trading-cost model.
+
+## 14. Long/short and linear optimization
+
+The long/short experiment suffers severe losses, including bankruptcy for some original holding-period settings. Linear optimization gives stronger results for some choices, but we test many settings and recent evidence is weaker. The best grid result still needs validation on unseen data.
+
+## 15. Mean-variance portfolios
+
+The mean-variance model balances expected return, risk and trading costs. It uses a regularized covariance estimate because we have many stocks and a short estimation window. Higher risk aversion lowers realized volatility, but these long-only portfolios still have substantial market exposure.
+
+## 16. A buffer to reduce trading
+
+The buffer keeps an existing holding while it remains eligible and within the best one hundred and fifty ranks. Recent quarterly turnover falls from 39.8 percent to 28.4 percent. It reduces trading, but the return improvement is uncertain because its confidence interval includes zero.
+
+## 17. What we conclude
+
+We reproduce much of the historical return and risk pattern, although turnover still differs. We address payout and industry positioning explicitly. In recent data, lower volatility is more consistent than positive net alpha. The extensions are useful experiments, but do not establish a superior strategy on unseen data.
+
+## 18. Running the project
+
+The main calculation command is python, dash m, research dot run all. The notebook and PDFs use saved results, while a full rebuild requires the private CRSP inputs. The submission includes code, results and data checks. Thank you. We're happy to take questions.

@@ -23,6 +23,8 @@ def main():
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
         'presentation/build_speech_notes.py', 'presentation/speech_notes.py',
         'presentation/speaker_notes.md', 'output/pdf/conservative_formula_speech_notes.pdf',
+        'presentation/build_short_speech_notes.py', 'presentation/speaker_notes_short.md',
+        'output/pdf/conservative_formula_short_speech_notes.pdf',
         'presentation/conservative_formula.pdf', 'build_report_pdf.py',
         'output/pdf/conservative_formula_report.pdf', 'package_submission.py'])
     selected.update(ROOT / 'data' / p for p in [
@@ -51,7 +53,8 @@ def main():
                    'Run from Final: pip install -r requirements.txt; python -m crsp_pipeline build;\n'
                    'python -m research.run_all; python build_notebook.py; python execute_notebook.py;\n'
                    'python build_report_pdf.py; python presentation/build_pdf.py; '
-                   'python presentation/build_speech_notes.py. '
+                   'python presentation/build_speech_notes.py; '
+                   'python presentation/build_short_speech_notes.py. '
                    'The executed notebook also opens using cached results.\n')
     with zipfile.ZipFile(output) as z:
         bad = z.testzip()

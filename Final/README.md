@@ -21,6 +21,8 @@ these results and the assumptions behind them.
 | [Presentation](presentation/conservative_formula.pdf) | 18 slides for the final presentation |
 | [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 18 slides, presenter cues and likely questions |
 | [Editable speech notes](presentation/speaker_notes.md) | The same scripts in Markdown, with per-slide timing |
+| [Short speech notes PDF](output/pdf/conservative_formula_short_speech_notes.pdf) | A few sentences per slide for a shorter presentation |
+| [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 18 slides |
 | [Calculation checks](FINAL_REVIEW.md) | Paper comparison, data checks and independent return reconstruction |
 
 The notebook's filename is retained from the initial draft, but it contains the completed analysis.
@@ -60,6 +62,7 @@ python execute_notebook.py
 python build_report_pdf.py
 python presentation/build_pdf.py
 python presentation/build_speech_notes.py
+python presentation/build_short_speech_notes.py
 ```
 
 `requirements-lock.txt` records the tested versions. Some packages are Windows-specific; use
@@ -79,6 +82,7 @@ python execute_notebook.py
 python build_report_pdf.py
 python presentation/build_pdf.py
 python presentation/build_speech_notes.py
+python presentation/build_short_speech_notes.py
 python -m pytest tests -q
 python package_submission.py
 ```

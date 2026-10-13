@@ -28,6 +28,11 @@ python presentation/build_speech_notes.py
 `speech_notes.py` holds the speaking text and reads figures from the saved results. Edit that source
 and rebuild the notes and deck when changing the script.
 
+For a shorter talk, `speaker_notes_short.md` gives a few sentences per slide. The matching PDF is
+`output/pdf/conservative_formula_short_speech_notes.pdf`. It explains the difference between the
+36-bps alpha and 52-bps market-excess break-even costs. Generate both short versions with
+`python presentation/build_short_speech_notes.py`; the detailed script remains available separately.
+
 `build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
 searchable text and tables. No LibreOffice installation is required. The PPTX is
 an intermediate editable version; submit the PDF. The exporter checks textbox
