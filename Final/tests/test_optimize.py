@@ -113,7 +113,7 @@ def test_trailing_ic_uses_completed_horizons_only():
     ic2.loc[d[27]:] = 1e6                                                  # data not yet complete at d[29]
     assert opt.trailing_ic(ic2, h=3, min_obs=12).loc[d[29]] == t.loc[d[29]]
     z = pd.Series([1.0, -2.0]); v = pd.Series([0.1, 0.05])
-    assert np.allclose(opt.grinold_alpha(z, v, 0.05, h=3), 0.05 * v * np.sqrt(3) * z)
+    assert np.allclose(opt.grinold_alpha(z, v, 0.05, h=3), 0.05 * v * np.sqrt(3 / 12) * z)
 
 
 # --- Engine extensions -------------------------------------------------------------------------

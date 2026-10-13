@@ -15,6 +15,19 @@ STYLES = ["lowvol_z", "momentum_z", "npy_z", "size_z"]
 SIGNAL_STYLES = ["lowvol_z", "momentum_z", "npy_z"]
 
 
+def ff3_betas(returns: pd.DataFrame, factors: pd.DataFrame, minimum=24) -> pd.DataFrame:
+    """Stock FF3 loadings from a historical window, with an intercept and RF subtraction.
+    The caller ends the window at formation; never regress on forward security returns.
+    """
+    f = factors.reindex(returns.index)[["mktrf", "smb", "hml", "rf"]].dropna()
+    if len(f) < minimum: raise ValueError("Too few completed months for FF3 loadings")
+    y = returns.loc[f.index].to_numpy()-f.rf.to_numpy()[:, None]
+    if not np.isfinite(y).all(): raise ValueError("Missing historical security return for FF3 loadings")
+    X = np.c_[np.ones(len(f)), f[["mktrf", "smb", "hml"]].to_numpy()]
+    beta = np.linalg.lstsq(X, y, rcond=None)[0][1:].T
+    return pd.DataFrame(beta, index=returns.columns, columns=["beta_mktrf", "beta_smb", "beta_hml"])
+
+
 def design(frame: pd.DataFrame, styles=STYLES, group: str = "group") -> tuple[np.ndarray, list[str]]:
     """Columns: the style exposures, then one dummy per industry group present (no intercept)."""
     groups = sorted(frame[group].unique())

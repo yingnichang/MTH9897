@@ -83,8 +83,8 @@
     "critical_tests/run_meta.json": {
       "path": "critical_tests/run_meta.json",
       "study": "critical_tests",
-      "sha256": "88780e65332b7502053f5cfdadc69ed15606152912cc8abc9bf8ba74b1244f76",
-      "bytes": 2957,
+      "sha256": "ed8484b5e629c69db9c74699f9bea029863f17ad8dea7599620f5fa1dca81c6d",
+      "bytes": 3153,
       "description": "This run: data load time, end month, source hashes and the 1929-2016 identity check",
       "window": "run record",
       "returns": "n/a",
@@ -293,8 +293,8 @@
     "fmp/carhart_crosscheck.csv": {
       "path": "fmp/carhart_crosscheck.csv",
       "study": "fmp",
-      "sha256": "e810296d220b494db4a094e9cad95710b317eef54ec93a9b1c78d18847aa8997",
-      "bytes": 309,
+      "sha256": "1fa2a068c02f50bb596081407d2d2502e992b340f1f7732b9b4099a09d1829f0",
+      "bytes": 310,
       "description": "Cross-check (not part of 7D-F): K = 1 composite on Carhart factors",
       "window": "1929-01 .. 2024-12",
       "returns": "gross",
@@ -303,9 +303,9 @@
     "fmp/factor_returns.csv": {
       "path": "fmp/factor_returns.csv",
       "study": "fmp",
-      "sha256": "8ab88cb42c6b3c84eeb9a76a97e777df8d58e6ce30da7ced98abd3773871a495",
-      "bytes": 265041,
-      "description": "Monthly unit-exposure FMP returns (WLS with industries and size), leverage and the composite exposure check",
+      "sha256": "6562ec5cab8895cf6ea74e7dffb6f2384a4b19125f8ff4f7944be8494177f22e",
+      "bytes": 265316,
+      "description": "Monthly unit-exposure FMP returns (WLS with industries, size and historical FF3 stock betas), leverage and the composite exposure check",
       "window": "1929-01 .. 2024-12",
       "returns": "gross",
       "role": "primary"
@@ -313,8 +313,8 @@
     "fmp/fig_cum.png": {
       "path": "fmp/fig_cum.png",
       "study": "fmp",
-      "sha256": "fb16478a84fc7f1ace32048d82871f653aa83973faa76b41d89b1237d0a0e86e",
-      "bytes": 253090,
+      "sha256": "3d7ebe037973041ff37853fa13a00ee628a4a621a2d05f1d8e38b94b80bd2099",
+      "bytes": 240968,
       "description": "Cumulative active return of the paper portfolio and cumulative factor returns",
       "window": "1929-01 .. 2024-12",
       "returns": "gross",
@@ -323,8 +323,8 @@
     "fmp/fmp_leverage.csv": {
       "path": "fmp/fmp_leverage.csv",
       "study": "fmp",
-      "sha256": "821fa6e4bd03f4b6f1d1e124863dfbcb2386fcf2fbf29bef1b1f5ed56fcdfcff",
-      "bytes": 1448,
+      "sha256": "f955db14afa751830b7493f936e583c15586ca7b910a80f3999785d21b8c7cb8",
+      "bytes": 1442,
       "description": "FMP gross leverage and breadth by decade",
       "window": "1929-01 .. 2024-12",
       "returns": "n/a",
@@ -333,8 +333,8 @@
     "fmp/paper_metrics.csv": {
       "path": "fmp/paper_metrics.csv",
       "study": "fmp",
-      "sha256": "24ea185611af5daa1fbc8562175f53277609524c33c4bfa814f09fa380be84ed",
-      "bytes": 10027,
+      "sha256": "ab65c34901c60403b12b36584a8e73d17befbbba0756d9a991e787a5eca8ce60",
+      "bytes": 10020,
       "description": "Paper portfolio metrics (IR, turnover, drawdown, skew, kurtosis, benchmark correlation) by K, weighting and period",
       "window": "1929-01 .. 2024-12",
       "returns": "gross",
@@ -343,12 +343,22 @@
     "fmp/paper_portfolio.csv": {
       "path": "fmp/paper_portfolio.csv",
       "study": "fmp",
-      "sha256": "79a7741d255026a2dd4639f558cfd2a3b9470b96e849f64122df5016a4231375",
-      "bytes": 570929,
+      "sha256": "e89c96db44410491e8b836df89aa421b8e3f8054e105ea6e0bdc625d11f75691",
+      "bytes": 569617,
       "description": "Lagged composite paper portfolio (K = 1, 3, 6, 12; equal and exponential): active return, turnover, leverage",
       "window": "1929-01 .. 2024-12",
       "returns": "gross",
       "role": "primary"
+    },
+    "fmp/risk_controls.csv": {
+      "path": "fmp/risk_controls.csv",
+      "study": "fmp",
+      "sha256": "bcc5a602f1cd56028e2f84761fcb0a3e4f0421f1264c676a1e9c6e4dc05d230c",
+      "bytes": 42275,
+      "description": "Historical FF3 stock-beta estimation: window coverage and forward-information checks",
+      "window": "formations 1928-12 .. 2024-11",
+      "returns": "n/a",
+      "role": "check"
     },
     "fmp/size_clip_counts.csv": {
       "path": "fmp/size_clip_counts.csv",
@@ -430,11 +440,51 @@
       "returns": "net",
       "role": "primary"
     },
+    "mean_variance/capacity.csv": {
+      "path": "mean_variance/capacity.csv",
+      "study": "mean_variance",
+      "sha256": "8beda0f8baa47efe3fcac06de40fdedfa088057c9cbef7c1bde0f71b073c3205",
+      "bytes": 1021,
+      "description": "QP holding capacity at 10% volume participation (no impact model)",
+      "window": "1929-2024",
+      "returns": "net of scaled 30bps and gross",
+      "role": "exploratory"
+    },
+    "mean_variance/returns_monthly.csv": {
+      "path": "mean_variance/returns_monthly.csv",
+      "study": "mean_variance",
+      "sha256": "5742bbe4f3fb313ff5ba62b53302d74aaf237dbf97ddf296f31a5b756b551bca",
+      "bytes": 154412,
+      "description": "Monthly QP returns, costs and traded notional",
+      "window": "1929-2024",
+      "returns": "net of scaled 30bps and gross",
+      "role": "exploratory"
+    },
+    "mean_variance/solver_checks.csv": {
+      "path": "mean_variance/solver_checks.csv",
+      "study": "mean_variance",
+      "sha256": "39396f37569817a7056841b9d3937046e26a11ef49ca23390df9850952795d90",
+      "bytes": 475,
+      "description": "Maximum violations, relaxations and predicted risk",
+      "window": "1929-2024",
+      "returns": "net of scaled 30bps and gross",
+      "role": "exploratory"
+    },
+    "mean_variance/summary.csv": {
+      "path": "mean_variance/summary.csv",
+      "study": "mean_variance",
+      "sha256": "0e893120fdbfb26e205d3ed812b0a3d61c5739bd42bc321fea2792a75be56324",
+      "bytes": 5088,
+      "description": "Mean-variance metrics at risk aversion 5 and 20, by sample",
+      "window": "1929-2024",
+      "returns": "net of scaled 30bps and gross",
+      "role": "exploratory"
+    },
     "optimization/capacity.csv": {
       "path": "optimization/capacity.csv",
       "study": "optimization",
-      "sha256": "9016eed2348006bba022a5e0eedb79bd2a12a83b7fdfdc96e17779f51c64d2d2",
-      "bytes": 103963,
+      "sha256": "7a4ac71b15a81ce6bbb9396eaaea335555c7889a4ac433f4889c2fe9f0d6be55",
+      "bytes": 103967,
       "description": "Capacity of each run by decade (positions at formation; 2024 dollars; no impact model)",
       "window": "1929-01 .. 2024-12",
       "returns": "n/a",
@@ -453,8 +503,8 @@
     "optimization/fig_frontier.png": {
       "path": "optimization/fig_frontier.png",
       "study": "optimization",
-      "sha256": "396bb041eb6fb8d4a6349ded5f4fb7c05e39063470ec4c7ac261066a29ee52ae",
-      "bytes": 153887,
+      "sha256": "41782cb159e1afb6f1d3ec6a03a2a7a00d2e4e7516780c7036415bf21603d527",
+      "bytes": 154306,
       "description": "IR against realized turnover by industry band, cost level and variant",
       "window": "1929-01 .. 2024-12",
       "returns": "net",
@@ -463,8 +513,8 @@
     "optimization/grid.csv": {
       "path": "optimization/grid.csv",
       "study": "optimization",
-      "sha256": "4b8dd5ce8970dca42a211b3b832cdca148e418fb0c5865a5b806d61b9d560b29",
-      "bytes": 31131,
+      "sha256": "c06e5de804cc25d2ed4752bd42dc6dc3a8f646118fff8176b50a87853da3b92d",
+      "bytes": 31179,
       "description": "Optimization grid, full sample: delta x tau x c0 for the spec (z-score alpha, size/volatility costs), the flat-cost comparison and the Grinold-alpha sensitivity (post-spec; see the role column)",
       "window": "1929-01 .. 2024-12",
       "returns": "net",
@@ -473,8 +523,8 @@
     "optimization/grid_subperiods.csv": {
       "path": "optimization/grid_subperiods.csv",
       "study": "optimization",
-      "sha256": "e6d081e6b65cafb8d6613326da7215c0c1b28de0d60456ecd25e765c4eadc98f",
-      "bytes": 157399,
+      "sha256": "5e191a9af92a7a9d931fe0ee7a2bfe161a12afd8d864b6bb2ad67b0d5eef13fa",
+      "bytes": 157376,
       "description": "Optimization grid by RS-006 period",
       "window": "RS-006 periods",
       "returns": "net",
@@ -483,8 +533,8 @@
     "optimization/relaxations.csv": {
       "path": "optimization/relaxations.csv",
       "study": "optimization",
-      "sha256": "da95968d2498c8c5548ce1be04c5ec59c896769a07a2c1e52464067e196256f6",
-      "bytes": 10266,
+      "sha256": "2293ce6dbe5b0a992e2227e8e4bad0e35cfef6ad140005237d772cd008cd2f63",
+      "bytes": 10138,
       "description": "Check: band and turnover-budget relaxations per run, solver tolerances, LP vs engine turnover",
       "window": "formations 1928-12 .. 2024-09",
       "returns": "n/a",
@@ -559,6 +609,76 @@
       "window": "1929-01 .. 2016-12",
       "returns": "gross and net",
       "role": "primary"
+    },
+    "professor_checks/independent_checks.csv": {
+      "path": "professor_checks/independent_checks.csv",
+      "study": "professor_checks",
+      "sha256": "74dc3bee1af1afde2975db743a003e4895ac10482f09d51cde8dd2ac81a87c11",
+      "bytes": 1053,
+      "description": "Data hashes, independently calculated signals, portfolio returns and HAC statistics",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/payout_comparison.csv": {
+      "path": "professor_checks/payout_comparison.csv",
+      "study": "professor_checks",
+      "sha256": "842fe5f857e009a20bb92f6596939554d99690c5ec1476c9b971b9ae924bf541",
+      "bytes": 6054,
+      "description": "Matched dividends-only counterfactual, genuine NPY baseline, and paired changes",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/payout_components.csv": {
+      "path": "professor_checks/payout_components.csv",
+      "study": "professor_checks",
+      "sha256": "27261e4bc9c39501c8d96b3e8981c9af981da31e92f8e243afa9f201766274c0",
+      "bytes": 845,
+      "description": "Dividend and adjusted-share contribution among baseline holdings",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/sector_attribution.csv": {
+      "path": "professor_checks/sector_attribution.csv",
+      "study": "professor_checks",
+      "sha256": "63cc977b6ab46893e80e48545aa56dd6890ad0310b857cfa4c4e6582740e79d6",
+      "bytes": 814,
+      "description": "Exact monthly allocation, selection, and fixed-universe versus CRSP market bridge",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/sector_exposures.csv": {
+      "path": "professor_checks/sector_exposures.csv",
+      "study": "professor_checks",
+      "sha256": "1a1f2c2e1fd7b2188e70ff152b3337909155d9fd7fc8225d9e845d118f9e7e04",
+      "bytes": 13329,
+      "description": "Baseline and reference FF12 weights and active weights",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/sector_monthly.csv": {
+      "path": "professor_checks/sector_monthly.csv",
+      "study": "professor_checks",
+      "sha256": "6e9238b970e08f185e35ed0c7d679dbd21f6cddaa93d4bb0e6d6d901215c00c4",
+      "bytes": 113657,
+      "description": "Monthly attribution with cash and terminal events preserved",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "professor_checks/sector_quota_checks.csv": {
+      "path": "professor_checks/sector_quota_checks.csv",
+      "study": "professor_checks",
+      "sha256": "5f4a8bfab37e98d66b8b866b6089f186128d4cef7b49ab5b018682c99b7e9146",
+      "bytes": 21745,
+      "description": "Sector-by-sector 100-stock variant using count-proportional FF12 quotas",
+      "window": "1929-2024",
+      "returns": "gross and net",
+      "role": "check"
     },
     "rank_buffer/baseline_unchanged.csv": {
       "path": "rank_buffer/baseline_unchanged.csv",
@@ -733,7 +853,7 @@
   },
   "studies": {
     "data_audit": {
-      "run_utc": "2026-10-13T00:47:35+00:00",
+      "run_utc": "2026-10-13T02:12:57+00:00",
       "seconds": 0.0,
       "end": "2024-12-31",
       "files": 8,
@@ -743,11 +863,15 @@
           "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
           "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/data_audit.py": "78457bb2169507274dc6dbaf278407a7218508a77a101ae59641dbcc0afaeb50"
         },
         "inputs": {},
+        "caches_read": {},
+        "caches_produced": {},
         "depends": {},
         "packages": {
           "python": "3.12.14",
@@ -755,13 +879,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "replication": {
-      "run_utc": "2026-10-13T00:49:05+00:00",
-      "seconds": 89.4,
+      "run_utc": "2026-10-13T02:13:52+00:00",
+      "seconds": 55.1,
       "end": "2024-12-31",
       "files": 12,
       "provenance": {
@@ -773,14 +898,18 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/data/replication_explanations.json": "ccfc0d260c8bb9c0055e35beaebdc9722c72d12ab733b211f5a871212d3a8129",
           "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5"
         },
         "inputs": {},
+        "caches_read": {},
+        "caches_produced": {},
         "depends": {},
         "packages": {
           "python": "3.12.14",
@@ -788,13 +917,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "attribution": {
-      "run_utc": "2026-10-13T00:49:05+00:00",
-      "seconds": 0.2,
+      "run_utc": "2026-10-13T02:13:52+00:00",
+      "seconds": 0.1,
       "end": "2024-12-31",
       "files": 2,
       "provenance": {
@@ -803,17 +933,21 @@
           "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
           "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/attribution.py": "8513a0de38d2454a82c40f0923609b91d3dc4e5c161c7ba8a3be7aa943be4dc8",
           "research/studies/data/attribution_explanations.json": "b8b778975b53a64835b93f7f2fac306af3f447c8854bb103891e5438b19c800e"
         },
         "inputs": {
           "replication/returns_monthly.csv": "9ab478e0d805dea375638f1eec6772285907ab6b5aead07fd4b0a441cfbf1b7c"
         },
+        "caches_read": {},
+        "caches_produced": {},
         "depends": {
-          "replication": "ac73ed4bb3d5f1abc536450c0ad70d8821be69ae17cbe40051a01c5dacb9cffb"
+          "replication": "62d23d48b6d18a8f66f779c368096dbe9450a055473dbf6771e763839f363df5"
         },
         "packages": {
           "python": "3.12.14",
@@ -821,13 +955,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "critical_tests": {
-      "run_utc": "2026-10-13T00:50:01+00:00",
-      "seconds": 55.6,
+      "run_utc": "2026-10-13T02:14:26+00:00",
+      "seconds": 34.4,
       "end": "2024-12-31",
       "files": 8,
       "provenance": {
@@ -839,11 +974,13 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
           "research/studies/data/critical_tests_freeze_record.json": "8bccd705f22071a3d664e76e79ee1e0ee92dd4c63e5111412ac7326c76d97043",
           "research/studies/data/critical_tests_rerun_record_2026-10-11T145121.json": "cb9bc3ae79a35602e0740dec66bde173c0283b8d296b1432fd7bc8e8ccea7215"
@@ -851,8 +988,10 @@
         "inputs": {
           "replication/returns_monthly.csv": "9ab478e0d805dea375638f1eec6772285907ab6b5aead07fd4b0a441cfbf1b7c"
         },
+        "caches_read": {},
+        "caches_produced": {},
         "depends": {
-          "replication": "ac73ed4bb3d5f1abc536450c0ad70d8821be69ae17cbe40051a01c5dacb9cffb"
+          "replication": "62d23d48b6d18a8f66f779c368096dbe9450a055473dbf6771e763839f363df5"
         },
         "packages": {
           "python": "3.12.14",
@@ -860,13 +999,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "paper_targets": {
-      "run_utc": "2026-10-13T00:50:24+00:00",
-      "seconds": 22.5,
+      "run_utc": "2026-10-13T02:14:43+00:00",
+      "seconds": 16.0,
       "end": "2024-12-31",
       "files": 6,
       "provenance": {
@@ -878,11 +1018,13 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/data/paper_targets_explanations.json": "54af5535e94112e249e89353b2665a7c48f05c13f9d8abb4562d4ae62031d3e0",
           "research/studies/paper_targets.py": "0d73096338c5c78f4214f3400d15068a9778f2c69cb68ae6b364be1da947d1bf"
         },
@@ -891,9 +1033,11 @@
           "replication/returns_monthly.csv": "9ab478e0d805dea375638f1eec6772285907ab6b5aead07fd4b0a441cfbf1b7c",
           "replication/table4.csv": "0ced02ecc8c4f5aae41eff3377d758173e8398dbc1dd9bf5e4730ac7cec57e7d"
         },
+        "caches_read": {},
+        "caches_produced": {},
         "depends": {
-          "replication": "ac73ed4bb3d5f1abc536450c0ad70d8821be69ae17cbe40051a01c5dacb9cffb",
-          "attribution": "cf65f9be8c8bdedb1c69e24f8f7411068ec4423ba1dedb021bccad1adc14b3fa"
+          "replication": "62d23d48b6d18a8f66f779c368096dbe9450a055473dbf6771e763839f363df5",
+          "attribution": "d3ab75f564cf0eabfaf987aeea0aab02c30060fb2de96219161fe89a72113ed0"
         },
         "packages": {
           "python": "3.12.14",
@@ -901,13 +1045,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "diagnostics": {
-      "run_utc": "2026-10-13T00:52:18+00:00",
-      "seconds": 113.9,
+      "run_utc": "2026-10-13T02:16:04+00:00",
+      "seconds": 81.3,
       "end": "2024-12-31",
       "files": 11,
       "provenance": {
@@ -919,14 +1064,51 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
-          "research/studies/diagnostics.py": "9c02fc94b2082d07bdead07d44bcc9ef015d5c6a0620fdb0eb838d29318e23c8"
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
         },
         "inputs": {},
+        "caches_read": {},
+        "caches_produced": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
         "depends": {},
         "packages": {
           "python": "3.12.14",
@@ -934,31 +1116,69 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "fmp": {
-      "run_utc": "2026-10-13T00:52:26+00:00",
-      "seconds": 8.7,
+      "run_utc": "2026-10-13T02:16:23+00:00",
+      "seconds": 19.1,
       "end": "2024-12-31",
-      "files": 7,
+      "files": 8,
       "provenance": {
         "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
         "sources": {
           "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
           "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
-          "research/fmp.py": "524506b001595945c391f367c3c1eeb81bd7e273dc19ca161ca735b6a5ccc2bc",
+          "research/fmp.py": "33af866d647ee2c24a77415736f82a69392b3b934c6ea839adca0a289d8a3ba1",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
-          "research/studies/fmp.py": "36a916cb6dc66c05238fcfaa745d4f47a863061150df765e8698f85d8a0c7b09"
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/fmp.py": "87209ec02da2ad19e4ce0649d3bd14a177567a85785dcbc3f448d01021255862"
         },
         "inputs": {},
+        "caches_read": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
+        "caches_produced": {},
         "depends": {
-          "diagnostics": "9be4a4c8caed600e4363d75c2c7c863a1e99ba4f9fe05811b94be476c559454a"
+          "diagnostics": "0f923e629dbdb851c6534d75c4ea0eb6d23e2c0271cf87d16c63688778f09441"
         },
         "packages": {
           "python": "3.12.14",
@@ -966,13 +1186,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "longshort": {
-      "run_utc": "2026-10-13T00:54:47+00:00",
-      "seconds": 140.5,
+      "run_utc": "2026-10-13T02:18:23+00:00",
+      "seconds": 119.6,
       "end": "2024-12-31",
       "files": 7,
       "provenance": {
@@ -984,20 +1205,57 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/longshort.py": "f15f7828975388b0e0210fbe5c27c2da621aae31eebc9d99093f0349b86be757"
         },
         "inputs": {
           "replication/returns_monthly.csv": "9ab478e0d805dea375638f1eec6772285907ab6b5aead07fd4b0a441cfbf1b7c"
         },
+        "caches_read": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
+        "caches_produced": {},
         "depends": {
-          "replication": "ac73ed4bb3d5f1abc536450c0ad70d8821be69ae17cbe40051a01c5dacb9cffb",
-          "diagnostics": "9be4a4c8caed600e4363d75c2c7c863a1e99ba4f9fe05811b94be476c559454a"
+          "replication": "62d23d48b6d18a8f66f779c368096dbe9450a055473dbf6771e763839f363df5",
+          "diagnostics": "0f923e629dbdb851c6534d75c4ea0eb6d23e2c0271cf87d16c63688778f09441"
         },
         "packages": {
           "python": "3.12.14",
@@ -1005,13 +1263,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "optimization": {
-      "run_utc": "2026-10-13T01:06:57+00:00",
-      "seconds": 730.2,
+      "run_utc": "2026-10-13T02:26:21+00:00",
+      "seconds": 478.4,
       "end": "2024-12-31",
       "files": 7,
       "provenance": {
@@ -1023,22 +1282,59 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
-          "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
+          "research/optimize.py": "3166fa976b3b92668a698118146aad60ec4935495383aec195936d03a730c571",
           "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/optimization.py": "17b171e9505013e08f3c45973e19121c751a3e21bc60c9c7a2dff24ccb225681"
         },
         "inputs": {
           "replication/returns_monthly.csv": "9ab478e0d805dea375638f1eec6772285907ab6b5aead07fd4b0a441cfbf1b7c"
         },
+        "caches_read": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
+        "caches_produced": {},
         "depends": {
-          "replication": "ac73ed4bb3d5f1abc536450c0ad70d8821be69ae17cbe40051a01c5dacb9cffb",
-          "diagnostics": "9be4a4c8caed600e4363d75c2c7c863a1e99ba4f9fe05811b94be476c559454a"
+          "replication": "62d23d48b6d18a8f66f779c368096dbe9450a055473dbf6771e763839f363df5",
+          "diagnostics": "0f923e629dbdb851c6534d75c4ea0eb6d23e2c0271cf87d16c63688778f09441"
         },
         "packages": {
           "python": "3.12.14",
@@ -1046,13 +1342,14 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     },
     "rank_buffer": {
-      "run_utc": "2026-10-13T01:07:23+00:00",
-      "seconds": 25.9,
+      "run_utc": "2026-10-13T02:26:43+00:00",
+      "seconds": 21.8,
       "end": "2024-12-31",
       "files": 5,
       "provenance": {
@@ -1064,19 +1361,56 @@
           "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
           "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
           "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
           "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
           "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
           "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
           "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-          "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
           "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4"
         },
         "inputs": {
           "critical_tests/returns_monthly.csv": "9ee7bde6bb711a50037dc78469f3ea58ac17ea0b6c937736bb1f95add53b6697"
         },
+        "caches_read": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
+        "caches_produced": {},
         "depends": {
-          "critical_tests": "6211c186d6aedfeac8293e28c5e651c9b7141494a4b9b5e6e8ff836917fa6203",
-          "diagnostics": "9be4a4c8caed600e4363d75c2c7c863a1e99ba4f9fe05811b94be476c559454a"
+          "critical_tests": "c8db8d04fdfda0d20a10dd6740de1f4e692fc131a954e7c0c9ffacc8bb42fb6b",
+          "diagnostics": "0f923e629dbdb851c6534d75c4ea0eb6d23e2c0271cf87d16c63688778f09441"
         },
         "packages": {
           "python": "3.12.14",
@@ -1084,12 +1418,132 @@
           "pandas": "3.0.1",
           "scipy": "1.18.1",
           "matplotlib": "3.11.2",
-          "pyarrow": "26.0.0"
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
+        }
+      }
+    },
+    "mean_variance": {
+      "run_utc": "2026-10-13T02:28:01+00:00",
+      "seconds": 77.5,
+      "end": "2024-12-31",
+      "files": 4,
+      "provenance": {
+        "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+        "sources": {
+          "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+          "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+          "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+          "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+          "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
+          "research/mean_variance.py": "478ff3d0c10c4acace1a2c7a12833eb144d3a6bdc7b1c36fd5681f38f8aaeb88",
+          "research/optimize.py": "3166fa976b3b92668a698118146aad60ec4935495383aec195936d03a730c571",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/mean_variance.py": "6824b0efffba762c763ae81bed149c931c1d1c12e0fd0d8593ebd2e00bcd8daa"
+        },
+        "inputs": {},
+        "caches_read": {
+          "diagnostics_universe": {
+            "sha256": "e5ae52564fde8f40702f7b846a3a25d3dc8210f85249cdbc14ca0f4717f9bcce",
+            "producer": {
+              "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+              "sources": {
+                "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+                "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+                "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+                "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+                "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+                "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+                "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+                "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
+                "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+                "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+                "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+                "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+                "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+                "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c"
+              },
+              "end": "2024-12-31",
+              "packages": {
+                "python": "3.12.14",
+                "numpy": "2.5.3",
+                "pandas": "3.0.1",
+                "scipy": "1.18.1",
+                "matplotlib": "3.11.2",
+                "pyarrow": "26.0.0",
+                "clarabel": "0.11.1"
+              }
+            }
+          }
+        },
+        "caches_produced": {},
+        "depends": {
+          "diagnostics": "0f923e629dbdb851c6534d75c4ea0eb6d23e2c0271cf87d16c63688778f09441"
+        },
+        "packages": {
+          "python": "3.12.14",
+          "numpy": "2.5.3",
+          "pandas": "3.0.1",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
+        }
+      }
+    },
+    "professor_checks": {
+      "run_utc": "2026-10-13T02:28:58+00:00",
+      "seconds": 56.7,
+      "end": "2024-12-31",
+      "files": 7,
+      "provenance": {
+        "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+        "sources": {
+          "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+          "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+          "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+          "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/professor_checks.py": "d5918c9b8c05cfe67687c04bc23d25e9213e49ba6362cd80707115febde03df9"
+        },
+        "inputs": {
+          "critical_tests/returns_monthly.csv": "9ee7bde6bb711a50037dc78469f3ea58ac17ea0b6c937736bb1f95add53b6697"
+        },
+        "caches_read": {},
+        "caches_produced": {},
+        "depends": {
+          "critical_tests": "c8db8d04fdfda0d20a10dd6740de1f4e692fc131a954e7c0c9ffacc8bb42fb6b"
+        },
+        "packages": {
+          "python": "3.12.14",
+          "numpy": "2.5.3",
+          "pandas": "3.0.1",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
         }
       }
     }
   },
-  "updated_utc": "2026-10-13T01:07:23+00:00",
+  "updated_utc": "2026-10-13T02:28:58+00:00",
   "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
   "packages": {
     "python": "3.12.14",
@@ -1097,9 +1551,11 @@
     "pandas": "3.0.1",
     "scipy": "1.18.1",
     "matplotlib": "3.11.2",
-    "pyarrow": "26.0.0"
+    "pyarrow": "26.0.0",
+    "clarabel": "0.11.1"
   },
   "last_run": {
+    "status": "complete",
     "studies": [
       "data_audit",
       "replication",
@@ -1110,9 +1566,11 @@
       "fmp",
       "longshort",
       "optimization",
-      "rank_buffer"
+      "rank_buffer",
+      "mean_variance",
+      "professor_checks"
     ],
-    "seconds": 1188.0,
+    "seconds": 961.2,
     "argv": [],
     "source_sha256": {
       "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
@@ -1127,18 +1585,20 @@
       "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
       "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
       "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+      "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
       "research/checks.py": "d63b4ae529cbcd3b62e41662324436371ab771dde9aaca2e3f513b8189adf63d",
       "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
       "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
-      "research/fmp.py": "524506b001595945c391f367c3c1eeb81bd7e273dc19ca161ca735b6a5ccc2bc",
+      "research/fmp.py": "33af866d647ee2c24a77415736f82a69392b3b934c6ea839adca0a289d8a3ba1",
       "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
-      "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
+      "research/mean_variance.py": "478ff3d0c10c4acace1a2c7a12833eb144d3a6bdc7b1c36fd5681f38f8aaeb88",
+      "research/optimize.py": "3166fa976b3b92668a698118146aad60ec4935495383aec195936d03a730c571",
       "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
       "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
-      "research/run_all.py": "c59bb0f4723d73a567b859c398314237d99c32a359582e7d55bbc25087f9ad30",
+      "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
       "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-      "research/studies/__init__.py": "fbeb56d4680879bbcabf6a54d564cc5047f986650fc3ac3eaf692cf5ee725f08",
-      "research/studies/_common.py": "d7065ae395f5f729032134c32325acf334dc39dac4f84b26db03abf32020a979",
+      "research/studies/__init__.py": "762272d4f2d67f51fffe5899c8896d793538ae18a862900be314675e3225aa19",
+      "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
       "research/studies/attribution.py": "8513a0de38d2454a82c40f0923609b91d3dc4e5c161c7ba8a3be7aa943be4dc8",
       "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
       "research/studies/data/attribution_explanations.json": "b8b778975b53a64835b93f7f2fac306af3f447c8854bb103891e5438b19c800e",
@@ -1147,11 +1607,13 @@
       "research/studies/data/paper_targets_explanations.json": "54af5535e94112e249e89353b2665a7c48f05c13f9d8abb4562d4ae62031d3e0",
       "research/studies/data/replication_explanations.json": "ccfc0d260c8bb9c0055e35beaebdc9722c72d12ab733b211f5a871212d3a8129",
       "research/studies/data_audit.py": "78457bb2169507274dc6dbaf278407a7218508a77a101ae59641dbcc0afaeb50",
-      "research/studies/diagnostics.py": "9c02fc94b2082d07bdead07d44bcc9ef015d5c6a0620fdb0eb838d29318e23c8",
-      "research/studies/fmp.py": "36a916cb6dc66c05238fcfaa745d4f47a863061150df765e8698f85d8a0c7b09",
+      "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c",
+      "research/studies/fmp.py": "87209ec02da2ad19e4ce0649d3bd14a177567a85785dcbc3f448d01021255862",
       "research/studies/longshort.py": "f15f7828975388b0e0210fbe5c27c2da621aae31eebc9d99093f0349b86be757",
+      "research/studies/mean_variance.py": "6824b0efffba762c763ae81bed149c931c1d1c12e0fd0d8593ebd2e00bcd8daa",
       "research/studies/optimization.py": "17b171e9505013e08f3c45973e19121c751a3e21bc60c9c7a2dff24ccb225681",
       "research/studies/paper_targets.py": "0d73096338c5c78f4214f3400d15068a9778f2c69cb68ae6b364be1da947d1bf",
+      "research/studies/professor_checks.py": "d5918c9b8c05cfe67687c04bc23d25e9213e49ba6362cd80707115febde03df9",
       "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4",
       "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5",
       "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"

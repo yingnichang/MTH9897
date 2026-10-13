@@ -21,7 +21,8 @@ def main():
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
         'presentation/conservative_formula.pdf', 'package_submission.py'])
     selected.update(ROOT / 'data' / p for p in [
-        'crsp_monthly_normalized.parquet', 'benchmark_monthly.csv', 'ff_factors_monthly.csv'])
+        'crsp_monthly_normalized.parquet', 'benchmark_monthly.csv', 'ff_factors_monthly.csv',
+        'audit/worked_examples.csv'])
     selected.update((ROOT / 'data/raw').glob('*.parquet'))
     selected.add(ROOT / 'data/raw/extract_log.json')
     # Source receipts contain metadata, not security observations.

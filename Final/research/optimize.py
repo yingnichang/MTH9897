@@ -139,5 +139,5 @@ def trailing_ic(ic: pd.Series, h: int, min_obs: int = 12) -> pd.Series:
 
 
 def grinold_alpha(z: pd.Series, vol36: pd.Series, ic: float, h: int = 3) -> pd.Series:
-    """Expected h-month residual return in return units: IC x sigma_h x z, sigma_h = vol36 x sqrt(h)."""
-    return ic * vol36 * np.sqrt(h) * z
+    """Expected h-month residual return: IC x sigma_h x z; vol36 is annualized, so sigma_h = vol36 sqrt(h/12)."""
+    return ic * vol36 * np.sqrt(h / 12) * z

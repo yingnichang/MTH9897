@@ -1,5 +1,6 @@
 """Factor-mimicking portfolios and the lagged paper portfolio (7D-F), formations 1928-12 .. 2024-11. Ported unchanged
-from the closed task 2026-10-11-factor-mimicking. Reads the diagnostics universe cache (rebuilt when missing).
+from the closed task 2026-10-11-factor-mimicking, with historical FF3 stock-beta controls added in the final review.
+Reads the diagnostics universe cache with verified hash and producer identity.
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -14,7 +15,8 @@ NAME = 'fmp'
 DEPENDS = ('diagnostics',)
 FIXED_END = "2024-12-31"                       # sample fixed at 2024-12: run_all rejects another --end
 FILES = {
-    'factor_returns.csv': {'description': 'Monthly unit-exposure FMP returns (WLS with industries and size), leverage and the composite exposure check', 'window': '1929-01 .. 2024-12', 'returns': 'gross', 'role': 'primary'},
+    'factor_returns.csv': {'description': 'Monthly unit-exposure FMP returns (WLS with industries, size and historical FF3 stock betas), leverage and the composite exposure check', 'window': '1929-01 .. 2024-12', 'returns': 'gross', 'role': 'primary'},
+    'risk_controls.csv': {'description': 'Historical FF3 stock-beta estimation: window coverage and forward-information checks', 'window': 'formations 1928-12 .. 2024-11', 'returns': 'n/a', 'role': 'check'},
     'paper_portfolio.csv': {'description': 'Lagged composite paper portfolio (K = 1, 3, 6, 12; equal and exponential): active return, turnover, leverage', 'window': '1929-01 .. 2024-12', 'returns': 'gross', 'role': 'primary'},
     'paper_metrics.csv': {'description': 'Paper portfolio metrics (IR, turnover, drawdown, skew, kurtosis, benchmark correlation) by K, weighting and period', 'window': '1929-01 .. 2024-12', 'returns': 'gross', 'role': 'primary'},
     'carhart_crosscheck.csv': {'description': 'Cross-check (not part of 7D-F): K = 1 composite on Carhart factors', 'window': '1929-01 .. 2024-12', 'returns': 'gross', 'role': 'exploratory'},
@@ -34,6 +36,11 @@ def run(ctx):
     e["size_z"], size_counts = dg.neutralize(np.log(e["mktcap"]), e["date"], e["group"])
     bench = pd.read_csv(config.BENCHMARK_FILE, parse_dates=["date"], index_col="date")["market_ret"]
     fac = pd.read_csv(config.FACTORS_FILE, parse_dates=["date"], index_col="date")
+    panel = pd.read_parquet(config.PANEL_FILE, columns=["date", "permno", "ret_total"])
+    history = panel.loc[panel.permno.isin(e.permno.unique())].pivot(index="date", columns="permno", values="ret_total")
+    risk_styles = ["beta_mktrf", "beta_smb", "beta_hml"]
+    styles = fmp.STYLES + risk_styles
+    risk_checks = []
 
     # Single-month returns of each cohort name in months t+1..t+12 (cash after an exit), from the cumulative ones.
     cum = np.column_stack([np.zeros(len(e))] + [e[f"fwd_{j}"].to_numpy() for j in range(1, 13)])
@@ -47,7 +54,13 @@ def run(ctx):
     rows = []
     for s, (t, g) in enumerate(e.groupby("date", sort=True)):
         g = g.dropna(subset=fmp.STYLES)
-        X, cols = fmp.design(g, fmp.STYLES)
+        past = history.loc[t-pd.offsets.MonthEnd(35):t, g.permno]
+        betas = fmp.ff3_betas(past, fac)
+        for col in risk_styles: g[col] = g.permno.map(betas[col])
+        risk_checks.append({"formation": t, "last_return_used": past.index.max(),
+                            "factor_months_used": int(fac.reindex(past.index)[["mktrf", "smb", "hml", "rf"]].dropna().shape[0]),
+                            "names": len(g), "forward_information_used": bool(past.index.max() > t)})
+        X, cols = fmp.design(g, styles)
         P = fmp.fmp_weights(X, np.sqrt(g["mktcap"].to_numpy()))
         y = g["fwd_1"].to_numpy()
         f = P[: len(fmp.STYLES)] @ y
@@ -63,6 +76,9 @@ def run(ctx):
     assert len(fr) == 1152 and fr.index.min() == pd.Timestamp("1929-01-31") and fr.index.max() == pd.Timestamp("2024-12-31")
     assert fr["composite_exposure_check"].max() < 1e-8
     fr.to_csv(out_dir / "factor_returns.csv", date_format="%Y-%m-%d")
+    risk_checks = pd.DataFrame(risk_checks)
+    assert not risk_checks.forward_information_used.any() and risk_checks.factor_months_used.ge(24).all()
+    risk_checks.to_csv(out_dir / "risk_controls.csv", index=False)
     log(f"FMPs: {len(fr)} months; max composite exposure error {fr['composite_exposure_check'].max():.1e}")
 
     # Paper portfolio: holding month q uses composites formed at q-1..q-K months (formation index q-k+1, horizon k).

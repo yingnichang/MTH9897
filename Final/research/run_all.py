@@ -34,7 +34,7 @@ from crsp_pipeline import config
 from research import results
 from research.studies._common import DATA, DEFAULT_END, FINAL, Context
 
-PACKAGES = ["numpy", "pandas", "scipy", "matplotlib", "pyarrow"]
+PACKAGES = ["numpy", "pandas", "scipy", "matplotlib", "pyarrow", "clarabel"]
 LOCAL_PACKAGES = ("research", "crsp_pipeline")
 STUDIES_DIR = FINAL / "research" / "studies"
 
@@ -149,6 +149,10 @@ def stale_reasons(man: dict, registry: dict, study: str, root: Path, data: str |
     for k, h in prov.get("inputs", {}).items():
         if man["files"].get(k, {}).get("sha256") != h:
             why.append(f"input {k} changed")
+    for k, rec in prov.get("caches_read", {}).items():
+        produced = man["studies"].get("diagnostics", {}).get("provenance", {}).get("caches_produced", {}).get(k)
+        if rec != produced:
+            why.append(f"cache {k} producer changed")
     return why
 
 
@@ -170,6 +174,13 @@ def packages() -> dict:
         except metadata.PackageNotFoundError:
             out[name] = None
     return out
+
+
+def persist_manifest(path: Path, man: dict) -> None:
+    """Atomic checkpoint: a failed later study cannot lose the identities of completed studies."""
+    temporary = path.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(man, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+    temporary.replace(path)
 
 
 def main(argv=None, registry: dict | None = None) -> dict:
@@ -214,7 +225,7 @@ def main(argv=None, registry: dict | None = None) -> dict:
         ap.error(f"{fixed} have a fixed sample end and cannot run with --end {end.date()}")
 
     root.mkdir(parents=True, exist_ok=True)
-    ctx = Context(results=root, output=Path(args.output), end=end, files=man["files"])
+    ctx = Context(results=root, output=Path(args.output), end=end, files=man["files"], study_records=man["studies"])
     pkgs = packages()
     t_all = time.time()
     for s in selected:
@@ -225,6 +236,7 @@ def main(argv=None, registry: dict | None = None) -> dict:
                 old.unlink()
         ctx.log(f"--- {s}")
         ctx.reads = {}
+        ctx.cache_reads, ctx.produced_caches = {}, {}
         t = time.time()
         study.run(ctx)
         secs = time.time() - t
@@ -244,8 +256,15 @@ def main(argv=None, registry: dict | None = None) -> dict:
                              "files": len(produced),
                              "provenance": {"data_manifest_sha256": data, "sources": study_sources(study),
                                             "inputs": dict(sorted(ctx.reads.items())),
+                                            "caches_read": dict(ctx.cache_reads),
+                                            "caches_produced": dict(ctx.produced_caches),
                                             "depends": {d: fingerprint(man, d) for d in getattr(study, "DEPENDS", ())},
                                             "packages": pkgs}}
+        man.update({"updated_utc": _now(), "packages": pkgs,
+                    "last_run": {"status": "running", "studies": selected,
+                                 "completed": selected[:selected.index(s)+1],
+                                 "seconds": round(time.time()-t_all, 1)}})
+        persist_manifest(mpath, man)
         ctx.log(f"{s}: {len(produced)} files in {secs:.0f}s")
     hashes = {v.get("provenance", {}).get("data_manifest_sha256") for v in man["studies"].values()}
     man.pop("source_sha256", None)                      # superseded by the per-study provenance
@@ -253,12 +272,12 @@ def main(argv=None, registry: dict | None = None) -> dict:
                 "data_manifest_sha256": hashes.pop() if len(hashes) == 1 else
                 "mixed: see studies.<name>.provenance",
                 "packages": pkgs,
-                "last_run": {"studies": selected, "seconds": round(time.time() - t_all, 1),
+                "last_run": {"status": "complete", "studies": selected, "seconds": round(time.time() - t_all, 1),
                              "argv": argv if argv is not None else sys.argv[1:], "source_sha256": source_hashes()}})
     man["files"] = dict(sorted(man["files"].items()))
     man["studies"] = dict(sorted(man["studies"].items(), key=lambda kv: list(registry).index(kv[0])
                                  if kv[0] in registry else len(registry)))
-    mpath.write_text(json.dumps(man, indent=2, ensure_ascii=False, default=str) + "\n", encoding="utf-8")
+    persist_manifest(mpath, man)
     ctx.log(f"manifest: {len(man['files'])} files, {len(man['studies'])} studies -> {mpath}")
     return man
 

@@ -1,5 +1,17 @@
 # Conservative Formula — final project
 
+## Final three-pass review
+
+See `FINAL_REVIEW.md` for the paper alignment, data/accounting review and independent validation.
+The final review adds an explicit dividends-only comparison, a sector-by-sector 100-stock variant,
+an exact industry allocation/stock-selection decomposition, and quadratic mean-variance optimization.
+It also fixes the annual-to-quarterly volatility scaling in the return-scaled linear sensitivity and
+verifies the diagnostics cache's hash and producer before reuse. Factor-mimicking portfolios now
+control for historical stock-level FF3 loadings as well as industry dummies and size.
+
+These added variants are exploratory and use data already seen; their parameters are not presented
+as pre-registered or validated on an unseen sample. The original paper baseline is retained.
+
 ## October 12, 2026 full-data rebuild
 
 The project now imports the full CRSP legacy web downloads in
@@ -39,9 +51,9 @@ course submission package; the Git repository contains code and aggregate result
 > and published anomalies often weaken after publication.
 
 The report is `conservative_formula_first_draft.ipynb`: a critical replication on CRSP, 1929–2024,
-in eleven sections (question, data, rules and deviations, replication, attribution and costs,
-critical tests, signal diagnostics, portfolio construction, declared improvement, conclusion,
-reproducibility). Open it in JupyterLab or VS Code from this `Final` folder after installing
+with sections covering question, data, rules and deviations, replication, attribution and costs,
+critical tests, the professor's payout/sector checks, signal diagnostics, linear and quadratic portfolio
+construction, declared improvement, conclusion and reproducibility. Open it in JupyterLab or VS Code from this `Final` folder after installing
 `requirements.txt`.
 
 The notebook reads every table, figure and number from the tracked aggregate results in `results/`
@@ -73,7 +85,8 @@ grow with `ret_hold` (see the conventions below), and every formation records it
 Analyses beyond the paper's rule are separate, named extensions that leave the baseline unchanged:
 factor diagnostics (`research/diagnostics.py`), factor-mimicking portfolios (`research/fmp.py`), the
 decile long/short with a trade ledger (`research/longshort.py`), the linear industry-constrained
-optimizer (`research/optimize.py`, which needs `scipy`) and the "Conservative buffer" rank-buffer
+optimizer (`research/optimize.py`, which needs `scipy`), quadratic mean-variance optimizer
+(`research/mean_variance.py`, which needs `clarabel`) and the "Conservative buffer" rank-buffer
 variant in `research/engine.py`.
 
 ## Environment
@@ -95,13 +108,14 @@ the web-download route uses `crsp_pipeline/import_web.py`. Neither imports `wrds
 Git carries the code, the tests, the tracked aggregate results (`results/`), the data audits
 (`data/audit/`, except the licensed worked examples) and `data/manifest.json`. It does **not** carry the
 licensed CRSP data. The data package travels through the course submission channel, never a public
-repository, and contains either:
+repository. The supplied private ZIP contains both:
 
 - **the raw extract** `data/raw/*.parquet` (`msf`, `msenames`, `msedelist`, `msedist`, `msi`, `ff_factors`,
-  `ff5_factors`, plus `extract_log.json`), from which `build` recreates everything; or
+  `ff5_factors`, plus `extract_log.json`), from which `build` recreates everything; and
 - **the normalized package**: `data/crsp_monthly_normalized.parquet`, `data/benchmark_monthly.csv`,
   `data/ff_factors_monthly.csv`, plus `data/raw/msedist.parquet` and `data/raw/msi.parquet` (read by the
-  replication's DATA-011 check and the long/short capacity estimate).
+  replication's DATA-011 check and the long/short capacity estimate). The full raw extract and licensed
+  `data/audit/worked_examples.csv` are included so the final review can independently verify every recorded input hash.
 
 Expected sha256 hashes for the current rebuild are in `data/manifest.json`
 (`raw_inputs`, `outputs`). Run order, from `Final/`:
@@ -111,7 +125,7 @@ python -m crsp_pipeline extract --user <wrds_username>   # 1. WRDS -> data/raw/ 
 python -m crsp_pipeline build                            # 2. data/raw -> normalized data/ (~1-2 min)
 python -m research.run_all                               # 3. every study -> results/ (~25 min)
 python build_notebook.py && python execute_notebook.py   # 4. the report notebook (seconds)
-python presentation/build_deck.py                        # 5. the slide deck and speaker notes
+python presentation/build_pdf.py                         # 5. PDF slides and speaker notes
 python -m pytest tests -q                                # fixture tests (offline)
 ```
 
@@ -132,7 +146,8 @@ python -m research.run_all --only data_audit replication attribution paper_targe
 
 A shortened `--end` applies only to studies whose sample can end early. The 1929–2016 studies
 (`replication`, `attribution`, `paper_targets`) always stop at 2016-12, `critical_tests` follows `--end`,
-and `diagnostics`, `fmp`, `longshort`, `optimization` and `rank_buffer` are fixed at 2024-12: `run_all`
+and `diagnostics`, `fmp`, `longshort`, `optimization`, `rank_buffer`, `mean_variance` and
+`professor_checks` are fixed at 2024-12: `run_all`
 rejects them with another `--end` before it writes anything.
 
 | Study (`research/studies/`) | Content |
@@ -143,10 +158,12 @@ rejects them with another `--end` before it writes anything.
 | `critical_tests` | fixed periods, net returns, break-even costs, rolling alpha (1929–2024); keeps the original freeze record |
 | `paper_targets` | Tables 1, 2 and 4 against the paper under its own definitions; the Small control |
 | `diagnostics` | neutralized exposures, IC, decay, persistence, deciles (writes the security-level cache to `output/`) |
-| `fmp` | factor-mimicking portfolios and the lagged composite paper portfolio |
+| `fmp` | factor-mimicking portfolios with historical FF3 beta controls and the lagged composite paper portfolio |
 | `longshort` | decile long/short n × cost tables, borrow, long versus short, industry attribution, capacity (ledgers in `output/`) |
 | `optimization` | linear industry-constrained optimization grid, capacity, relaxations |
 | `rank_buffer` | the declared rank-buffer improvement: paired differences, verdict, turnover and concentration |
+| `mean_variance` | quadratic optimization with a historical shrinkage covariance, two fixed risk aversions, costs and capacity |
+| `professor_checks` | independent reconstruction, NPY versus dividends, sector quotas, and allocation/selection attribution |
 
 `results/manifest.json` lists every file with its sha256, study, description, sample window, gross or
 net returns and role (primary, exploratory or check). Each study's entry records its run time, end month
@@ -157,6 +174,13 @@ whose provenance no longer matches the current data and code, or whose files cha
 metadata, and refuses a file whose hash differs from the manifest. `results/` holds aggregates only
 (portfolio, decile or formation rows); `tests/test_results.py` fails on any security identifier, and
 security-level rows (trade ledgers, the diagnostics universe cache) stay in the git-ignored `output/`.
+
+Completed studies are checkpointed atomically, so a failed later study can be rerun with `--only`
+without losing the provenance of earlier completed studies.
+The cache has a metadata sidecar, a content hash and producing data/source/package identity recorded
+in the diagnostics study. Every consumer verifies and records that identity. A missing cache is
+rebuilt from the same producer; an altered or foreign cache is rejected. Capacity labels use a
+normalization to December 2024 aggregate market size, not CPI-adjusted dollars.
 
 ## CRSP data pipeline
 
@@ -175,7 +199,7 @@ python -m pytest tests -q                                # deterministic fixture
 the standard pgpass file (`%APPDATA%\postgresql\pgpass.conf` on Windows, one line:
 `wrds-pgdata.wharton.upenn.edu:9737:wrds:<user>:<password>`), or from an interactive prompt.
 WRDS may send a Duo push on the first connection. The `wrds` Python package is deliberately
-not used: it pins pandas below 2.3, and the notebook is tested with pandas 3.0.6.
+not used: it pins pandas below 2.3, and the current rebuild is tested with pandas 3.0.1.
 
 **Status (2026-10-12).** The pipeline has rebuilt from the full WRDS legacy web exports;
 the data end 2024-12-31. The panel has 3,954,591 security-months for 26,746 securities, and all
@@ -280,7 +304,7 @@ deviations and exclusions.
 
 ## Presentation
 
-`python presentation/build_deck.py` builds `presentation/conservative_formula.pptx` (15 slides) and
+`python presentation/build_deck.py` builds `presentation/conservative_formula.pptx` (18 slides) and
 `presentation/speaker_notes.md` from `results/` with `python-pptx`; every slide number comes from the
 loader. `python presentation/build_pdf.py` creates the requested PDF without
 LibreOffice; see [presentation/README.md](presentation/README.md).

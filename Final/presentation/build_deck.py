@@ -59,7 +59,7 @@ class Deck:
         avail = Inches(12.3 - (width + 0.2 if bullets else 0))
         top = Inches(1.4)
         if image is not None:
-            p = results.path(*image, root=self.root)
+            p = image if isinstance(image, Path) else results.path(*image, root=self.root)
             w = Inches(image_width) if image_width else avail
             pic = s.shapes.add_picture(str(p), left, Inches(1.4), width=w)
             if table is not None:                    # the table goes below the figure, across the slide
@@ -215,6 +215,37 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
             notes="The evidence does not support the claim that the formula beats the market on recent data once known factors "
                   "and realistic costs are taken into account.")
 
+    pc = L("professor_checks", "payout_comparison.csv")
+    payout = pc.loc[pc.period.eq("1929–2016")].set_index("strategy")
+    base, div = payout.loc["Baseline NPY"], payout.loc["Dividends-only counterfactual"]
+    d.slide("Net payout: dividends and share repurchases",
+            bullets=["NPY = trailing dividend yield + 1 − latest adjusted shares / 24-month average adjusted shares",
+                     "Repurchases raise NPY; share issuance lowers it. Splits must leave the adjusted share count unchanged",
+                     f"1929–2016 gross CAGR: {pct(base.compounded, 2)} using NPY versus {pct(div.compounded, 2)} using dividends alone",
+                     f"Paired net-30 arithmetic gain from NPY: {pct(base.paired_npy_minus_div_net30_mean, 2)} per year "
+                     f"{ci(base.paired_ci_low, base.paired_ci_high, 2)}",
+                     "Same universe, low-volatility pool, momentum signal, weights, quarterly dates, and costs in the comparison",
+                     "Share-count change measures net repurchases after issuance; it is not reported buyback cash flow"],
+            notes="This directly addresses the professor's payout warning. The latest/24-month-average share ratio "
+                  "comes from paper page 4; the 12-month dividend window is a disclosed convention. The review adds "
+                  "synthetic tests for repurchases, issuance and split neutrality, plus 1,200 independent signal calculations.")
+
+    attr = L("professor_checks", "sector_attribution.csv").set_index("period")
+    a = attr.loc["1929–2016"]
+    quota = payout.loc["Sector quota variant"]
+    d.slide("Sector positioning: allocation versus selection",
+            bullets=["Paper scores are compared across sectors (page 4); the professor's sector-aware variant is reported separately",
+                     f"1929–2016 gross arithmetic excess return: {pct(a.baseline_minus_market_annual, 2)} per year",
+                     f"  Industry allocation {pct(a.allocation_annual, 2)} + stock selection {pct(a.selection_annual, 2)} "
+                     f"+ reference-to-CRSP-market difference {pct(a.universe_minus_market_annual, 2)}",
+                     "Reference: cap-weighted formation universe, quarterly constituents and industries fixed, weights drift, delistings to cash",
+                     f"Sector variant: 100 slots proportional to industry security counts; apply the rule separately within each FF12 industry. "
+                     f"Gross CAGR {pct(quota.compounded, 2)}, net-30 {pct(quota.net30_compounded, 2)}",
+                     "The sector variant is exploratory and changes the paper's global low-volatility screen. Contributions are arithmetic, not causal"],
+            notes="Exact monthly allocation plus selection plus the universe-to-market bridge reconciles to baseline excess "
+                  "returns. Selection includes interaction. The quota rule follows the professor's Enhanced Momentum "
+                  "example, using counts rather than cap weights, largest-remainder rounding and equal stock weights.")
+
     d.slide("Signal diagnostics",
             bullets=[f"Composite rank IC (1 month): {num(N['ic_comp_h1'], 3)} (NW t {num(N['ic_comp_h1_t'], 1)})",
                      f"Decile spread D10−D1: {pct(N['dec_comp_spread|1963–1989'], 2)} (1963–1989), {pct(N['dec_comp_spread|1990–2016'], 2)} (1990–2016), "
@@ -225,27 +256,67 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
             image=("diagnostics", "fig_decay.png"), text_width=5.6,
             notes="Signals are industry-neutralized, standardized and clipped at ±3; returns are industry-adjusted.")
 
+    # A single-panel chart keeps the slide's labels legible. Its values come from the verified grid.
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    grid = L("optimization", "grid.csv")
+    fig, ax = plt.subplots(figsize=(7, 4.8), layout="constrained")
+    for delta, color in [("2%", "#176B87"), ("5%", "#C0504D"), ("none", "#7F7F7F")]:
+        for c0, marker in [(10, "o"), (30, "s")]:
+            curve = grid.loc[grid.role.eq("spec") & grid.delta.eq(delta) & grid.c0_bps.eq(c0)].sort_values("turnover_one_way_per_quarter")
+            ax.plot(100*curve.turnover_one_way_per_quarter, curve.ir, marker=marker, color=color, label=f"Band {delta}; {c0}bps")
+    ax.set(xlabel="One-way quarterly turnover (%)", ylabel="Net information ratio", title="Linear optimizer: 1929–2024")
+    ax.tick_params(labelsize=11)
+    ax.legend(fontsize=10, ncol=2)
+    chart = out_dir / "build" / "linear_spec.png"
+    chart.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(chart, dpi=180)
+    plt.close(fig)
+
     d.slide("Construction: long/short and optimization",
             bullets=[f"Decile long/short, n = 3, 10 bps, borrow: {pct(N['ls_er'], 2)} a year, IR {num(N['ls_ir'])}, max drawdown {pct(N['ls_mdd'])}",
                      "  Monthly re-weighted cohorts: chosen after the pre-specified buy-and-hold cohorts were ruined "
                      f"({', '.join(x[:7] for x in N['ls_ruin_dates'])})",
-                     f"  Capacity 2020s ≈ ${N['ls_capacity_2020s'] / 1e9:.1f}B (10% of volume at the 95th percentile; no impact model)",
+                     f"  Capacity 2020s ≈ ${N['ls_capacity_2020s'] / 1e9:.1f}B (scaled to 2024 market size; 10% of volume; no impact model)",
                      f"Linear optimizer, 1990–2024 net 30: Carhart alpha {pct(N['opt_alpha_9024_min'], 2)}–{pct(N['opt_alpha_9024_max'], 2)} "
                      f"(2–5% bands, 20–40% turnover budget); {N['opt_ci_9024_text']}",
                      f"  Unadjusted intervals, selected from a {N['opt_runs_spec']}-run grid; 2017–2024 alphas "
                      f"{pct(N['opt_alpha_1724_min'], 2)} to {pct(N['opt_alpha_1724_max'], 2)} ({N['opt_ci_1724_text']}); "
                      "return-scaled alpha is a post-spec sensitivity",
-                     "Further work: quadratic optimization with an estimated covariance model"],
-            image=("optimization", "fig_frontier.png"), text_width=6.0,
+                     "The next slide adds the assignment's quadratic mean-variance extension"],
+            image=chart, text_width=6.0,
             notes="Labels matter: the long/short convention and the optimizer's alpha-scaling sensitivity were chosen after "
                   "results were seen.")
+
+    qm = L("mean_variance", "summary.csv")
+    qr = qm.loc[qm.period.eq("1990–2024")].set_index("risk_aversion")
+    qcheck = L("mean_variance", "solver_checks.csv")
+    qt = pd.DataFrame({"Net CAGR": qr.compounded.map(lambda x: pct(x, 2)),
+                       "Volatility": qr.volatility.map(lambda x: pct(x, 2)),
+                       "IR": qr.ir.map(num), "Market corr.": qr.corr_market.map(num)})
+    qt.index = [f"γ = {g:g}" for g in qt.index]
+    qt.index.name = "1990–2024"
+    d.slide("Quadratic mean-variance optimization",
+            bullets=["Maximize expected return − half risk aversion × portfolio variance − trading costs",
+                     "Covariance: trailing 36 monthly returns, 50% diagonal shrinkage; the window ends at formation",
+                     "Return alpha: completed trailing IC × annual volatility × √(3/12) × composite exposure",
+                     "Quarterly: 2% stock cap, industry bands ±5pp, turnover budget 40%; scaled costs start at 30bps",
+                     f"Two fixed risk aversions (5 and 20); max constraint violation {qcheck.max_constraint_violation.max():.1e}; "
+                     f"turnover relaxations {int(qcheck.turnover_relaxations.sum())}",
+                     "Added during final review after observing the baseline; no unseen test or claim of optimal parameters"],
+            table=qt, text_width=6.6,
+            notes="This fulfills the quadratic optimization requirement using an estimated risk model. A positive "
+                  "semidefinite 50% diagonal shrinkage estimate regularizes 1,000 stocks with 36 observations. Covariance "
+                  "is scaled to three months assuming no autocorrelation. Both gamma values and all feasibility "
+                  "relaxations are reported in the notebook. These are long-only portfolios with substantial market exposure.")
 
     d.slide("Declared improvement: rank buffer of 150",
             bullets=["Declared before any result: keep holdings ranked within the best 150; success = turnover −25% and positive net difference",
                      f"Verdict: {N['buf_verdict']}",
                      f"Turnover {pct(N['buf_turn_base'])} → {pct(N['buf_turn_buf'])} a quarter ({pct(N['buf_turn_red'])} lower)",
                      f"Net-of-30 paired difference {pct(N['buf_diff'], 2)} a year {ci(N['buf_lo'], N['buf_hi'], 2)}: not significant",
-                     f"Gross difference {pct(N['buf_gross_diff'], 2)}: no signal lost, costs saved",
+                     f"Gross paired difference {pct(N['buf_gross_diff'], 2)}; the observed difference does not prove unchanged signal quality",
                      "2017–2024 was already seen: not a holdout"],
             image=("rank_buffer", "fig_paired_cum.png"), text_width=5.6,
             notes="The buffer recovers part of the cost drag but does not change the answer to the critical tests.")

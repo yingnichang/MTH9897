@@ -1,0 +1,14 @@
+check,maximum_error,tolerance,observations,passed
+"Raw, normalized, and audit file hashes",0.0,0.0,18,True
+Duplicate security months,0.0,0.0,3954591,True
+Duplicate eligible companies per month,0.0,0.0,3747988,True
+Independent 36/12/24 month calculation: vol36,7.993605777301127e-15,1e-08,1200,True
+Independent 36/12/24 month calculation: momentum,7.105427357601002e-15,1e-08,1200,True
+Independent 36/12/24 month calculation: div_yield,5.828670879282072e-16,1e-08,1200,True
+Independent 36/12/24 month calculation: net_issuance,5.329070518200751e-15,1e-08,1200,True
+Independent 36/12/24 month calculation: npy,5.329070518200751e-15,1e-08,1200,True
+Independent conservative selections,0.0,0.0,38400,True
+Independent dollar-holdings reconstruction: gross,1.0911410663894117e-15,1e-11,1152,True
+Independent dollar-holdings reconstruction: net30,1.0911410663894117e-15,1e-11,1152,True
+Independent Carhart alpha and Newey-West SE,4.85722573273506e-17,1e-11,1056,True
+Allocation + selection + universe bridge,7.875644580934704e-16,1e-11,1152,True

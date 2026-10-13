@@ -22,6 +22,9 @@ class Context:
     t0: float = field(default_factory=time.time)
     files: dict | None = None                            # manifest file records; None reads <results>/manifest.json
     reads: dict = field(default_factory=dict)            # dependency files read: "study/name" -> sha256
+    study_records: dict | None = None
+    cache_reads: dict = field(default_factory=dict)
+    produced_caches: dict = field(default_factory=dict)
 
     def out(self, study: str) -> Path:
         p = Path(self.results) / study
@@ -47,13 +50,9 @@ class Context:
         return p
 
     def universe_cache(self) -> Path:
-        """output/diagnostics_universe.parquet (security-level, git-ignored); rebuilt when missing."""
-        p = Path(self.output) / "diagnostics_universe.parquet"
-        if not p.exists():
-            from research.studies import diagnostics
-            self.log(f"{p.name} missing: rebuilding it")
-            diagnostics.build_universe(self)
-        return p
+        """Verify the private cache against its producer and record the verified input."""
+        from research.cache import verified_universe
+        return verified_universe(self)
 
     def log(self, msg: str) -> None:
         print(f"[{time.time() - self.t0:5.0f}s] {msg}", flush=True)

@@ -1,0 +1,3 @@
+risk_aversion,formations,max_constraint_violation,turnover_relaxations,industry_lower_bound_relaxations,traded_notional_reconciliation,mean_predicted_vol_annual,risk_window_lookahead_violations,non_solved_statuses,maximum_dual_residual,solver
+5.0,384,1.4475447090989135e-09,0,5,1.1102230246251565e-16,0.07666849901683649,0,0,1.0363071512031752e-11,Clarabel
+20.0,384,4.910133521995874e-09,0,5,1.6653345369377348e-16,0.060057060763454025,0,0,1.7794463819109652e-12,Clarabel

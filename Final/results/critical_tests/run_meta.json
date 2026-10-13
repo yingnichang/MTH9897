@@ -1,6 +1,6 @@
 {
   "end": "2024-12-31",
-  "data_loaded_utc": "2026-10-13T00:49:05+00:00",
+  "data_loaded_utc": "2026-10-13T02:13:52+00:00",
   "post_2016_data": true,
   "source_sha256": {
     "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
@@ -15,15 +15,17 @@
     "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
     "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
     "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+    "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
     "research/checks.py": "d63b4ae529cbcd3b62e41662324436371ab771dde9aaca2e3f513b8189adf63d",
     "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
     "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
-    "research/fmp.py": "524506b001595945c391f367c3c1eeb81bd7e273dc19ca161ca735b6a5ccc2bc",
+    "research/fmp.py": "33af866d647ee2c24a77415736f82a69392b3b934c6ea839adca0a289d8a3ba1",
     "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
-    "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
+    "research/mean_variance.py": "478ff3d0c10c4acace1a2c7a12833eb144d3a6bdc7b1c36fd5681f38f8aaeb88",
+    "research/optimize.py": "3166fa976b3b92668a698118146aad60ec4935495383aec195936d03a730c571",
     "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
     "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
-    "research/run_all.py": "c59bb0f4723d73a567b859c398314237d99c32a359582e7d55bbc25087f9ad30",
+    "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
     "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
     "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
     "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"
@@ -40,5 +42,5 @@
     "rf": true
   },
   "months": 1152,
-  "finished_utc": "2026-10-13T00:50:01+00:00"
+  "finished_utc": "2026-10-13T02:14:26+00:00"
 }

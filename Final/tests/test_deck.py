@@ -15,7 +15,7 @@ import build_deck  # noqa: E402
 def test_deck_builds_with_titled_slides(tmp_path):
     path = build_deck.build(out_dir=tmp_path)
     prs = pptx.Presentation(str(path))
-    assert 12 <= len(prs.slides) <= 15
+    assert 15 <= len(prs.slides) <= 20
     for i, slide in enumerate(prs.slides, 1):
         texts = [sh.text_frame.text for sh in slide.shapes if sh.has_text_frame]
         assert texts and texts[0].strip(), f"slide {i} has no title"

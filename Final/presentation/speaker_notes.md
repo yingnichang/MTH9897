@@ -42,22 +42,34 @@ No evidence of outperformance in 2017–2024, rather than proof of failure: the 
 
 The evidence does not support the claim that the formula beats the market on recent data once known factors and realistic costs are taken into account.
 
-## 11. Signal diagnostics
+## 11. Net payout: dividends and share repurchases
+
+This directly addresses the professor's payout warning. The latest/24-month-average share ratio comes from paper page 4; the 12-month dividend window is a disclosed convention. The review adds synthetic tests for repurchases, issuance and split neutrality, plus 1,200 independent signal calculations.
+
+## 12. Sector positioning: allocation versus selection
+
+Exact monthly allocation plus selection plus the universe-to-market bridge reconciles to baseline excess returns. Selection includes interaction. The quota rule follows the professor's Enhanced Momentum example, using counts rather than cap weights, largest-remainder rounding and equal stock weights.
+
+## 13. Signal diagnostics
 
 Signals are industry-neutralized, standardized and clipped at ±3; returns are industry-adjusted.
 
-## 12. Construction: long/short and optimization
+## 14. Construction: long/short and optimization
 
 Labels matter: the long/short convention and the optimizer's alpha-scaling sensitivity were chosen after results were seen.
 
-## 13. Declared improvement: rank buffer of 150
+## 15. Quadratic mean-variance optimization
+
+This fulfills the quadratic optimization requirement using an estimated risk model. A positive semidefinite 50% diagonal shrinkage estimate regularizes 1,000 stocks with 36 observations. Covariance is scaled to three months assuming no autocorrelation. Both gamma values and all feasibility relaxations are reported in the notebook. These are long-only portfolios with substantial market exposure.
+
+## 16. Declared improvement: rank buffer of 150
 
 The buffer recovers part of the cost drag but does not change the answer to the critical tests.
 
-## 14. Conclusion and limitations
+## 17. Conclusion and limitations
 
 These statements follow the accepted conclusions of the replication, attribution and critical tests.
 
-## 15. Reproducibility
+## 18. Reproducibility
 
 Every slide number is read from results/ through the loader, which refuses a file whose hash differs from the manifest. Security-level rows stay in the git-ignored output/ folder.

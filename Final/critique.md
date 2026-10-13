@@ -1,5 +1,9 @@
 # Critique - Conservative Formula
 
+> Historical review. The cache finding below has been resolved in the final three-pass review.
+> See `FINAL_REVIEW.md` for the current validation and assignment coverage, including the added
+> payout, sector and quadratic checks. Earlier numerical results and counts below are historical.
+
 Updated 2026-10-12. Current re-review only; resolved findings and superseded reviews have been removed. The authoritative records put results-pipeline, final-notebook and final-slides in review. Reproducibility is closed; its rehearsal-command follow-up was checked with the pipeline rework.
 
 ## Open findings index

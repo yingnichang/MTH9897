@@ -50,6 +50,8 @@ def build_universe(ctx):
     first_ret = e["date"] + pd.offsets.MonthEnd(1)
     e["period"] = pd.cut(first_ret.dt.year, [1928, 1962, 1989, 2016, 2024], labels=PERIOD_NAMES).astype(str)
     e.to_parquet(cache, index=False)
+    from research.cache import record_universe
+    record_universe(ctx, cache)
     log(f"universe: {len(e):,} rows, {e['date'].nunique()} formations ({e['date'].min().date()}..{e['date'].max().date()})")
     return e, panel, counts
 

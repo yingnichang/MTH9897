@@ -57,9 +57,9 @@ from research.summary import ci, ci_num, num, pct, pp
 
 MODE = os.environ.get("CF_MODE", "crsp")                     # "crsp" (default): empirical; "demo": synthetic only
 assert MODE in {"crsp", "demo"}, f"CF_MODE must be crsp or demo, got {MODE!r}"
-RESULTS = BASE / "results"
+RESULTS = Path(os.environ.get("CF_RESULTS", str(BASE / "results")))
 if MODE == "crsp" and os.environ.get("CF_RECOMPUTE") == "1":   # recompute every study from data/ first
-    subprocess.run([sys.executable, "-m", "research.run_all"], cwd=BASE, check=True)
+    subprocess.run([sys.executable, "-m", "research.run_all", "--results", str(RESULTS)], cwd=BASE, check=True)
 EMPIRICAL = MODE == "crsp"
 N = S.numbers(RESULTS) if EMPIRICAL else {}
 pd.set_option("display.max_columns", 30, "display.width", 200)
@@ -347,6 +347,59 @@ which were well above 30 bps.""")
 ''')
 
 md(r'''
+## 6b. The professor's payout and sector checks
+The paper's page 4 explicitly compares scores across sectors. Its baseline is retained, while the professor's
+sector-by-sector recommendation is tested separately: allocate 100 equal-weight slots across FF12 industries
+in proportion to their security counts in the largest-1,000 universe, round by largest remainder, then apply
+the low-volatility screen and momentum/NPY ranking within each industry. This exploratory variant was added
+in the final review; it changes the paper's global screen and has no unseen validation sample.
+
+NPY is **dividend yield + 1 − current split-adjusted shares / trailing 24-month average adjusted shares**.
+Repurchases raise the signal; issuance lowers it. The share-count term is a net repurchase proxy rather than
+the dollar value of buybacks. A dividends-only counterfactual uses the same universe, low-volatility pool,
+signal-completeness rule, momentum signal, weights, rebalance dates, and trading costs.
+
+To measure sector positioning explicitly, compare the baseline with a cap-weighted reference made from the
+same formation universe. Freeze industry labels and constituents for each quarter, let weights drift, and
+move delisted holdings to cash. Each month's baseline-minus-market return is exactly the sum of:
+(1) industry allocation, (2) selection within industries, and (3) the fixed-universe reference minus CRSP VW.
+Selection includes the usual allocation/selection interaction. Contributions below are annualized arithmetic
+means; they are not compounded returns or causal estimates. The reference differs from the CRSP market.
+''')
+
+code(r'''
+if empirical():
+    pc = R("professor_checks", "payout_comparison.csv")
+    view = pc.loc[pc.period.isin(["1929–2016", "1990–2024", "2017–2024"])]
+    display(Markdown("**Matched payout comparison and the professor's sector-quota variant**"))
+    display(table(view[["period", "strategy", "compounded", "net30_compounded", "volatility", "turnover_quarter"]],
+                  pcts=["compounded", "net30_compounded", "volatility", "turnover_quarter"]).set_index(["period", "strategy"]))
+    components = R("professor_checks", "payout_components.csv")
+    display(Markdown("**Baseline formation holdings: mean payout components and overlap with dividends-only selection**"))
+    display(table(components.set_index("period"), pcts=list(components.columns[1:])))
+    sa = R("professor_checks", "sector_attribution.csv")
+    display(Markdown("**Sector contribution to gross baseline-minus-market arithmetic return**"))
+    display(table(sa.set_index("period"), pcts=list(sa.columns[2:])))
+    se = R("professor_checks", "sector_exposures.csv")
+    display(Markdown("**Mean FF12 weights and maximum monthly portfolio weights, 1929–2016**"))
+    display(table(se.loc[se.period.eq("1929–2016")].drop(columns="period").set_index("industry"), pcts=list(se.columns[2:])))
+    qc = R("professor_checks", "sector_quota_checks.csv")
+    checks = R("professor_checks", "independent_checks.csv")
+    display(Markdown("**Independent data, signal, selection, dollar-holdings return and HAC regression checks**"))
+    display(checks.set_index("check"))
+    base = pc.loc[pc.period.eq("1929–2016") & pc.strategy.eq("Baseline NPY")].iloc[0]
+    dividends = pc.loc[pc.period.eq("1929–2016") & pc.strategy.eq("Dividends-only counterfactual")].iloc[0]
+    allocation = sa.loc[sa.period.eq("1929–2016")].iloc[0]
+    say(f"On the paper's sample, NPY earns {pct(base.compounded, 2)} compounded annually versus "
+        f"{pct(dividends.compounded, 2)} for dividends alone. The paired net-30 arithmetic difference is "
+        f"{pct(base.paired_npy_minus_div_net30_mean, 2)} {ci(base.paired_ci_low, base.paired_ci_high, 2)}. "
+        f"Sector allocation contributes {pct(allocation.allocation_annual, 2)} and stock selection "
+        f"{pct(allocation.selection_annual, 2)} annually. All {len(checks)} independent checks pass; "
+        f"the quota variant holds 100 names at all {len(qc)} formations, with industry count-weight "
+        f"rounding deviations at most {pct(qc.max_abs_industry_weight_minus_universe_count_weight.max(), 2)}.")
+''')
+
+md(r'''
 ## 7. Signal diagnostics
 These diagnostics study the three signals, not the paper's two-stage selection. Each signal is computed in the monthly
 universe, demeaned within Fama–French 12 industries, standardized by its cross-sectional standard deviation and clipped
@@ -355,8 +408,11 @@ portfolio below is a different object: the sum of the three unit-exposure signal
 each signal.) Forward returns are industry-adjusted and include delisting returns. The
 information coefficient (IC) is the rank correlation of exposure and forward return; "mean/sd" is the literal ratio,
 reported apart from the Newey–West t-statistic (lags h − 1 + 12). Factor-mimicking portfolios come from monthly
-cross-sectional weighted least squares on the exposures, size and industry dummies; they are gross, levered paper
-portfolios, not investable as they stand.
+cross-sectional weighted least squares on the exposures, size, industry dummies and stock-level FF3 loadings.
+The FF3 controls were added in the final review: each stock's market, SMB and HML betas use a trailing 36-month
+regression ending at formation, with a minimum of 24 factor-covered observations (30 in the first formation).
+This uses historical factor exposures in the cross-sectional model, rather than treating realized future
+factor returns as exposures. These are gross, levered paper portfolios, not investable as they stand.
 ''')
 
 code(r'''
@@ -365,7 +421,17 @@ if empirical():
     ic["IC: mean (mean/sd; NW t)"] = [f"{num(m, 3)} ({num(r)}; {num(t, 1)})" for m, r, t in zip(ic["mean"], ic.mean_over_sd_literal, ic.t_nw)]
     display(Markdown("**Rank IC by horizon h (months)**"))
     display(ic.pivot(index="exposure", columns="h", values="IC: mean (mean/sd; NW t)"))
+    display(Markdown("**Sample variance of monthly IC by horizon**"))
+    display(ic.assign(variance=ic["sd"]**2).pivot(index="exposure", columns="h", values="variance"))
     figure("diagnostics", "fig_ic_ma.png")
+    ic_monthly = R("diagnostics", "ic_monthly.csv", parse_dates=["date"], index_col="date")
+    fig, ax = plt.subplots(figsize=(11, 3.5), layout="constrained")
+    for col in [c for c in ic_monthly if c.endswith("|h1")]:
+        ax.plot(ic_monthly.index, ic_monthly[col].rolling(12).var(ddof=1), label=col.split("|")[0], lw=.8)
+    ax.set(title="12-month moving sample variance of 1-month IC", ylabel="Variance of IC")
+    ax.legend(fontsize=8)
+    display(fig)
+    plt.close(fig)
     figure("diagnostics", "fig_decay.png")
     ds = R("diagnostics", "deciles_subperiods.csv")
     ds = ds.loc[ds["h"].eq(1) & ds["decile"].eq("D10-D1")]
@@ -380,6 +446,10 @@ before 1963 and {pct(N['dec_comp_spread|2017–2024'], 2)} (t {num(N['dec_comp_t
 positive rank IC but a flat mean spread, because the high-volatility deciles are strongly right-skewed: rank and mean
 measures answer different questions.""")
     pm = R("fmp", "paper_metrics.csv")
+    display(Markdown("**Historical FF3 exposure controls: coverage and look-ahead checks**"))
+    risk_controls = R("fmp", "risk_controls.csv")
+    display(pd.DataFrame({"formations": [len(risk_controls)], "minimum completed factor months": [risk_controls.factor_months_used.min()],
+                          "forward information violations": [risk_controls.forward_information_used.sum()]}))
     pm = pm.loc[pm["period"].isin(["1929–2024", "2017–2024"])]
     display(Markdown("**Lagged composite factor-mimicking paper portfolio (active over CRSP VW, gross)**"))
     display(table(pm[["K", "weighting", "period", "mean_annual", "vol_annual", "ir", "max_drawdown_active", "skew",
@@ -400,17 +470,19 @@ shorts pay a borrow fee of 2–25 bps a month by size decile. Every trade is rec
 turnover and the profit and loss. The pre-specified buy-and-hold cohorts are ruined in the 1932–33 rally of
 low-quality stocks, when short positions grew to several times capital; cohorts re-weighted to 1/n each month
 (the Jegadeesh–Titman form) are therefore the primary convention, **a choice made after the ruin was observed**.
-Capacity is the assets under management (2024 dollars) at which the 95th percentile of a position's share of its
-stock's monthly dollar volume reaches 10%; there is no price-impact model.
+Capacity is the assets under management expressed at 2024 market size at which the 95th percentile of a position's share of its
+stock's monthly dollar volume reaches 10%; there is no price-impact model. Historical AUM is scaled by
+CRSP aggregate market capitalization relative to December 2024. This is a market-size normalization,
+not a CPI adjustment or an estimate of inflation-adjusted purchasing power.
 
 **Linear optimization.** Each quarter a linear program maximizes the composite exposure minus trading costs, long
 only with a 2% cap per stock, subject to industry bands of ±δ around the universe's cap-weight industry mix and a
 two-way turnover budget τ; costs rise for small and volatile stocks. The grid crosses δ ∈ {2%, 5%, none},
 τ ∈ {20%, 40%, 80%, none} and two cost levels, so selecting its best cell is itself a selection exercise; the whole
 grid is shown. A variant that scales the alpha into return units (information coefficient × volatility × exposure)
-was added after the grid was specified and is shown separately as a sensitivity. Quadratic mean-variance
-optimization is left for further work. It could use an estimated covariance model; a commercial risk model
-is not necessary, but no such model is implemented in this submission.
+was added after the grid was specified and is shown separately as a sensitivity. Its annual volatility is
+converted to a three-month estimate with √(3/12), correcting a units error found during the final review.
+The quadratic extension below uses an estimated covariance model and is also exploratory.
 ''')
 
 code(r'''
@@ -437,7 +509,7 @@ maximum drawdown of {pct(N['ls_mdd'], 2)} in 1932 and a correlation of {num(N['l
                   pcts=["residual_alpha_annual"], nums=["r2", "alpha_t_nw"]))
     cap = R("longshort", "capacity.csv")
     cap = cap.loc[cap["convention"].eq("monthly re-weighted (JT)")]
-    display(Markdown("**Capacity of the n = 3 long/short (2024 dollars; positions summed by stock and side)**"))
+    display(Markdown("**Capacity of the n = 3 long/short (scaled to 2024 market size; positions summed by stock and side)**"))
     display(cap.set_index("decade")[["capacity_aum_2024usd_p95_at_10pct", "median_participation_$1B", "p95_participation_$1B"]].assign(
         capacity_aum_2024usd_p95_at_10pct=lambda d: d.iloc[:, 0].map(lambda x: f"${x / 1e9:.2f}B" if x >= 1e9 else f"${x / 1e6:.0f}M"),
         **{"median_participation_$1B": lambda d: d.iloc[:, 1].map(lambda x: pct(x, 2)),
@@ -465,10 +537,52 @@ if empirical():
     say(f"""Over 1990–2024, net of 30 bps, the specified configurations with 2–5% industry bands and a 20–40% turnover budget have
 Carhart alphas of {pct(N['opt_alpha_9024_min'], 2)} to {pct(N['opt_alpha_9024_max'], 2)}, above the paper rule's
 {pct(N['ct_alpha|1990–2024|net30'], 2)}; {N['opt_ci_9024_text']}. These are unadjusted, nominal intervals for configurations
-selected from a {N['opt_runs_spec']}-run grid, so they overstate the evidence. The gain comes from limiting turnover and from
-the industry-neutral composite, not from a new signal. In 2017–2024 the specified configurations' alphas range from
+selected from a {N['opt_runs_spec']}-run grid, so they overstate the evidence. These portfolios use the existing
+industry-neutral composite with turnover and industry constraints. In 2017–2024 the specified configurations' alphas range from
 {pct(N['opt_alpha_1724_min'], 2)} to {pct(N['opt_alpha_1724_max'], 2)}, and {N['opt_ci_1724_text']}. These are long-only tilts,
 highly correlated with the market.""")
+''')
+
+md(r'''
+## 8b. Quadratic mean-variance optimization
+This final-review extension maximizes **αᵀw − (γ/2)wᵀΣw − cᵀ|w − w_previous|**. Expected three-month
+residual returns use the composite exposure × annual volatility × √(3/12) × trailing mean three-month IC.
+Only IC horizons already completed at formation enter that trailing mean; before 12 completed observations,
+alpha is zero and the optimizer minimizes risk plus trading costs.
+
+The covariance matrix uses the most recent 36 monthly total returns ending at formation, with 50% shrinkage
+toward its diagonal; multiply by three for a three-month covariance under an explicit no-autocorrelation
+approximation. This positive semidefinite estimate makes the optimization genuinely quadratic, rather than
+another linear score ranking. The two fixed risk-aversion values are γ = 5 and 20. We impose a 2% security cap,
+FF12 industry bands of ±5 percentage points around the universe's cap weights, and a 40% two-way quarterly
+turnover budget after the initial investment. Costs start at 30bps per dollar traded and scale with size and
+volatility. If constraints are infeasible, the same disclosed minimum-turnover and industry-bound relaxation
+rules as the linear optimizer apply, and their counts are reported.
+
+These are illustrative choices introduced after viewing the baseline, not fitted or validated on an unseen
+sample. Shrinkage and risk aversion are not estimated optimal values. Historical risks can change, and using
+36 months to estimate a 1,000-stock risk model requires substantial regularization.
+''')
+
+code(r'''
+if empirical():
+    qm = R("mean_variance", "summary.csv")
+    qm["Carhart alpha [95% CI]"] = [f"{pct(a, 2)} {ci(lo, hi, 2)}" for a, lo, hi in
+                                    zip(qm.carhart_alpha, qm.alpha_ci_low, qm.alpha_ci_high)]
+    display(Markdown("**Quadratic portfolios: net returns, risk, costs and market correlation**"))
+    display(table(qm[["risk_aversion", "period", "compounded", "volatility", "excess_return_annual", "ir", "hit_ratio",
+                      "max_drawdown", "skew_active", "kurtosis_active", "corr_market", "turnover_quarter", "Carhart alpha [95% CI]"]],
+                  pcts=["compounded", "volatility", "excess_return_annual", "hit_ratio", "max_drawdown", "turnover_quarter"],
+                  nums=["ir", "skew_active", "kurtosis_active", "corr_market"]).set_index(["period", "risk_aversion"]))
+    display(Markdown("**Solver feasibility, turnover reconciliation, and absence of risk-window look-ahead**"))
+    display(R("mean_variance", "solver_checks.csv").set_index("risk_aversion"))
+    capacity = R("mean_variance", "capacity.csv")
+    capacity["capacity at 10% volume ($B, 2024 market size)"] = capacity.aum_2024usd_p95_at_10pct/1e9
+    display(capacity.loc[capacity.decade.isin(["all", "2020s"])].set_index(["decade", "risk_aversion"])[
+        ["positions", "covered", "capacity at 10% volume ($B, 2024 market size)"]])
+    say("Both risk-aversion choices are reported. Capacity is a volume-participation proxy without a market-impact "
+        "model. These long-only portfolios remain exposed to the market; their correlation is reported, "
+        "so they should not be interpreted as market-neutral strategies.")
 ''')
 
 md(r'''
@@ -501,7 +615,8 @@ if empirical():
 {pct(N['buf_turn_base'])} to {pct(N['buf_turn_buf'])} ({pct(N['buf_turn_red'])} lower), and the paired net-of-30-bps difference is
 {pct(N['buf_diff'], 2)} a year {ci(N['buf_lo'], N['buf_hi'], 2)}, so it is not statistically significant; the Carhart alpha of the difference
 is {pct(N['buf_alpha'], 2)} (t {num(N['buf_alpha_t'])}). Gross of costs the difference is {pct(N['buf_gross_diff'], 2)}: the buffer
-gives up no signal and saves costs. It recovers part of the cost drag but does not change the answer to the critical tests.""")
+is the observed gross-return comparison, not proof that signal quality is unchanged. It recovers part of the cost drag
+but does not change the answer to the critical tests.""")
 ''')
 
 md(r'''
@@ -620,6 +735,9 @@ md(r'''
 7. Grinold, R. C., and Kahn, R. N. (2000). *Active Portfolio Management*, 2nd ed. McGraw-Hill.
 8. Center for Research in Security Prices (CRSP), US Stock Database (legacy monthly files), via WRDS; Kenneth R. French
    Data Library (factors).
+9. Clarabel, [Python quadratic/conic solver interface](https://clarabel.org/stable/python/getting_started_py/), used for the convex quadratic extension.
+10. CRSP, [Calculations and Index Methodologies](https://www.crsp.org/wp-content/uploads/guides/CRSP_Calculations_and_Index_Methodologies.pdf),
+    corporate-action adjustment conventions.
 ''')
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={

@@ -1,6 +1,6 @@
 # Presentation
 
-The final deliverable `conservative_formula.pdf` (15 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
+The final deliverable `conservative_formula.pdf` (18 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
 from the tracked results in `results/` through the hash-checked loader:
 
 ```bash
@@ -8,7 +8,11 @@ python presentation/build_pdf.py      # needs requirements.txt and results/ (pyt
 ```
 
 Every number on a slide is formatted from `research.summary.numbers()` or read from a results table, and the figures are
-the PNGs in `results/`. No slide carries a security identifier column (the builder checks every table header).
+the PNGs in `results/`, except the linear-optimization slide's chart, drawn from its verified grid table.
+No slide carries a security identifier column (the builder checks every table header).
+
+The final review adds slides on net payout, industry allocation versus stock selection, and quadratic
+mean-variance optimization. These extensions are labeled separately from the paper's original rule.
 
 `build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
 searchable text and tables. No LibreOffice installation is required. The PPTX is
