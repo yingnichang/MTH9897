@@ -1,23 +1,24 @@
 {
   "end": "2024-12-31",
-  "data_loaded_utc": "2026-10-12T17:53:30+00:00",
+  "data_loaded_utc": "2026-10-13T00:49:05+00:00",
   "post_2016_data": true,
   "source_sha256": {
-    "crsp_pipeline/__init__.py": "782b56131130897be35134e574a1856884e6dc1d89a8223362795ced253d06d1",
+    "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
     "crsp_pipeline/__main__.py": "ec44dab290ce4211b19b7418e558eb2ac2c5e6744f40b2bcc35b84dac2e79359",
     "crsp_pipeline/audit.py": "85a1e744a4f138af2bbe4a24d63403b9e779d681850fc2910d853d9557019f24",
     "crsp_pipeline/build.py": "08977adf7e072c16ff88caadadd3ecc7a0035522a8d28f50120b970558ecaf37",
-    "crsp_pipeline/config.py": "dd3420b183fc673443e91f022f8beece22fb04cb83b6a398e4ab57f87de9a804",
+    "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
     "crsp_pipeline/extract.py": "9b2f15cad4b0c84cf72d07a753821dd360e1bf2a27e4f80b57976aa16566d8d8",
-    "crsp_pipeline/industries.py": "2da1577c1f327594fb91c15d11622e562f32aa646e678612042af9a1c946540a",
+    "crsp_pipeline/import_web.py": "fc17b594301cf057987530a2485b0fa1ac441d31c5637d5b87a9c84dbe16f693",
+    "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
     "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
     "crsp_pipeline/provenance.py": "6952ee09e87bd5226be8b7bc0c0740145c66b7826db426cf92646776bba6e9e5",
-    "crsp_pipeline/signals.py": "157c56934f19d47b7f14a19e427bc66909a8b96cdb61411b81a9d64182b29042",
-    "research/__init__.py": "335a742d98ecd8057a9f76e0995060f12ea511f4090621dfb8b1e72ca30a3604",
-    "research/checks.py": "dff48995847925ba114c57562c9805de15eee3d8d316586cb3d041cfd42d851a",
-    "research/diagnostics.py": "d1b63b47427ddf4d511b3396b3fbba52fc3891429045bd2f8e73497ca7b56d04",
+    "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+    "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+    "research/checks.py": "d63b4ae529cbcd3b62e41662324436371ab771dde9aaca2e3f513b8189adf63d",
+    "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
     "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
-    "research/fmp.py": "46f602c93d9ae30c9d2dd81336635a2a73eb3f13b099c65f3f0f154c2f51bdd5",
+    "research/fmp.py": "524506b001595945c391f367c3c1eeb81bd7e273dc19ca161ca735b6a5ccc2bc",
     "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
     "research/optimize.py": "5bd16def1d67fac5d9dbf24a7d9403984e72fc0322f3ecd3c94761f8f9da6679",
     "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
@@ -25,9 +26,9 @@
     "research/run_all.py": "c59bb0f4723d73a567b859c398314237d99c32a359582e7d55bbc25087f9ad30",
     "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
     "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
-    "research/summary.py": "6643fb5810dc4493909a7a0ba571f550e4d1edaf4b8a9a46e9b6fd93fb1595b9"
+    "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"
   },
-  "manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
+  "manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
   "slice_1929_2016_identical_to_replication": {
     "Conservative_gross": true,
     "Speculative_gross": true,
@@ -39,5 +40,5 @@
     "rf": true
   },
   "months": 1152,
-  "finished_utc": "2026-10-12T17:54:48+00:00"
+  "finished_utc": "2026-10-13T00:50:01+00:00"
 }

@@ -1,25 +1,25 @@
 row,column,paper,ours,difference,status,definition,months
-Return (simple),Formula,0.155,0.15377546663758512,-0.0012245333624148758,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),Formula,0.151,0.14849440705315953,-0.002505592946840468,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),Formula,0.004,0.005281059584425596,0.0012810595844255958,compared,simple - compounded,1056.0
-Volatility,Formula,0.165,0.17057292975652627,0.0055729297565262625,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,Formula,1.0,0.9673281700415125,-0.0326718299584875,compared,16.5% / volatility,1056.0
-Sharpe (simple),Formula,0.94,0.9015232772109992,-0.03847672278900072,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,Formula,0.155,0.14984120615848692,-0.005158793841513076,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
-Return (simple),Market,0.106,0.10530355681818182,-0.0006964431818181765,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),Market,0.093,0.09147307373443248,-0.0015269262655675242,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),Market,0.014,0.013830483083749345,-0.00016951691625065497,compared,simple - compounded,1056.0
-Volatility,Market,0.187,0.18701000478753496,1.0004787534961812e-05,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,Market,0.88,0.8823057364629188,0.0023057364629187616,compared,16.5% / volatility,1056.0
-Sharpe (simple),Market,0.57,0.5630904984886711,-0.006909501511328853,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,Market,0.098,0.09683597214396143,-0.0011640278560385714,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
-Return (simple),Small,0.158,0.17097844587363853,0.012978445873638528,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),Small,0.12,0.1293125932231598,0.009312593223159804,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),Small,0.038,0.04166585265047873,0.0036658526504787306,compared,simple - compounded,1056.0
-Volatility,Small,0.314,0.33549036642310043,0.021490366423100427,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,Small,0.52,0.49181740077720104,-0.028182599222798976,compared,16.5% / volatility,1056.0
-Sharpe (simple),Small,0.5,0.5096374232636257,0.00963742326362571,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,Small,0.099,0.10104210688416333,0.0020421068841633278,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),Formula,0.155,0.1533147857809082,-0.0016852142190917907,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),Formula,0.151,0.1479700245608524,-0.0030299754391475975,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),Formula,0.004,0.00534476122005581,0.0013447612200558103,compared,simple - compounded,1056.0
+Volatility,Formula,0.165,0.17058145512227396,0.005581455122273954,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,Formula,1.0,0.9672798246546019,-0.03272017534539806,compared,16.5% / volatility,1056.0
+Sharpe (simple),Formula,0.94,0.8987775703461499,-0.041222429653850035,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,Formula,0.155,0.14938977722900584,-0.0056102227709941555,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),Market,0.106,0.10530339772727272,-0.0006966022727272758,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),Market,0.093,0.09147291205010077,-0.0015270879498992251,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),Market,0.014,0.013830485677171947,-0.0001695143228280533,compared,simple - compounded,1056.0
+Volatility,Market,0.187,0.18700995193944728,9.951939447278013e-06,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,Market,0.88,0.8823059857981571,0.0023059857981571064,compared,16.5% / volatility,1056.0
+Sharpe (simple),Market,0.57,0.5630898069070107,-0.006910193092989236,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,Market,0.098,0.09683584971567394,-0.0011641502843260654,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),Small,0.158,0.17094071502936062,0.012940715029360617,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),Small,0.12,0.12952990404440068,0.009529904044400683,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),Small,0.038,0.04141081098495994,0.0034108109849599402,compared,simple - compounded,1056.0
+Volatility,Small,0.314,0.334690662380622,0.020690662380622005,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,Small,0.52,0.4929925407131801,-0.027007459286819913,compared,16.5% / volatility,1056.0
+Sharpe (simple),Small,0.5,0.5107424085675889,0.010742408567588901,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,Small,0.099,0.10118522919474832,0.0021852291947483116,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
 Return (simple),Value,0.169,,,excluded: no book equity in the CRSP-only extract,"12 x mean monthly return, gross",
 Return (compounded),Value,0.131,,,excluded: no book equity in the CRSP-only extract,"(prod(1 + r))^(12/T) - 1, gross",
 Difference (simple - comp.),Value,0.038,,,excluded: no book equity in the CRSP-only extract,simple - compounded,
@@ -27,24 +27,24 @@ Volatility,Value,0.317,,,excluded: no book equity in the CRSP-only extract,sqrt(
 De-risking factor,Value,0.52,,,excluded: no book equity in the CRSP-only extract,16.5% / volatility,
 Sharpe (simple),Value,0.53,,,excluded: no book equity in the CRSP-only extract,simple return / volatility (no T-bill subtracted),
 Return same risk,Value,0.104,,,excluded: no book equity in the CRSP-only extract,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",
-Return (simple),Momentum,0.182,0.17974048544467594,-0.0022595145553240548,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),Momentum,0.159,0.15600170842651773,-0.0029982915734822757,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),Momentum,0.023,0.023738777018158214,0.000738777018158214,compared,simple - compounded,1056.0
-Volatility,Momentum,0.257,0.2611164118268958,0.004116411826895816,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,Momentum,0.64,0.6319020656173266,-0.008097934382673366,compared,16.5% / volatility,1056.0
-Sharpe (simple),Momentum,0.71,0.6883538425912228,-0.021646157408777178,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,Momentum,0.129,0.12585737819096468,-0.003142621809035323,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
-Return (simple),Lowvol,0.106,0.11015493695524955,0.004154936955249558,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),Lowvol,0.102,0.10456528789206532,0.002565287892065324,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),Lowvol,0.004,0.005589649063184238,0.0015896490631842376,compared,simple - compounded,1056.0
-Volatility,Lowvol,0.133,0.14415505518993374,0.011155055189933732,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,Lowvol,1.24,1.1446008590028403,-0.09539914099715974,compared,16.5% / volatility,1056.0
-Sharpe (simple),Lowvol,0.8,0.7641420331053476,-0.03585796689465248,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,Lowvol,0.123,0.12125984658053192,-0.0017401534194680796,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
-Return (simple),NPY,0.156,0.1556966677301258,-0.0003033322698741958,compared,"12 x mean monthly return, gross",1056.0
-Return (compounded),NPY,0.145,0.14247490457181522,-0.0025250954281847704,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
-Difference (simple - comp.),NPY,0.011,0.013221763158310584,0.002221763158310585,compared,simple - compounded,1056.0
-Volatility,NPY,0.201,0.21163557235491715,0.010635572354917133,compared,sqrt(12) x sd of monthly returns,1056.0
-De-risking factor,NPY,0.82,0.779642090240348,-0.04035790975965192,compared,16.5% / volatility,1056.0
-Sharpe (simple),NPY,0.78,0.7356828816519528,-0.04431711834804719,compared,simple return / volatility (no T-bill subtracted),1056.0
-Return same risk,NPY,0.134,0.12873836461006608,-0.005261635389933933,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),Momentum,0.182,0.1787049399567428,-0.003295060043257192,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),Momentum,0.159,0.15485672555082797,-0.004143274449172035,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),Momentum,0.023,0.023848214405914836,0.0008482144059148364,compared,simple - compounded,1056.0
+Volatility,Momentum,0.257,0.26096905783524843,0.003969057835248424,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,Momentum,0.64,0.6322588638234868,-0.007741136176513175,compared,16.5% / volatility,1056.0
+Sharpe (simple),Momentum,0.71,0.6847744381617857,-0.025225561838214228,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,Momentum,0.129,0.12525487440176458,-0.0037451255982354215,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),Lowvol,0.106,0.1097459957100718,0.003745995710071809,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),Lowvol,0.102,0.1041077787685214,0.002107778768521404,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),Lowvol,0.004,0.0056382169415504085,0.0016382169415504085,compared,simple - compounded,1056.0
+Volatility,Lowvol,0.133,0.14418844604421815,0.011188446044218148,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,Lowvol,1.24,1.1443357947654114,-0.09566420523458863,compared,16.5% / volatility,1056.0
+Sharpe (simple),Lowvol,0.8,0.7611289165042814,-0.03887108349571866,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,Lowvol,0.123,0.1207715243421398,-0.0022284756578602044,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0
+Return (simple),NPY,0.156,0.15505835616111302,-0.0009416438388869797,compared,"12 x mean monthly return, gross",1056.0
+Return (compounded),NPY,0.145,0.14178474809607278,-0.003215251903927213,compared,"(prod(1 + r))^(12/T) - 1, gross",1056.0
+Difference (simple - comp.),NPY,0.011,0.013273608065040243,0.002273608065040244,compared,simple - compounded,1056.0
+Volatility,NPY,0.201,0.21149362828012355,0.01049362828012354,compared,sqrt(12) x sd of monthly returns,1056.0
+De-risking factor,NPY,0.82,0.7801653474943336,-0.03983465250566631,compared,16.5% / volatility,1056.0
+Sharpe (simple),NPY,0.78,0.7331585231293023,-0.04684147687069773,compared,simple return / volatility (no T-bill subtracted),1056.0
+Return same risk,NPY,0.134,0.1283043906621347,-0.005695609337865309,compared,"rf + (simple - rf) x 16.5% / vol, rf = 3.3358% (12 x mean FF rf, 1929-2016)",1056.0

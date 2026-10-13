@@ -25,7 +25,7 @@ def code(s):
 md(r'''
 # The Conservative Formula: A Critical Replication on CRSP, 1929–2024
 **MTH 9897 Systematic Trading · Project 8 · Final report**
-**Authors:** [Add names and team number]
+**Author:** Yingni Chang
 
 **Paper:** David Blitz and Pim van Vliet (2018), "The Conservative Formula: Quantitative Investing Made Easy",
 *The Journal of Portfolio Management* 44(7); working paper [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
@@ -145,6 +145,11 @@ and NASDAQ, with security names, delistings, distributions and the CRSP index fi
 Fama–French factors. A pipeline (`crsp_pipeline`) normalizes them to one row per security-month and writes the audit
 tables below. Conventions that the paper leaves open are fixed and disclosed:
 
+This run uses the full WRDS web exports downloaded on October 12, 2026, rather than the CRSP trial sample.
+`python -m crsp_pipeline.import_web` verifies their hashes, maps the names-file start dates, converts CRSP
+missing-return codes to missing values, and removes only identical repeated monthly records from the web join.
+The original archives and query receipts are retained in `data/raw/wrds_complete/`.
+
 | Item | Convention |
 |---|---|
 | Universe | Eligible common stocks with 36 consecutive monthly returns; the largest 1,000 by security market cap (all of them while fewer exist, before mid-1964) |
@@ -176,8 +181,11 @@ WRDS exposes no release identifier, so the extract is identified by its time sta
     dv = R("data_audit", "dividend_reconciliation.csv").set_index("decade")
     bc = R("data_audit", "benchmark_check.csv").set_index("decade")
     display(Markdown("**Implied dividends against CRSP distributions, and the CRSP VW index against the Fama–French market**"))
-    display(pd.concat([dv[["agree_ordinary_cash"]].map(lambda x: pct(x)),
+    display(pd.concat([dv[["agree_ordinary_cash", "agree_ordinary_cash_given_distribution"]].map(lambda x: pct(x)),
                        bc[["corr_crsp_vw_vs_ff_market"]].round(4)], axis=1))
+    say("The first dividend agreement rate includes zero-dividend months. The conditional rate restricts "
+        "the comparison to months with a recorded ordinary cash distribution and is the more demanding check. "
+        "Special distributions and ambiguous gaps are separately audited rather than assumed to be ordinary dividends.")
 ''')
 
 md(r'''
@@ -224,7 +232,7 @@ if empirical():
 The Speculative portfolio compounds at only {pct(N['rep_spec_compounded'], 2)} with {pct(N['rep_spec_volatility'])} volatility.
 Conservative beats the market in {N['decades_cons_beats_mkt']} of {N['decades_n']} decade buckets (partial decades labeled).
 The largest gap is Small's simple return ({pct(N['t1_small_simple'])} against {pct(N['paper_small_simple'])}); its compounded return
-is within one percentage point. Explanations of every gap above the declared thresholds are listed below.""")
+is within one percentage point. Candidate explanations and unresolved gaps above the declared thresholds are listed below.""")
     figure("replication", "fig3.png")
     figure("replication", "fig4.png")
     gaps = R("paper_targets", "gaps.csv")
@@ -401,7 +409,8 @@ two-way turnover budget τ; costs rise for small and volatile stocks. The grid c
 τ ∈ {20%, 40%, 80%, none} and two cost levels, so selecting its best cell is itself a selection exercise; the whole
 grid is shown. A variant that scales the alpha into return units (information coefficient × volatility × exposure)
 was added after the grid was specified and is shown separately as a sensitivity. Quadratic mean-variance
-optimization is excluded: no commercial risk model is available.
+optimization is left for further work. It could use an estimated covariance model; a commercial risk model
+is not necessary, but no such model is implemented in this submission.
 ''')
 
 code(r'''
@@ -544,11 +553,14 @@ md(r'''
 md(r'''
 ## 11. Reproducibility
 ```bash
-python -m crsp_pipeline extract --user <wrds_username>   # WRDS -> data/raw/ (licensed; not in the repository)
+python -m crsp_pipeline.import_web                       # downloaded web archives -> data/raw/*.parquet
+# Alternatively: python -m crsp_pipeline extract --user <wrds_username>
+# The private submission package already contains the parquet inputs: skip the import there.
 python -m crsp_pipeline build                            # data/raw -> data/ panel, benchmark, factors, audits
 python -m research.run_all                               # every study -> results/ (aggregates) + results/manifest.json
 python build_notebook.py && python execute_notebook.py   # this notebook, reading results/
-python presentation/build_deck.py                        # the slide deck and speaker notes
+python presentation/build_pdf.py                         # PDF slides and speaker notes
+python package_submission.py                             # private ZIP, including licensed data
 ```
 Every table and figure above is read from `results/`, whose files are checked against the sha256 hashes in
 `results/manifest.json`; security-level rows never leave the git-ignored `output/` folder. Setting

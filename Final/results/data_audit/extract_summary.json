@@ -1,20 +1,20 @@
 {
-  "extracted_at_utc": "2026-10-10T01:16:16+00:00",
-  "host": "wrds-pgdata.wharton.upenn.edu",
-  "library": "crsp",
+  "extracted_at_utc": "2026-10-13T00:44:36.079281+00:00",
+  "host": "wrds-www.wharton.upenn.edu",
+  "library": "CRSP legacy annual / FF web exports",
   "start": "1925-12-31",
   "end": "2024-12-31",
   "table_rows": {
-    "msenames": 85112,
-    "msf": 3954476,
-    "msedelist": 26746,
-    "msedist": 630015,
+    "msf": 3958443,
+    "msenames": 85133,
+    "msedelist": 26767,
+    "msedist": 629967,
     "msi": 1189,
     "ff_factors": 1182,
     "ff5_factors": 738
   },
   "sample": {
-    "panel_rows": 3954476,
+    "panel_rows": 3954591,
     "securities": 26746,
     "first_month": "1925-12-31",
     "last_month": "2024-12-31",
@@ -28,12 +28,12 @@
     "min_universe_n": 393,
     "first_formation_with_full_universe": "1964-06-30",
     "delist_sources": {
-      "observed": 22732,
-      "imputed_shumway": 110,
-      "missing_set_zero": 27
+      "observed": 20022,
+      "imputed_shumway": 2530,
+      "missing_set_zero": 317
     },
-    "delist_rows_after_dropped": 0,
-    "ret_hold_stale_carry_rows": 107341,
+    "delist_rows_after_dropped": 3852,
+    "ret_hold_stale_carry_rows": 107456,
     "ret_hold_no_prior_row_rows": 26745,
     "ret_hold_price_ratio_rows": 175,
     "universe_holding_stale_carry_months": 447
@@ -57,10 +57,10 @@
     "missing_held_returns": "stale-price carry: ret_hold = 0 after the first row, or the price ratio to the last price when CRSP reports a price and the last one is <= 3 months earlier; resumption keeps CRSP's return"
   },
   "data_files_sha256": {
-    "crsp_monthly_normalized.parquet": "84e3148292b901400bb33450187b2c22c7fe6f7ce104c4b5d20812e9eb131cdc",
-    "benchmark_monthly.csv": "3c6f04909d1d07da22c56be63dc8bcf8535de06d0e4aa63acd1c730ad65bca66",
+    "crsp_monthly_normalized.parquet": "766b8558ddc3a00057bb33c71d9d9f48ec3b5c57bf79cc8a7022f1cc5342ece2",
+    "benchmark_monthly.csv": "54b93e41090985a80e1f31a3f83a01dbaf20a6741516df060dc74bec6595c636",
     "ff_factors_monthly.csv": "c7c4bf167162980e9db6f312ef871f6a4fb46620f1ee5b21dde7d71e1a1d5c53"
   },
-  "data_manifest_sha256": "5eada288fe2c98a872f82d53f7fda978d63610c3ff590f7f9f5b33f1f6cef70c",
-  "code_commit_at_build": "e8f45682bcd076f8bc55249cf55d54c436392716"
+  "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+  "code_commit_at_build": "f7624862d5fbbb1e5bd7c4972da3687a95220038"
 }

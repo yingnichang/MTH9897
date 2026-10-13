@@ -1,5 +1,25 @@
 # Conservative Formula — final project
 
+## October 12, 2026 full-data rebuild
+
+The project now imports the full CRSP legacy web downloads in
+`data/raw/wrds_complete/`. Run `python -m crsp_pipeline.import_web` before the
+existing build and research commands below. This route needs no live login once
+the downloaded archives are present. It checks source hashes and records query
+URLs, input counts and removed identical duplicates in `data/raw/extract_log.json`.
+
+`python package_submission.py` creates a private ZIP under `output/submission/`
+containing the executed notebook, PDF slides, code, aggregate results and the raw
+and normalized inputs. It is intended for the authorized course submission channel.
+Its supplied parquet files allow a complete rebuild without the original web archives.
+
+The intended presentation deliverable is `presentation/conservative_formula.pdf`.
+Generate it with `python presentation/build_pdf.py`, which uses the same
+data-driven slide content and embeds searchable text and tables with ReportLab.
+`presentation/render_previews.mjs` is an optional PNG-preview renderer using
+`@oai/artifact-tool`. Keep security-level data in the private
+course submission package; the Git repository contains code and aggregate results.
+
 > **⚠ Important update (2026-10-10): research question.** This project is a **critical
 > replication** of Blitz & van Vliet (2018), not a demonstration that a simple formula beats the
 > market. A 1929–2016 replication shows whether the paper's US results can be reproduced. That is the
@@ -58,7 +78,8 @@ variant in `research/engine.py`.
 
 ## Environment
 
-Tested with **Python 3.14.7** on Windows 11. `requirements.txt` gives lower bounds; `requirements-lock.txt`
+The October 12 rebuild runs on **Python 3.12** on Windows using `requirements.txt`.
+The earlier environment used Python 3.14.7. `requirements.txt` gives lower bounds; `requirements-lock.txt`
 pins the exact versions of the tested environment (the dependency closure of `requirements.txt`):
 
 ```bash
@@ -66,8 +87,8 @@ python -m venv .venv && .venv/Scripts/python -m pip install -r requirements-lock
 ```
 
 Some pinned packages are Windows-specific (`pywinpty`); on another platform install
-`requirements.txt` instead. `legacy/wrds_test.ipynb` is an early connection probe with the `wrds`
-package, superseded by `crsp_pipeline/extract.py`; nothing imports `wrds`.
+`requirements.txt` instead. The live database extract uses `crsp_pipeline/extract.py`;
+the web-download route uses `crsp_pipeline/import_web.py`. Neither imports `wrds`.
 
 ## For the grader: data package and run order
 
@@ -82,8 +103,8 @@ repository, and contains either:
   `data/ff_factors_monthly.csv`, plus `data/raw/msedist.parquet` and `data/raw/msi.parquet` (read by the
   replication's DATA-011 check and the long/short capacity estimate).
 
-Expected sha256 hashes are in `data/manifest.json` (`raw_inputs`, `outputs`); for example the panel is
-`84e3148292b9…` and the benchmark `3c6f04909d1d…`. Run order, from `Final/`:
+Expected sha256 hashes for the current rebuild are in `data/manifest.json`
+(`raw_inputs`, `outputs`). Run order, from `Final/`:
 
 ```bash
 python -m crsp_pipeline extract --user <wrds_username>   # 1. WRDS -> data/raw/ (needs a WRDS account)
@@ -156,11 +177,12 @@ the standard pgpass file (`%APPDATA%\postgresql\pgpass.conf` on Windows, one lin
 WRDS may send a Duo push on the first connection. The `wrds` Python package is deliberately
 not used: it pins pandas below 2.3, and the notebook is tested with pandas 3.0.6.
 
-**Status (2026-10-10).** The pipeline has run against WRDS (extracted 2026-10-10 01:16 UTC;
-`crsp.msf` ends 2024-12-31). The panel has 3,954,476 security-months for 26,746 securities, and all
+**Status (2026-10-12).** The pipeline has rebuilt from the full WRDS legacy web exports;
+the data end 2024-12-31. The panel has 3,954,591 security-months for 26,746 securities, and all
 build invariants pass. In the audits, implied dividends agree with `msedist` cash distributions in
 more than 99% of rows, the CRSP and Fama–French market series correlate above 0.996 in every
-decade, and only 110 delisting returns required imputation. Two findings affect the backtest. First,
+decade. There are 2,530 imputed performance delistings in the full panel, 112 within
+the audited history-eligible universe. Two findings affect the backtest. First,
 fewer than 1,000 history-eligible common stocks exist before June 1964 (393 at the December 1928
 formation); the universe then takes all history-eligible names. Second, 447 holding-period months
 of universe members (356 securities, 403 runs of consecutive missing months) have a CRSP record
@@ -258,8 +280,7 @@ deviations and exclusions.
 
 ## Presentation
 
-`python presentation/build_deck.py` builds `presentation/conservative_formula.pptx` (14 slides) and
+`python presentation/build_deck.py` builds `presentation/conservative_formula.pptx` (15 slides) and
 `presentation/speaker_notes.md` from `results/` with `python-pptx`; every slide number comes from the
-loader. A PDF needs LibreOffice (`soffice --headless --convert-to pdf`); see
-[presentation/README.md](presentation/README.md). The superseded first-draft deck, built on synthetic data
-with a private runtime, is kept in `presentation/legacy/`.
+loader. `python presentation/build_pdf.py` creates the requested PDF without
+LibreOffice; see [presentation/README.md](presentation/README.md).

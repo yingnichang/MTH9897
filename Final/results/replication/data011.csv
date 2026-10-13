@@ -1,2 +1,2 @@
 straddling_positions,with_resumption_price,with_cash_distribution_in_gap,mean_lost_move,median_lost_move,min_lost_move,max_lost_move,share_negative,mean_pre_weight,weighted_lost_move_sum,annual_bias_estimate,first_formation,last_formation
-25,25,14,-0.045277582462195,0.0,-0.59375,0.5714285714285712,0.48,0.010297192727438103,-0.013226966613514806,0.000150306438789941,1929-06-30,1982-06-30
+25,25,14,-0.045277582462195,0.0,-0.59375,0.5714285714285712,0.48,0.01029708277348861,-0.013226547637161603,0.00015030167769501822,1929-06-30,1982-06-30

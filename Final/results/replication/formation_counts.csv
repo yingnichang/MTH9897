@@ -80,7 +80,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1932-09-30,Standalone momentum,689,499,499,,,,499,100,0,
 1932-09-30,Standalone NPY,689,499,499,,,,499,100,0,
 1932-12-31,Conservative,682,522,522,261.0,0.0,0.0,261,100,1,261.0
-1932-12-31,Speculative,682,522,522,,0.0,0.0,261,100,2,261.0
+1932-12-31,Speculative,682,522,522,,0.0,0.0,261,100,0,261.0
 1932-12-31,Standalone low-vol,682,522,522,,,,522,100,0,
 1932-12-31,Standalone momentum,682,522,522,,,,522,100,0,
 1932-12-31,Standalone NPY,682,522,522,,,,522,100,0,
@@ -104,7 +104,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1933-12-31,Standalone low-vol,683,547,547,,,,547,100,0,
 1933-12-31,Standalone momentum,683,547,547,,,,547,100,0,
 1933-12-31,Standalone NPY,683,547,547,,,,547,100,0,
-1934-03-31,Conservative,682,551,551,275.0,0.0,0.0,275,100,2,275.0
+1934-03-31,Conservative,682,551,551,275.0,0.0,0.0,275,100,1,275.0
 1934-03-31,Speculative,682,551,551,,0.0,0.0,276,100,0,276.0
 1934-03-31,Standalone low-vol,682,551,551,,,,551,100,0,
 1934-03-31,Standalone momentum,682,551,551,,,,551,100,0,
@@ -140,7 +140,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1935-09-30,Standalone momentum,686,576,576,,,,576,100,0,
 1935-09-30,Standalone NPY,686,576,576,,,,576,100,0,
 1935-12-31,Conservative,694,578,578,289.0,0.0,0.0,289,100,0,289.0
-1935-12-31,Speculative,694,578,578,,0.0,0.0,289,100,0,289.0
+1935-12-31,Speculative,694,578,578,,0.0,0.0,289,100,1,289.0
 1935-12-31,Standalone low-vol,694,578,578,,,,578,100,0,
 1935-12-31,Standalone momentum,694,578,578,,,,578,100,0,
 1935-12-31,Standalone NPY,694,578,578,,,,578,100,0,
@@ -219,7 +219,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1939-09-30,Standalone low-vol,755,651,651,,,,651,100,0,
 1939-09-30,Standalone momentum,755,651,651,,,,651,100,0,
 1939-09-30,Standalone NPY,755,651,651,,,,651,100,0,
-1939-12-31,Conservative,758,665,665,332.0,0.0,0.0,332,100,0,332.0
+1939-12-31,Conservative,758,665,665,332.0,0.0,0.0,332,100,1,332.0
 1939-12-31,Speculative,758,665,665,,0.0,0.0,333,100,0,333.0
 1939-12-31,Standalone low-vol,758,665,665,,,,665,100,0,
 1939-12-31,Standalone momentum,758,665,665,,,,665,100,0,
@@ -274,7 +274,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1942-06-30,Standalone low-vol,783,720,720,,,,720,100,0,
 1942-06-30,Standalone momentum,783,720,720,,,,720,100,0,
 1942-06-30,Standalone NPY,783,720,720,,,,720,100,0,
-1942-09-30,Conservative,785,725,725,362.0,0.0,0.0,362,100,1,362.0
+1942-09-30,Conservative,785,725,725,362.0,0.0,0.0,362,100,0,362.0
 1942-09-30,Speculative,785,725,725,,0.0,0.0,363,100,1,363.0
 1942-09-30,Standalone low-vol,785,725,725,,,,725,100,0,
 1942-09-30,Standalone momentum,785,725,725,,,,725,100,0,
@@ -294,7 +294,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1943-06-30,Standalone low-vol,781,737,737,,,,737,100,0,
 1943-06-30,Standalone momentum,781,737,737,,,,737,100,0,
 1943-06-30,Standalone NPY,781,737,737,,,,737,100,0,
-1943-09-30,Conservative,788,741,741,370.0,0.0,0.0,370,100,1,370.0
+1943-09-30,Conservative,788,741,741,370.0,0.0,0.0,370,100,0,370.0
 1943-09-30,Speculative,788,741,741,,0.0,0.0,371,100,0,371.0
 1943-09-30,Standalone low-vol,788,741,741,,,,741,100,0,
 1943-09-30,Standalone momentum,788,741,741,,,,741,100,0,
@@ -394,7 +394,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1948-06-30,Standalone low-vol,937,800,800,,,,800,100,0,
 1948-06-30,Standalone momentum,937,800,800,,,,800,100,0,
 1948-06-30,Standalone NPY,937,800,800,,,,800,100,0,
-1948-09-30,Conservative,944,805,805,402.0,0.0,0.0,402,100,1,402.0
+1948-09-30,Conservative,944,805,805,402.0,0.0,0.0,402,100,0,402.0
 1948-09-30,Speculative,944,805,805,,0.0,0.0,403,100,0,403.0
 1948-09-30,Standalone low-vol,944,805,805,,,,805,100,0,
 1948-09-30,Standalone momentum,944,805,805,,,,805,100,0,
@@ -455,7 +455,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1951-06-30,Standalone momentum,1005,923,923,,,,923,100,0,
 1951-06-30,Standalone NPY,1005,923,923,,,,923,100,0,
 1951-09-30,Conservative,1004,928,928,464.0,0.0,0.0,464,100,1,464.0
-1951-09-30,Speculative,1004,928,928,,0.0,0.0,464,100,1,464.0
+1951-09-30,Speculative,1004,928,928,,0.0,0.0,464,100,0,464.0
 1951-09-30,Standalone low-vol,1004,928,928,,,,928,100,0,
 1951-09-30,Standalone momentum,1004,928,928,,,,928,100,0,
 1951-09-30,Standalone NPY,1004,928,928,,,,928,100,0,
@@ -484,7 +484,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1952-12-31,Standalone low-vol,1024,951,951,,,,951,100,0,
 1952-12-31,Standalone momentum,1024,951,951,,,,951,100,0,
 1952-12-31,Standalone NPY,1024,951,951,,,,951,100,0,
-1953-03-31,Conservative,1023,953,953,476.0,0.0,0.0,476,100,1,476.0
+1953-03-31,Conservative,1023,953,953,476.0,0.0,0.0,476,100,0,476.0
 1953-03-31,Speculative,1023,953,953,,0.0,0.0,477,100,0,477.0
 1953-03-31,Standalone low-vol,1023,953,953,,,,953,100,0,
 1953-03-31,Standalone momentum,1023,953,953,,,,953,100,0,
@@ -550,7 +550,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1956-03-31,Standalone momentum,1033,962,962,,,,962,100,0,
 1956-03-31,Standalone NPY,1033,962,962,,,,962,100,0,
 1956-06-30,Conservative,1027,962,962,481.0,0.0,0.0,481,100,1,481.0
-1956-06-30,Speculative,1027,962,962,,0.0,0.0,481,100,1,481.0
+1956-06-30,Speculative,1027,962,962,,0.0,0.0,481,100,0,481.0
 1956-06-30,Standalone low-vol,1027,962,962,,,,962,100,0,
 1956-06-30,Standalone momentum,1027,962,962,,,,962,100,0,
 1956-06-30,Standalone NPY,1027,962,962,,,,962,100,0,
@@ -604,7 +604,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1958-12-31,Standalone low-vol,1039,950,950,,,,950,100,0,
 1958-12-31,Standalone momentum,1039,950,950,,,,950,100,0,
 1958-12-31,Standalone NPY,1039,950,950,,,,950,100,0,
-1959-03-31,Conservative,1036,947,947,473.0,0.0,0.0,473,100,2,473.0
+1959-03-31,Conservative,1036,947,947,473.0,0.0,0.0,473,100,0,473.0
 1959-03-31,Speculative,1036,947,947,,0.0,0.0,474,100,0,474.0
 1959-03-31,Standalone low-vol,1036,947,947,,,,947,100,0,
 1959-03-31,Standalone momentum,1036,947,947,,,,947,100,0,
@@ -709,7 +709,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1964-03-31,Standalone low-vol,1993,992,992,,,,992,100,0,
 1964-03-31,Standalone momentum,1993,992,992,,,,992,100,0,
 1964-03-31,Standalone NPY,1993,992,992,,,,992,100,0,
-1964-06-30,Conservative,2013,1000,1000,500.0,0.0,0.0,500,100,4,500.0
+1964-06-30,Conservative,2013,1000,1000,500.0,0.0,0.0,500,100,3,500.0
 1964-06-30,Speculative,2013,1000,1000,,0.0,0.0,500,100,1,500.0
 1964-06-30,Standalone low-vol,2013,1000,1000,,,,1000,100,0,
 1964-06-30,Standalone momentum,2013,1000,1000,,,,1000,100,0,
@@ -940,11 +940,11 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1975-09-30,Standalone momentum,4616,2173,1000,,,,1000,100,0,
 1975-09-30,Standalone NPY,4616,2173,1000,,,,1000,100,0,
 1975-12-31,Conservative,4616,3867,1000,500.0,0.0,0.0,500,100,1,500.0
-1975-12-31,Speculative,4616,3867,1000,,0.0,0.0,500,100,3,500.0
+1975-12-31,Speculative,4616,3867,1000,,0.0,0.0,500,100,2,500.0
 1975-12-31,Standalone low-vol,4616,3867,1000,,,,1000,100,0,
 1975-12-31,Standalone momentum,4616,3867,1000,,,,1000,100,0,
 1975-12-31,Standalone NPY,4616,3867,1000,,,,1000,100,0,
-1976-03-31,Conservative,4590,3793,1000,500.0,0.0,0.0,500,100,0,500.0
+1976-03-31,Conservative,4590,3793,1000,500.0,0.0,0.0,500,100,1,500.0
 1976-03-31,Speculative,4590,3793,1000,,0.0,0.0,500,100,0,500.0
 1976-03-31,Standalone low-vol,4590,3793,1000,,,,1000,100,0,
 1976-03-31,Standalone momentum,4590,3793,1000,,,,1000,100,0,
@@ -1010,7 +1010,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1979-03-31,Standalone momentum,4517,3491,1000,,,,1000,100,0,
 1979-03-31,Standalone NPY,4517,3491,1000,,,,1000,100,0,
 1979-06-30,Conservative,4501,3510,1000,500.0,0.0,0.0,500,100,1,500.0
-1979-06-30,Speculative,4501,3510,1000,,0.0,0.0,500,100,2,500.0
+1979-06-30,Speculative,4501,3510,1000,,0.0,0.0,500,100,1,500.0
 1979-06-30,Standalone low-vol,4501,3510,1000,,,,1000,100,0,
 1979-06-30,Standalone momentum,4501,3510,1000,,,,1000,100,0,
 1979-06-30,Standalone NPY,4501,3510,1000,,,,1000,100,0,
@@ -1024,7 +1024,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1979-12-31,Standalone low-vol,4503,3710,1000,,,,1000,100,0,
 1979-12-31,Standalone momentum,4503,3710,1000,,,,1000,100,0,
 1979-12-31,Standalone NPY,4503,3710,1000,,,,1000,100,0,
-1980-03-31,Conservative,4513,3703,1000,500.0,0.0,0.0,500,100,1,500.0
+1980-03-31,Conservative,4513,3703,1000,500.0,0.0,0.0,500,100,0,500.0
 1980-03-31,Speculative,4513,3703,1000,,0.0,0.0,500,100,1,500.0
 1980-03-31,Standalone low-vol,4513,3703,1000,,,,1000,100,0,
 1980-03-31,Standalone momentum,4513,3703,1000,,,,1000,100,0,
@@ -1114,7 +1114,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1984-06-30,Standalone low-vol,5747,3816,1000,,,,1000,100,0,
 1984-06-30,Standalone momentum,5747,3816,1000,,,,1000,100,0,
 1984-06-30,Standalone NPY,5747,3816,1000,,,,1000,100,0,
-1984-09-30,Conservative,5726,3867,1000,500.0,0.0,0.0,500,100,1,500.0
+1984-09-30,Conservative,5726,3867,1000,500.0,0.0,0.0,500,100,0,500.0
 1984-09-30,Speculative,5726,3867,1000,,0.0,0.0,500,100,0,500.0
 1984-09-30,Standalone low-vol,5726,3867,1000,,,,1000,100,0,
 1984-09-30,Standalone momentum,5726,3867,1000,,,,1000,100,0,
@@ -1180,7 +1180,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1987-09-30,Standalone momentum,6311,4097,1000,,,,1000,100,0,
 1987-09-30,Standalone NPY,6311,4097,1000,,,,1000,100,0,
 1987-12-31,Conservative,6233,4069,1000,500.0,0.0,0.0,500,100,2,500.0
-1987-12-31,Speculative,6233,4069,1000,,0.0,0.0,500,100,2,500.0
+1987-12-31,Speculative,6233,4069,1000,,0.0,0.0,500,100,1,500.0
 1987-12-31,Standalone low-vol,6233,4069,1000,,,,1000,100,0,
 1987-12-31,Standalone momentum,6233,4069,1000,,,,1000,100,0,
 1987-12-31,Standalone NPY,6233,4069,1000,,,,1000,100,0,
@@ -1254,7 +1254,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1991-06-30,Standalone low-vol,5606,4482,1000,,,,1000,100,0,
 1991-06-30,Standalone momentum,5606,4482,1000,,,,1000,100,0,
 1991-06-30,Standalone NPY,5606,4482,1000,,,,1000,100,0,
-1991-09-30,Conservative,5630,4472,1000,500.0,0.0,0.0,500,100,0,500.0
+1991-09-30,Conservative,5630,4472,1000,500.0,0.0,0.0,500,100,1,500.0
 1991-09-30,Speculative,5630,4472,1000,,0.0,0.0,500,100,0,500.0
 1991-09-30,Standalone low-vol,5630,4472,1000,,,,1000,100,0,
 1991-09-30,Standalone momentum,5630,4472,1000,,,,1000,100,0,
@@ -1424,7 +1424,7 @@ formation,strategy,eligible_n,history_eligible_n,universe_n,low_vol_pool_n,pool_
 1999-12-31,Standalone low-vol,6552,4909,1000,,,,1000,100,0,
 1999-12-31,Standalone momentum,6552,4909,1000,,,,1000,100,0,
 1999-12-31,Standalone NPY,6552,4909,1000,,,,1000,100,0,
-2000-03-31,Conservative,6505,4860,1000,500.0,0.0,0.0,500,100,1,500.0
+2000-03-31,Conservative,6505,4860,1000,500.0,0.0,0.0,500,100,0,500.0
 2000-03-31,Speculative,6505,4860,1000,,0.0,0.0,500,100,0,500.0
 2000-03-31,Standalone low-vol,6505,4860,1000,,,,1000,100,0,
 2000-03-31,Standalone momentum,6505,4860,1000,,,,1000,100,0,

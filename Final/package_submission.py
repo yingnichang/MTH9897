@@ -1,0 +1,51 @@
+"""Create a private, runnable course package; never commit its licensed data.
+
+Run from Final: python package_submission.py
+The package includes normalized data and the seven raw parquet inputs, so the
+grader can rebuild both the data pipeline and all research without WRDS login.
+"""
+import subprocess
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+
+
+def main():
+    tracked = subprocess.run(['git', 'ls-files', '--', '.'], cwd=ROOT,
+                             check=True, capture_output=True, text=True).stdout.splitlines()
+    selected = {ROOT / p for p in tracked if not p.endswith('.pptx')
+                and Path(p).name not in {'critique.md', '.gitattributes', '.gitignore'}}
+    selected.update(ROOT / p for p in [
+        'crsp_pipeline/import_web.py', 'tests/test_import_web.py',
+        'presentation/build_pdf.py', 'presentation/render_previews.mjs',
+        'presentation/conservative_formula.pdf', 'package_submission.py'])
+    selected.update(ROOT / 'data' / p for p in [
+        'crsp_monthly_normalized.parquet', 'benchmark_monthly.csv', 'ff_factors_monthly.csv'])
+    selected.update((ROOT / 'data/raw').glob('*.parquet'))
+    selected.add(ROOT / 'data/raw/extract_log.json')
+    # Source receipts contain metadata, not security observations.
+    selected.add(ROOT / 'data/raw/wrds_complete/download_manifest.json')
+    selected = {p for p in selected if p.is_file()}
+    required = [ROOT / 'conservative_formula_first_draft.ipynb',
+                ROOT / 'presentation/conservative_formula.pdf',
+                ROOT / 'data/crsp_monthly_normalized.parquet']
+    if not all(p in selected for p in required):
+        raise FileNotFoundError('Execute the notebook and build the PDF and normalized data first')
+    output = ROOT / 'output/submission/MTH9897_Conservative_Formula_Final.zip'
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=3) as z:
+        for p in sorted(selected): z.write(p, 'Final/' + p.relative_to(ROOT).as_posix())
+        z.writestr('PRIVATE_DATA_NOTICE.txt',
+                   'Contains licensed CRSP security data. Submit only through the authorized course channel.\n'
+                   'Do not upload this archive to a public GitHub repository.\n'
+                   'Run from Final: pip install -r requirements.txt; python -m crsp_pipeline build;\n'
+                   'python -m research.run_all; python build_notebook.py; python execute_notebook.py;\n'
+                   'python presentation/build_pdf.py. The executed notebook also opens using cached results.\n')
+    with zipfile.ZipFile(output) as z:
+        bad = z.testzip()
+        if bad: raise ValueError(f'Corrupt archive member: {bad}')
+    print(f'Created {output}: {len(selected)} files, {output.stat().st_size / 1024**2:.1f} MiB')
+
+
+if __name__ == '__main__': main()

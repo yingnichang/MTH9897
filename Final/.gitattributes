@@ -1,0 +1,8 @@
+# Preserve exact bytes of files covered by the data/result provenance hashes.
+* whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+results/** -text
+data/audit/** -text
+data/manifest.json -text
+research/**/*.py -text
+research/studies/data/** -text
+crsp_pipeline/*.py -text

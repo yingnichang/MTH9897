@@ -1,5 +1,7 @@
 # Exact versions of the tested environment (Python 3.14.7, Windows 11): the dependency closure of
 # requirements.txt, from importlib.metadata. Install with: python -m pip install -r requirements-lock.txt
+# PDF generation added during the October 12 rebuild.
+reportlab==4.4.9
 Jinja2==3.1.6
 MarkupSafe==3.0.3
 PyYAML==6.0.3

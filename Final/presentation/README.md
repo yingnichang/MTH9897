@@ -1,18 +1,20 @@
 # Presentation
 
-The deck `conservative_formula.pptx` (14 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
+The final deliverable `conservative_formula.pdf` (15 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
 from the tracked results in `results/` through the hash-checked loader:
 
 ```bash
-python presentation/build_deck.py      # needs python-pptx (requirements.txt) and results/ (python -m research.run_all)
+python presentation/build_pdf.py      # needs requirements.txt and results/ (python -m research.run_all)
 ```
 
 Every number on a slide is formatted from `research.summary.numbers()` or read from a results table, and the figures are
 the PNGs in `results/`. No slide carries a security identifier column (the builder checks every table header).
 
-**PDF (optional).** With LibreOffice installed:
-`soffice --headless --convert-to pdf --outdir presentation presentation/conservative_formula.pptx`.
-No PDF is produced by the build itself.
+`build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
+searchable text and tables. No LibreOffice installation is required. The PPTX is
+an intermediate editable version; submit the PDF. The exporter checks textbox
+and table height and expands wrapped table rows to avoid clipping.
 
-`legacy/` holds the superseded first-draft deck (synthetic demonstration data) and its generator, which requires a private
-runtime; it is not on any build path.
+For visual checks, render with `pdftoppm -scale-to 1400 -png
+presentation/conservative_formula.pdf presentation/build/check`.
+`render_previews.mjs` optionally renders PNG previews through `@oai/artifact-tool`.

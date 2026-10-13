@@ -3,8 +3,7 @@
     python presentation/build_deck.py            # -> presentation/conservative_formula.pptx, presentation/speaker_notes.md
 
 Every number on a slide is formatted from `research.summary.numbers()` or read from a results table; figures are the
-PNGs in results/. PDF export is optional: with LibreOffice installed, run
-`soffice --headless --convert-to pdf presentation/conservative_formula.pptx`.
+PNGs in results/. Run `python presentation/build_pdf.py` for the requested PDF deliverable.
 """
 from __future__ import annotations
 
@@ -98,8 +97,8 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
     d = Deck(root)
     h, g = "1990–2024|net30", "1990–2024|gross"
 
-    d.slide("The Conservative Formula: a critical replication on CRSP, 1929–2024",
-            subtitle="MTH 9897 Systematic Trading · Project 8 · [Add names and team number]",
+    d.slide("The Conservative Formula",
+            subtitle="Yingni Chang · MTH 9897 Project 8 · CRSP replication, 1929–2024",
             bullets=["Paper: Blitz and van Vliet (2018), The Conservative Formula, Journal of Portfolio Management 44(7)",
                      "Replicate the US results on the paper's sample, 1929–2016",
                      "Then test three questions fixed in advance: known factors, decay, costs",
@@ -139,6 +138,17 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
             notes="Every deviation is disclosed with its direction or magnitude in the notebook's deviations table.")
 
     t1 = L("paper_targets", "table1_vs_paper.csv")
+    d.slide("Signal construction and timing",
+            bullets=["Volatility: annualized standard deviation of 36 consecutive monthly total returns",
+                     "Momentum: compound 11 monthly price returns, excluding the most recent month",
+                     "Dividend yield: trailing 12 months of split-adjusted dividends divided by the current adjusted price",
+                     "Net payout yield: dividend yield + 1 − latest adjusted shares / average adjusted shares over 24 months",
+                     "A falling share count raises payout yield; new share issuance lowers it",
+                     "Quarter-end information determines next month's holdings. No forward return enters selection."],
+            notes="The 12-month dividend window is a disclosed convention: the paper specifies the share-count ratio "
+                  "but does not fully specify the dividend window. Price returns exclude distributions; total returns "
+                  "include them. Adjusting both prices and shares prevents a stock split from looking like a buyback.")
+
     t1 = t1.loc[t1["row"].isin(["Return (compounded)", "Volatility"]) & t1["status"].eq("compared")]
     t1["paper / ours"] = t1["paper"].map(pct) + " / " + t1["ours"].map(pct)
     tab = t1.pivot(index="row", columns="column", values="paper / ours")[["Formula", "Market", "Small", "Momentum", "Lowvol", "NPY"]]
@@ -150,7 +160,8 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"Conservative beats the market in {N['decades_cons_beats_mkt']} of {N['decades_n']} decades",
                      f"Turnover {pct(N['rep_turnover'])} a quarter vs the paper's {pct(N['paper_turnover'], 0)} (unexplained; measure not stated)"],
             image=("replication", "fig3.png"), table=tab.rename_axis("paper / ours"), text_width=5.0, image_width=6.5,
-            notes="Gross of costs, paper definitions. Every gap above 1 pp has a documented explanation.")
+            notes="Gross of costs, paper definitions. Candidate explanations and unresolved material gaps are "
+                  "listed in the notebook; no parameter was adjusted to force agreement with the paper.")
 
     d.slide("Factor attribution (Table 2): largely known premia",
             bullets=[f"CMS (Conservative − Speculative), 1963–2016: CAPM {pct(N['t2_b_capm_ours'], 2)} vs {pct(N['t2_b_capm_paper'])}; "
@@ -224,7 +235,7 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"  Unadjusted intervals, selected from a {N['opt_runs_spec']}-run grid; 2017–2024 alphas "
                      f"{pct(N['opt_alpha_1724_min'], 2)} to {pct(N['opt_alpha_1724_max'], 2)} ({N['opt_ci_1724_text']}); "
                      "return-scaled alpha is a post-spec sensitivity",
-                     "Quadratic optimization excluded: no commercial risk model"],
+                     "Further work: quadratic optimization with an estimated covariance model"],
             image=("optimization", "fig_frontier.png"), text_width=6.0,
             notes="Labels matter: the long/short convention and the optimizer's alpha-scaling sensitivity were chosen after "
                   "results were seen.")
@@ -251,11 +262,11 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
 
     man = results.manifest(root)
     d.slide("Reproducibility",
-            bullets=["python -m crsp_pipeline extract --user <wrds_username>   (licensed data; not in the repository)",
+            bullets=["python -m crsp_pipeline.import_web   (full web exports; licensed data kept private)",
                      "python -m crsp_pipeline build",
                      "python -m research.run_all   → results/ (aggregates) + results/manifest.json",
                      "python build_notebook.py && python execute_notebook.py",
-                     "python presentation/build_deck.py",
+                     "python presentation/build_pdf.py   (PDF slides and speaker notes)",
                      f"{len(man['files'])} result files with sha256 hashes; data manifest {man['data_manifest_sha256'][:12]}…"],
             notes="Every slide number is read from results/ through the loader, which refuses a file whose hash differs "
                   "from the manifest. Security-level rows stay in the git-ignored output/ folder.")
