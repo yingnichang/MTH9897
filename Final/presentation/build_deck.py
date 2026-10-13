@@ -338,13 +338,15 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
     if bad:
         raise ValueError(f"security-level identifier column on a slide: {bad}")
     out_dir.mkdir(parents=True, exist_ok=True)
+    from speech_notes import make_notes, plain_notes, write_markdown
+    speech = make_notes(root)
+    if [n["title"] for n in speech] != [title for title, _ in d.notes]:
+        raise ValueError("Speech-note titles must match the slide order")
+    for slide, note in zip(d.prs.slides, speech):
+        slide.notes_slide.notes_text_frame.text = plain_notes(note)
     path = out_dir / "conservative_formula.pptx"
     d.prs.save(path)
-    lines = ["# Speaker notes", "", "**Authors:** Yingni Chang and Yikai Shen", "",
-             "Presentation notes. Data and tables are from the accompanying notebook.", ""]
-    for i, (title, note) in enumerate(d.notes, 1):
-        lines += [f"## {i}. {title}", "", note, ""]
-    (out_dir / "speaker_notes.md").write_text("\n".join(lines), encoding="utf-8")
+    write_markdown(speech, out_dir / "speaker_notes.md", root)
     return path
 
 

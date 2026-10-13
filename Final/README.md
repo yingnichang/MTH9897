@@ -19,7 +19,8 @@ these results and the assumptions behind them.
 | [conservative_formula_first_draft.ipynb](conservative_formula_first_draft.ipynb) | Executed notebook and main course deliverable |
 | [Written report](output/pdf/conservative_formula_report.pdf) | Methods, results, figures and discussion in PDF form |
 | [Presentation](presentation/conservative_formula.pdf) | 18 slides for the final presentation |
-| [Speaker notes](presentation/speaker_notes.md) | Explanations to accompany the slides |
+| [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 18 slides, presenter cues and likely questions |
+| [Editable speech notes](presentation/speaker_notes.md) | The same scripts in Markdown, with per-slide timing |
 | [Calculation checks](FINAL_REVIEW.md) | Paper comparison, data checks and independent return reconstruction |
 
 The notebook's filename is retained from the initial draft, but it contains the completed analysis.
@@ -38,6 +39,8 @@ are in `research/engine.py`; the data import and cleaning code are in `crsp_pipe
 
 `build_notebook.py` creates the notebook and `execute_notebook.py` runs its cells. `build_report_pdf.py` creates
 the written report. `presentation/build_pdf.py` creates the slides using `presentation/build_deck.py`.
+`presentation/build_speech_notes.py` creates the rehearsal PDF and editable script; the deck builder
+also embeds the scripts in the PPTX notes. Allow approximately 15-18 minutes for the speech, plus questions.
 
 ## Open the saved analysis
 
@@ -56,6 +59,7 @@ python build_notebook.py
 python execute_notebook.py
 python build_report_pdf.py
 python presentation/build_pdf.py
+python presentation/build_speech_notes.py
 ```
 
 `requirements-lock.txt` records the tested versions. Some packages are Windows-specific; use
@@ -64,7 +68,7 @@ python presentation/build_pdf.py
 ## Rebuild from the private data package
 
 The private course ZIP is `output/submission/MTH9897_Conservative_Formula_Final.zip`. It contains the raw parquet
-inputs, normalized inputs, code, notebook, both PDFs and results. After extracting it, run from `Final/`:
+inputs, normalized inputs, code, notebook, report, slide and speech-note PDFs, and results. After extracting it, run from `Final/`:
 
 ```bash
 python -m pip install -r requirements.txt
@@ -74,6 +78,7 @@ python build_notebook.py
 python execute_notebook.py
 python build_report_pdf.py
 python presentation/build_pdf.py
+python presentation/build_speech_notes.py
 python -m pytest tests -q
 python package_submission.py
 ```

@@ -13,7 +13,20 @@ The slides use the same tables and figures as the notebook. Numbers are read thr
 and the result loader; the linear-optimization chart is drawn from its saved grid table.
 
 The presentation covers the original rule, payout and industry positioning, costs, diagnostics and
-alternative portfolio rules. The speaker notes explain the results and the limits of the comparisons.
+alternative portfolio rules. The speaker notes are full read-aloud scripts for all 18 slides, with
+presenter cues, transitions, per-slide timing and six likely questions with suggested answers.
+The script is about 2,000 words; allow 15-18 minutes with short pauses. An optional presenter split
+assigns slides 1-9 to Yingni and slides 10-18 to Yikai.
+
+The same scripts are embedded in the editable PPTX notes. A separate rehearsal PDF is saved as
+`output/pdf/conservative_formula_speech_notes.pdf`. Regenerate it and the Markdown script with:
+
+```bash
+python presentation/build_speech_notes.py
+```
+
+`speech_notes.py` holds the speaking text and reads figures from the saved results. Edit that source
+and rebuild the notes and deck when changing the script.
 
 `build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
 searchable text and tables. No LibreOffice installation is required. The PPTX is
