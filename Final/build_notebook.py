@@ -1,4 +1,4 @@
-"""Build the report notebook: a critical replication of the Conservative Formula on CRSP, 1929-2024.
+"""Build the Conservative Formula course notebook from saved research results.
 
 Project authors: Yingni Chang and Yikai Shen.
 
@@ -25,16 +25,17 @@ def code(s):
 
 
 md(r'''
-# The Conservative Formula: A Critical Replication on CRSP, 1929–2024
+# Replicating the Conservative Formula with CRSP Data
 **MTH 9897 Systematic Trading · Project 8 · Final report**
 **Authors:** Yingni Chang and Yikai Shen
 
-**Paper:** David Blitz and Pim van Vliet (2018), "The Conservative Formula: Quantitative Investing Made Easy",
-*The Journal of Portfolio Management* 44(7); working paper [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
+**Reference:** David Blitz and Pim van Vliet (2018), "The Conservative Formula: Quantitative Investing Made Easy",
+*The Journal of Portfolio Management* 44(7); [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
 
-This report replicates the paper's US results on CRSP over its own sample, 1929–2016, and then asks three questions
-that were fixed before any post-2016 return was computed: is the formula's return explained by known factors, has
-its performance decayed, and how much of it survives realistic trading costs? The headline period is 1990–2024.
+We implement the paper's US strategy over 1929–2016 and extend the backtest through 2024. We compare our results
+with the paper, examine the contribution of dividends and share repurchases, and check how industry weights affect
+performance. We also study trading costs and several alternative portfolio constructions. For the recent-period
+analysis, we focus on 1990–2024.
 ''')
 
 code(r'''
@@ -104,40 +105,36 @@ code(r'''
 if empirical():
     h = "1990–2024|net30"
     say(f"""### Abstract
-On CRSP over the paper's sample (1929–2016), our Conservative portfolio earns {pct(N['rep_cons_compounded'])} a year
-compounded, gross of costs, with {pct(N['rep_cons_volatility'])} volatility (the paper reports {pct(N['paper_cons_compounded'])} and
-{pct(N['paper_cons_volatility'])}); the CRSP value-weighted market earns {pct(N['rep_mkt_compounded'])}. The return is largely a bundle of
-known premia: the Carhart alpha of the long-short contrast (Conservative minus Speculative) is {pct(N['att_cms_carhart_alpha'])}
-against the paper's {pct(N['t2_a_carhart_paper'])}, and over 1963–2016 the Conservative portfolio's alpha on the five Fama–French factors
-plus momentum is {pct(N['att_cons_ff5umd_alpha'], 2)} (NW t {num(N['att_cons_ff5umd_t'])}).
-Performance has decayed: the Carhart alpha falls from {pct(N['ct_alpha|1929–1962|gross'])} (1929–1962) to {pct(N['ct_alpha|1990–2016|gross'])}
-(1990–2016) and {pct(N['ct_alpha|2017–2024|gross'])} (2017–2024, only {N['ct_months|2017–2024']} months). In the headline period 1990–2024,
-net of 30 bps per dollar traded, the excess return over the market is {pct(N['ct_excess|' + h])} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}
-and the Carhart alpha {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the alpha's break-even cost is
-{N['be_alpha|1990–2024']:.0f} bps. The evidence therefore does not show that the formula beats the market on recent data once known
-factors and costs are taken into account; it is an inexpensive way to hold the low-volatility, momentum and payout premia.""")
+Our replication earns {pct(N['rep_cons_compounded'], 2)} compounded annually before costs over 1929–2016, with
+{pct(N['rep_cons_volatility'], 2)} volatility. The paper reports {pct(N['paper_cons_compounded'])} and
+{pct(N['paper_cons_volatility'])}. Return and risk are close, although our turnover is higher. Using net payout
+also produces a different portfolio from using dividends alone, making the adjusted share-count term important.
+
+Recent results are less convincing. Over 1990–2024, at 30 bps per dollar traded, annual excess return over the market
+is {pct(N['ct_excess|' + h], 2)} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}, and annual Carhart alpha is
+{pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}. Both intervals include zero.
+We reproduce much of the paper's historical result, but do not establish reliable recent outperformance after
+trading costs and factor adjustment.""")
 ''')
 
 md(r'''
-## 1. Question, paper and test design
-The paper proposes a simple rule: among the 1,000 largest US stocks, keep the half with the lowest 36-month
-volatility, rank them on 12-1 momentum and net payout yield (NPY), and hold the best 100 equally weighted, rebalanced
-quarterly. It reports a high return with low risk over 1929–2016 and a large alpha for the contrast between this
-"Conservative" portfolio and its "Speculative" mirror image.
+## 1. What we test
+The Conservative Formula is straightforward: start with the 1,000 largest eligible US stocks, keep the half with
+the lowest 36-month volatility, and rank them on 12-1 price momentum and net payout yield. The best 100 are equally
+weighted and rebalanced quarterly. The paper also forms a Speculative portfolio from high-volatility stocks with
+weak momentum and payout scores.
 
-A replication alone cannot say whether the rule still works. The report therefore treats the 1929–2016 replication as
-a benchmark and then answers three questions, whose tests and periods were fixed before any 2017–2024 return was
-computed:
-1. **Known factors.** Is the return explained by the Carhart four factors (primary) or the five Fama–French factors
-   plus momentum (robustness)? CAPM alphas are shown only for comparison with the paper.
-2. **Decay.** Every headline statistic is reported for 1929–1962, 1963–1989, 1990–2016 and 2017–2024, together with
-   rolling 120-month windows. The headline period is **1990–2024**; 2017–2024 is post-sample and short.
-3. **Costs.** Net returns at 10 and 30 bps per dollar traded, and the break-even cost at which the excess return or
-   the alpha disappears.
-In the critical tests, compounded and arithmetic returns, volatilities and Sharpe ratios carry 12-month block-bootstrap
-95% intervals, and excess returns and alphas Newey–West (12 lags) 95% intervals; maximum drawdown is a path statistic
-and is reported without an interval. Elsewhere the report gives Newey–West t-statistics, and intervals where it states
-them. The course diagnostics, portfolio-construction extensions and one declared improvement follow; each is labeled as an extension and leaves the baseline unchanged.
+We first compare the published results with our implementation. We then examine factor exposure, changes over time
+and trading costs. The comparison periods are 1929–1962, 1963–1989, 1990–2016 and 2017–2024, with 1990–2024 as the
+main recent sample. We fixed these periods and the primary tests before computing the post-2016 portfolio returns.
+The later construction experiments are discussed separately, including whether their choices were made after
+seeing results.
+
+Carhart four-factor alpha is our main factor-adjusted measure; FF5 plus momentum is a robustness check from July
+1963. We report returns at 10 and 30 bps per dollar traded and the cost at which excess return or alpha reaches zero.
+For compounded and arithmetic returns, volatility and Sharpe ratios, we use 12-month block-bootstrap 95% intervals.
+Excess returns and regression alphas use Newey–West intervals with 12 lags. Maximum drawdown is a path statistic,
+so we report it without an interval.
 ''')
 
 md(r'''
@@ -191,16 +188,18 @@ WRDS exposes no release identifier, so the extract is identified by its time sta
 ''')
 
 md(r'''
-## 3. Baseline rule and deviations from the paper
-At each quarter end the engine applies the paper's order: the history screen, then the 1,000 largest by market cap,
-then the low-volatility half (⌊N/2⌋ names), and only then the momentum and NPY ranks among pool members with both
-signals; the best 100 by average rank are held equally weighted. Weights drift with returns between rebalances; a
-delisted holding earns its delisting return and becomes cash until the next rebalance. Costs are a proportional charge
-per dollar traded against the drifted weights. The Speculative portfolio takes the high-volatility half and the 100
-weakest combined scores; the standalone controls hold the 100 best names on a single signal; "Small" holds the 100
-smallest members of the universe. The paper's Value control (book-to-market) is excluded because the CRSP-only extract
-has no book equity, and Table 2's panels C and D are excluded because the q-factors and the AQR QMJ and BAB factors are
-not in our sources.
+## 3. Portfolio rules and implementation choices
+At each quarter-end, we apply the 36-month history requirement before choosing the largest 1,000 stocks. We retain
+the low-volatility half, require complete momentum and payout signals, and average their favorable ranks. The best
+100 receive equal weights. Weights then drift with returns until the next rebalance. A terminal holding earns its
+delisting return and becomes cash, which earns the risk-free rate until reinvestment.
+
+The Speculative portfolio uses the high-volatility half and the weakest combined scores. The single-signal controls
+hold the best 100 on each signal; Small holds the 100 smallest universe members. We cannot build the Value control
+without book equity, or reproduce Table 2 panels C and D without the q, QMJ and BAB factors.
+
+We charge costs on changes from the drifted weights. The table below records the choices that may differ from the
+authors' implementation, particularly share-class selection, the capitalization measure and dividend estimation.
 ''')
 
 code(r'''
@@ -228,18 +227,18 @@ if empirical():
     display(Markdown("**Table 1, paper / ours (gross, 1929–2016)**"))
     display(t1.pivot(index="row", columns="column", values="cell").loc[t1["row"].unique(),
             ["Formula", "Market", "Small", "Value", "Momentum", "Lowvol", "NPY"]])
-    say(f"""The replication is close on return and risk: Conservative compounds at {pct(N['rep_cons_compounded'], 2)} with
+    say(f"""Our return and volatility are close to the published values: Conservative compounds at {pct(N['rep_cons_compounded'], 2)} with
 {pct(N['rep_cons_volatility'], 2)} volatility (paper {pct(N['paper_cons_compounded'])}, {pct(N['paper_cons_volatility'])}), and the market at
 {pct(N['rep_mkt_compounded'], 2)} with {pct(N['rep_mkt_volatility'], 2)} ({pct(N['paper_mkt_compounded'])}, {pct(N['paper_mkt_volatility'])}).
 The Speculative portfolio compounds at only {pct(N['rep_spec_compounded'], 2)} with {pct(N['rep_spec_volatility'])} volatility.
 Conservative beats the market in {N['decades_cons_beats_mkt']} of {N['decades_n']} decade buckets (partial decades labeled).
 The largest gap is Small's simple return ({pct(N['t1_small_simple'])} against {pct(N['paper_small_simple'])}); its compounded return
-is within one percentage point. Candidate explanations and unresolved gaps above the declared thresholds are listed below.""")
+is within one percentage point. The table below lists the larger gaps. Share-class choices, capitalization and dividend estimation may contribute, but their individual effects are unresolved.""")
     figure("replication", "fig3.png")
     figure("replication", "fig4.png")
     gaps = R("paper_targets", "gaps.csv")
-    display(Markdown("**Gaps above 1 pp (returns, alphas) or 5 pp (turnover), with explanations**"))
-    display(table(gaps[["table", "item", "paper", "ours", "difference", "explanation"]], pcts=["paper", "ours", "difference"]))
+    display(Markdown("**Larger differences: over 1 percentage point for returns/alphas or 5 points for turnover**"))
+    display(table(gaps[["table", "item", "paper", "ours", "difference"]], pcts=["paper", "ours", "difference"]))
 ''')
 
 md(r'''
@@ -261,14 +260,14 @@ if empirical():
     for c in ["paper", "ours"]:
         show[c] = np.where(alpha, show[c].map(lambda x: "" if pd.isna(x) else pct(x, 2)), show[c].map(lambda x: "" if pd.isna(x) else num(x)))
     display(table(show, nums=["paper_t", "ours_t_ols", "ours_t_nw"]).fillna(""))
-    say(f"""Over 1963–2016 (panel B, N = {N['t2_b_capm_n']}) the CMS alphas reproduce the paper almost exactly: CAPM
+    say(f"""Over 1963–2016 (panel B, N = {N['t2_b_capm_n']}) the CMS alphas are fairly close to the paper: CAPM
 {pct(N['t2_b_capm_ours'], 2)} against {pct(N['t2_b_capm_paper'])}, FF3 {pct(N['t2_b_ff3_ours'], 2)} against {pct(N['t2_b_ff3_paper'])},
 FF5 {pct(N['t2_b_ff5_ours'], 2)} against {pct(N['t2_b_ff5_paper'])} and FF5 plus momentum {pct(N['t2_b_ff5mom_ours'], 2)} against
 {pct(N['t2_b_ff5mom_paper'])}. Over 1929–2016 (panel A) our CAPM and Carhart alphas, {pct(N['t2_a_capm_ours'], 2)} and
-{pct(N['t2_a_carhart_ours'], 2)}, are below the paper's {pct(N['t2_a_capm_paper'])} and {pct(N['t2_a_carhart_paper'])}, so the gap sits in the
-pre-1963 period, where our universe is smaller. For the long-only Conservative portfolio the Carhart alpha is
+{pct(N['t2_a_carhart_ours'], 2)}, are below the paper's {pct(N['t2_a_capm_paper'])} and {pct(N['t2_a_carhart_paper'])}, The differing samples point to the early data as an area to investigate,
+but do not establish the cause. For the long-only Conservative portfolio the Carhart alpha is
 {pct(N['att_cons_carhart_alpha'], 2)} (NW t {num(N['att_cons_carhart_t'])}), and over 1963–2016 the five factors plus momentum leave
-{pct(N['att_cons_ff5umd_alpha'], 2)} (t {num(N['att_cons_ff5umd_t'])}): profitability and investment explain the rest. Net of 30 bps
+{pct(N['att_cons_ff5umd_alpha'], 2)} (t {num(N['att_cons_ff5umd_t'])}): adding profitability and investment greatly reduces estimated alpha. Net of 30 bps
 with both legs paying, the CMS Carhart alpha is {pct(N['att_cms_carhart_net30_alpha'], 2)} (t {num(N['att_cms_carhart_net30_t'])}).""")
     t4 = R("paper_targets", "table4_vs_paper.csv")
     display(Markdown("**Table 4, costs = turnover × 8 × cost per dollar (paper; ours on compounded and arithmetic gross bases)**"))
@@ -285,12 +284,14 @@ small: net of 30 bps Conservative compounds at {pct(N['rep_cons_net30_compounded
 ''')
 
 md(r'''
-## 6. Critical tests: known factors, decay and costs, 1929–2024
-The rules and periods below were fixed before any 2017–2024 return was computed; the time stamp of the first load of
-post-2016 data is printed from the run record. The 1929–2016 part of the extended run is bit-identical to the
-replication. Excess returns over the market and alphas are arithmetic annual figures with Newey–West (12 lags) 95%
-intervals; compounded returns, volatilities and Sharpe ratios carry 12-month block-bootstrap 95% intervals (5,000
-draws). Maximum drawdown is a path statistic and has no interval.
+## 6. Factors, costs and changes over time
+We use the same Conservative holdings for gross and net returns so that the cost comparison does not mix trading
+costs with a different stock-selection rule. The table reports returns, volatility, Sharpe ratios, drawdowns and
+factor-adjusted results by period. Carhart uses the market, size, value and momentum factors. FF5 plus momentum
+is available only from July 1963.
+
+The rolling plots help show when performance changes, but the windows overlap heavily. We use the fixed-period
+estimates for the main comparisons and report their confidence intervals alongside the point estimates.
 ''')
 
 code(r'''
@@ -321,52 +322,50 @@ if empirical():
     display(be.pivot(index="period", columns="measure", values="break-even (bps per dollar traded)").assign(
         one_way_turnover_per_quarter=be.groupby("period")["one_way_turnover_per_quarter"].first().map(pct)))
     h, g = "1990–2024|net30", "1990–2024|gross"
-    say(f"""**Headline, 1990–2024.** Gross of costs, Conservative's excess return over the market is {pct(N['ct_excess|' + g], 2)}
-{ci(N['ct_excess_lo|' + g], N['ct_excess_hi|' + g])} and its Carhart alpha {pct(N['ct_alpha|' + g], 2)} (t {num(N['ct_alpha_t|' + g])})
-{ci(N['ct_alpha_lo|' + g], N['ct_alpha_hi|' + g])}. Net of 30 bps the excess return is {pct(N['ct_excess|' + h], 2)}
-{ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])} and the alpha {pct(N['ct_alpha|' + h], 2)} (t {num(N['ct_alpha_t|' + h])})
-{ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the five factors plus momentum give {pct(N['ct_ff5_alpha|' + h], 2)}
-(t {num(N['ct_ff5_t|' + h])}) {ci(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h], 2)}, which is
-{S.significance(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h])}. The break-even cost is {N['be_excess|1990–2024']:.0f} bps for the
-excess return and {N['be_alpha|1990–2024']:.0f} bps for the alpha, at {pct(N['be_turnover|1990–2024'])} one-way turnover a quarter.
-Conservative still compounded at {pct(N['ct_comp|' + g])} {ci(N['ct_comp_lo|' + g], N['ct_comp_hi|' + g])} gross
-({pct(N['ct_comp|' + h])} {ci(N['ct_comp_lo|' + h], N['ct_comp_hi|' + h])} net of 30 bps) with {pct(N['ct_vol|' + g])}
-{ci(N['ct_vol_lo|' + g], N['ct_vol_hi|' + g])} volatility, against the market's {pct(N['ct_mkt_compounded|1990–2024'])}
-{ci(N['ct_mkt_comp_lo|1990–2024'], N['ct_mkt_comp_hi|1990–2024'])} and {pct(N['ct_mkt_vol|1990–2024'])}
-{ci(N['ct_mkt_vol_lo|1990–2024'], N['ct_mkt_vol_hi|1990–2024'])}; its Sharpe ratio is {num(N['ct_sharpe|' + g])}
-{ci_num(N['ct_sharpe_lo|' + g], N['ct_sharpe_hi|' + g])} gross (paper definition; {num(N['ct_sharpe_x|' + g])}
-{ci_num(N['ct_sharpe_x_lo|' + g], N['ct_sharpe_x_hi|' + g])} over the T-bill). The edge is mainly lower risk, not higher return.
-The cost-inclusive CMS keeps a Carhart alpha of {pct(N['ct_cms_net30_alpha|1990–2024'], 2)} (t {num(N['ct_cms_net30_t|1990–2024'])})
-{ci(N['ct_cms_net30_lo|1990–2024'], N['ct_cms_net30_hi|1990–2024'])}.
+    say(f"""**Results for 1990–2024.** Gross annual compound return is {pct(N['ct_comp|' + g])}
+{ci(N['ct_comp_lo|' + g], N['ct_comp_hi|' + g])}, with volatility of {pct(N['ct_vol|' + g])}
+{ci(N['ct_vol_lo|' + g], N['ct_vol_hi|' + g])}. The market compounds at {pct(N['ct_mkt_compounded|1990–2024'])} with
+{pct(N['ct_mkt_vol|1990–2024'])} volatility. At 30 bps, the strategy's CAGR falls to {pct(N['ct_comp|' + h])}
+{ci(N['ct_comp_lo|' + h], N['ct_comp_hi|' + h])}.
 
-**Decay.** The gross Carhart alpha is {pct(N['ct_alpha|1929–1962|gross'], 2)} (t {num(N['ct_alpha_t|1929–1962|gross'])}) in 1929–1962,
-{pct(N['ct_alpha|1963–1989|gross'], 2)} (t {num(N['ct_alpha_t|1963–1989|gross'])}) in 1963–1989, {pct(N['ct_alpha|1990–2016|gross'], 2)}
-(t {num(N['ct_alpha_t|1990–2016|gross'])}) in 1990–2016 and {pct(N['ct_alpha|2017–2024|gross'], 2)} (t {num(N['ct_alpha_t|2017–2024|gross'])})
-in 2017–2024. **The 2017–2024 period has only {N['ct_months|2017–2024']} months:** its interval
-{ci(N['ct_alpha_lo|2017–2024|gross'], N['ct_alpha_hi|2017–2024|gross'])} includes sizable positive values, so it shows no evidence of
-outperformance rather than proof of failure. Early-period break-even costs are high, but so were the actual trading costs of that era,
-which were well above 30 bps.""")
+Net annual excess return is {pct(N['ct_excess|' + h], 2)} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}.
+Carhart alpha is {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}, while FF5 plus momentum gives
+{pct(N['ct_ff5_alpha|' + h], 2)} {ci(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h], 2)}, which is
+{S.significance(N['ct_ff5_alpha_lo|' + h], N['ct_ff5_alpha_hi|' + h])}. The Carhart interval includes zero.
+Its break-even cost is {N['be_alpha|1990–2024']:.0f} bps per dollar traded, compared with
+{N['be_excess|1990–2024']:.0f} bps for excess return. Lower volatility is the more consistent benefit in this period.
+
+The CMS contrast still has net Carhart alpha of {pct(N['ct_cms_net30_alpha|1990–2024'], 2)}
+{ci(N['ct_cms_net30_lo|1990–2024'], N['ct_cms_net30_hi|1990–2024'])}. This is a different question from whether the
+long-only portfolio beats the market: the contrast includes shorting the Speculative portfolio.
+
+The fixed-period table and rolling plots show weaker alpha in recent data. For 2017–2024, gross Carhart alpha is
+{pct(N['ct_alpha|2017–2024|gross'], 2)} {ci(N['ct_alpha_lo|2017–2024|gross'], N['ct_alpha_hi|2017–2024|gross'])}.
+There are only {N['ct_months|2017–2024']} months in that sample, so the wide interval leaves substantial uncertainty.
+Flat 10/30-bps costs also do not capture the higher friction that early historical trading may have involved.""")
 ''')
 
 md(r'''
-## 6b. The professor's payout and sector checks
-The paper's page 4 explicitly compares scores across sectors. Its baseline is retained, while the professor's
-sector-by-sector recommendation is tested separately: allocate 100 equal-weight slots across FF12 industries
-in proportion to their security counts in the largest-1,000 universe, round by largest remainder, then apply
-the low-volatility screen and momentum/NPY ranking within each industry. This exploratory variant was added
-in the final review; it changes the paper's global screen and has no unseen validation sample.
+## 6b. Dividends, repurchases and industry weights
+The assignment specifically warns about two sources of noisy results: omitting share repurchases from payout and
+ignoring sector positioning. We examine both.
 
-NPY is **dividend yield + 1 − current split-adjusted shares / trailing 24-month average adjusted shares**.
-Repurchases raise the signal; issuance lowers it. The share-count term is a net repurchase proxy rather than
-the dollar value of buybacks. A dividends-only counterfactual uses the same universe, low-volatility pool,
-signal-completeness rule, momentum signal, weights, rebalance dates, and trading costs.
+Net payout yield is **dividend yield + 1 − current adjusted shares / trailing 24-month average adjusted shares**.
+Repurchases raise the signal and issuance lowers it. We adjust shares for splits so that a split does not look like
+a buyback. The share-count term is a net repurchase proxy, rather than a measure of buyback cash spending. To see
+what it adds, we compare the formula with a dividends-only version while keeping the universe, low-volatility pool,
+signal-completeness rule, momentum, weights, dates and costs the same.
 
-To measure sector positioning explicitly, compare the baseline with a cap-weighted reference made from the
-same formation universe. Freeze industry labels and constituents for each quarter, let weights drift, and
-move delisted holdings to cash. Each month's baseline-minus-market return is exactly the sum of:
-(1) industry allocation, (2) selection within industries, and (3) the fixed-universe reference minus CRSP VW.
-Selection includes the usual allocation/selection interaction. Contributions below are annualized arithmetic
-means; they are not compounded returns or causal estimates. The reference differs from the CRSP market.
+For industry positioning, we compare the portfolio with a cap-weighted reference drawn from the same formation
+universe. Each quarter's constituents and industry labels stay fixed while weights drift. Monthly excess return
+over CRSP VW is split into industry allocation, selection within industries, and the reference-universe return
+minus CRSP VW. Selection includes the allocation/selection interaction. The reported contributions are arithmetic
+annual averages, so they should not be read as contributions to CAGR or as causal estimates.
+
+We also test the professor's sector-by-sector approach: allocate 100 slots across FF12 industries in proportion to
+universe stock counts, round to whole stocks, and apply the volatility screen and momentum/payout ranking within
+each industry. This changes the paper's global screen. We added it after seeing the original results, so it is an
+exploratory comparison, without an unseen validation sample.
 ''')
 
 code(r'''
@@ -402,19 +401,22 @@ if empirical():
 ''')
 
 md(r'''
-## 7. Signal diagnostics
-These diagnostics study the three signals, not the paper's two-stage selection. Each signal is computed in the monthly
-universe, demeaned within Fama–French 12 industries, standardized by its cross-sectional standard deviation and clipped
-to ±3; the composite is the equal-weight mean of the three neutralized exposures. (The composite factor-mimicking
-portfolio below is a different object: the sum of the three unit-exposure signal portfolios, which has unit exposure to
-each signal.) Forward returns are industry-adjusted and include delisting returns. The
-information coefficient (IC) is the rank correlation of exposure and forward return; "mean/sd" is the literal ratio,
-reported apart from the Newey–West t-statistic (lags h − 1 + 12). Factor-mimicking portfolios come from monthly
-cross-sectional weighted least squares on the exposures, size, industry dummies and stock-level FF3 loadings.
-The FF3 controls were added in the final review: each stock's market, SMB and HML betas use a trailing 36-month
-regression ending at formation, with a minimum of 24 factor-covered observations (30 in the first formation).
-This uses historical factor exposures in the cross-sectional model, rather than treating realized future
-factor returns as exposures. These are gross, levered paper portfolios, not investable as they stand.
+## 7. Looking at the signals separately
+Here we study each signal rather than the paper's stock-selection screen. Within the monthly universe, we subtract
+each FF12 industry's mean exposure, divide by the cross-sectional standard deviation of the demeaned values, and
+clip at ±3. The composite is the equal-weight mean of the three neutralized exposures. Forward returns include
+delistings and are adjusted by the equal-weight return of the formation industry cohort. Diagnostic cash after
+an exit earns zero; cash in the traded baseline earns RF.
+
+IC is the Spearman rank correlation between exposure and future industry-adjusted return. We show its mean,
+variance, moving estimates and decay. The mean/sd ratio is distinct from the Newey–West t-statistic, whose lag
+choice is h − 1 + 12. Deciles show whether a positive rank correlation also translates into a useful return spread.
+
+For factor-mimicking portfolios, we use monthly WLS with the signal exposures, size, industry dummies and historical
+stock-level FF3 betas. These betas were added after the baseline analysis; they use up to 36 completed monthly
+returns, with at least 24 factor-covered months (30 at the first formation). The factor portfolio is the sum of
+three unit-exposure signal portfolios, a different object from the mean exposure used to rank stocks. Its results
+are gross and can involve substantial leverage.
 ''')
 
 code(r'''
@@ -465,26 +467,24 @@ K = 1 information ratio is {num(N['fmp_ir_2017_K1'])}.""")
 ''')
 
 md(r'''
-## 8. Portfolio construction
-**Decile long/short.** Each month a cohort goes long the top composite decile and short the bottom decile, equally
-weighted, each leg 1/n of capital, and is held n months (n ∈ {1, 3, 6, 12}); collateral earns the risk-free rate, and
-shorts pay a borrow fee of 2–25 bps a month by size decile. Every trade is recorded in a ledger that reconciles to the
-turnover and the profit and loss. The pre-specified buy-and-hold cohorts are ruined in the 1932–33 rally of
-low-quality stocks, when short positions grew to several times capital; cohorts re-weighted to 1/n each month
-(the Jegadeesh–Titman form) are therefore the primary convention, **a choice made after the ruin was observed**.
-Capacity is the assets under management expressed at 2024 market size at which the 95th percentile of a position's share of its
-stock's monthly dollar volume reaches 10%; there is no price-impact model. Historical AUM is scaled by
-CRSP aggregate market capitalization relative to December 2024. This is a market-size normalization,
-not a CPI adjustment or an estimate of inflation-adjusted purchasing power.
+## 8. Long/short portfolios and linear optimization
+**Long/short portfolios.** We form a new monthly cohort that buys the top composite decile and sells the bottom
+decile. Each leg receives 1/n of capital and is held for n months, with n = 1, 3, 6 or 12. Collateral earns RF and
+shorts pay a size-dependent monthly borrow fee of 2–25 bps. Trade ledgers reconcile positions, turnover and P&L.
+The original buy-and-hold cohorts lose all capital for n ≥ 3 in the early sample. We then test monthly reweighting
+of the surviving cohort names, following the Jegadeesh–Titman form. This alternative was chosen after observing
+the losses; we retain both sets of results.
 
-**Linear optimization.** Each quarter a linear program maximizes the composite exposure minus trading costs, long
-only with a 2% cap per stock, subject to industry bands of ±δ around the universe's cap-weight industry mix and a
-two-way turnover budget τ; costs rise for small and volatile stocks. The grid crosses δ ∈ {2%, 5%, none},
-τ ∈ {20%, 40%, 80%, none} and two cost levels, so selecting its best cell is itself a selection exercise; the whole
-grid is shown. A variant that scales the alpha into return units (information coefficient × volatility × exposure)
-was added after the grid was specified and is shown separately as a sensitivity. Its annual volatility is
-converted to a three-month estimate with √(3/12), correcting a units error found during the final review.
-The quadratic extension below uses an estimated covariance model and is also exploratory.
+Capacity is the AUM at which the 95th percentile of a position's share of monthly dollar volume reaches 10%.
+Historical AUM is scaled to December 2024 market size using CRSP aggregate capitalization. This is not a CPI
+adjustment. Monthly volume also cannot tell us the market impact or borrow availability of actual trades.
+
+**Linear optimization.** Quarterly targets maximize composite exposure minus trading costs. We impose long-only
+weights, a 2% stock cap, industry bands of ±δ around universe cap weights, and a two-way turnover budget τ.
+The grid uses δ = 2%, 5% or none; τ = 20%, 40%, 80% or none; and two cost levels. Costs increase for smaller and
+more volatile stocks. We show the full grid because selecting the best cell would overstate the evidence.
+A later sensitivity converts exposure into return units using trailing IC and volatility. Since volatility is
+annualized, the three-month conversion uses √(3/12). The quadratic model in the next section adds covariance.
 ''')
 
 code(r'''
@@ -546,7 +546,7 @@ highly correlated with the market.""")
 ''')
 
 md(r'''
-## 8b. Quadratic mean-variance optimization
+## 8b. Adding portfolio risk to the optimizer
 This final-review extension maximizes **αᵀw − (γ/2)wᵀΣw − cᵀ|w − w_previous|**. Expected three-month
 residual returns use the composite exposure × annual volatility × √(3/12) × trailing mean three-month IC.
 Only IC horizons already completed at formation enter that trailing mean; before 12 completed observations,
@@ -554,8 +554,7 @@ alpha is zero and the optimizer minimizes risk plus trading costs.
 
 The covariance matrix uses the most recent 36 monthly total returns ending at formation, with 50% shrinkage
 toward its diagonal; multiply by three for a three-month covariance under an explicit no-autocorrelation
-approximation. This positive semidefinite estimate makes the optimization genuinely quadratic, rather than
-another linear score ranking. The two fixed risk-aversion values are γ = 5 and 20. We impose a 2% security cap,
+approximation. This positive semidefinite estimate makes the optimization quadratic through the portfolio variance term. The two fixed risk-aversion values are γ = 5 and 20. We impose a 2% security cap,
 FF12 industry bands of ±5 percentage points around the universe's cap weights, and a 40% two-way quarterly
 turnover budget after the initial investment. Costs start at 30bps per dollar traded and scale with size and
 volatility. If constraints are infeasible, the same disclosed minimum-turnover and industry-bound relaxation
@@ -588,15 +587,16 @@ if empirical():
 ''')
 
 md(r'''
-## 9. Declared improvement: a rank buffer
-One improvement was declared, with its parameter and success criterion, before any variant result existed. The
-binding constraint in the critical tests is cost, so the rule targets turnover: at each rebalance a current holding is
-kept if it is still in the low-volatility pool and ranks within the best **150** by combined score; the remaining
-slots are filled with the best-ranked other names, equally weighted. No other buffer size was run. The primary metric
-is the paired monthly difference (buffer − baseline) in returns net of 30 bps over 1990–2024, with a Newey–West
-interval; the rule is called a success if one-way turnover falls by at least 25% **and** the paired difference is
-positive, without requiring statistical significance. The 2017–2018 and 2019–2024 rows use data already seen in the
-critical tests and are **not a holdout**.
+## 9. Keeping a rank buffer to reduce trading
+A holding does not necessarily need to be sold as soon as its rank slips below 100. We test keeping it while it
+remains in the low-volatility pool and among the best **150** combined ranks, then filling vacancies with the best
+remaining names. We fixed 150 before testing this variant and did not compare other buffer sizes.
+
+We compare monthly buffer-minus-baseline returns over 1990–2024 at 30 bps, using a Newey–West interval. The original
+success criterion was at least 25% less one-way turnover and a positive net-return difference; it did not require
+statistical significance. We show the confidence interval as well, since passing that criterion alone is weak
+evidence of better expected returns. The 2017–2018 and 2019–2024 comparisons use data already seen in the earlier
+analysis and are not a holdout.
 ''')
 
 code(r'''
@@ -613,12 +613,14 @@ if empirical():
     display(table(tc[["strategy", "period", "turnover_one_way_per_quarter", "mean_holding_quarters", "hhi_ff12", "max_industry_weight"]],
                   pcts=["turnover_one_way_per_quarter", "max_industry_weight"], nums=["mean_holding_quarters", "hhi_ff12"]).set_index(["period", "strategy"]))
     figure("rank_buffer", "fig_paired_cum.png")
-    say(f"""**Verdict under the declared rule: {N['buf_verdict']}.** Over 1990–2024 one-way quarterly turnover falls from
-{pct(N['buf_turn_base'])} to {pct(N['buf_turn_buf'])} ({pct(N['buf_turn_red'])} lower), and the paired net-of-30-bps difference is
-{pct(N['buf_diff'], 2)} a year {ci(N['buf_lo'], N['buf_hi'], 2)}, so it is not statistically significant; the Carhart alpha of the difference
-is {pct(N['buf_alpha'], 2)} (t {num(N['buf_alpha_t'])}). Gross of costs the difference is {pct(N['buf_gross_diff'], 2)}: the buffer
-is the observed gross-return comparison, not proof that signal quality is unchanged. It recovers part of the cost drag
-but does not change the answer to the critical tests.""")
+    say(f"""Over 1990–2024, one-way quarterly turnover falls from {pct(N['buf_turn_base'])} to {pct(N['buf_turn_buf'])},
+a reduction of {pct(N['buf_turn_red'])}. The net-30-bps paired difference is {pct(N['buf_diff'], 2)} a year
+{ci(N['buf_lo'], N['buf_hi'], 2)}. This meets the original mechanical criterion ({N['buf_verdict']}), but the interval
+includes zero. The Carhart alpha of the difference is {pct(N['buf_alpha'], 2)} (t {num(N['buf_alpha_t'])}).
+
+The gross difference is {pct(N['buf_gross_diff'], 2)}. Lower turnover helps the cost calculation, but the buffer also
+changes holdings, so the net difference cannot be attributed entirely to cost savings. We see it as a useful
+trading modification rather than evidence of a stronger underlying signal.""")
 ''')
 
 md(r'''
@@ -628,43 +630,36 @@ md(r'''
 code(r'''
 if empirical():
     h = "1990–2024|net30"
-    say(f"""**Replication.** On the paper's sample the formula is reproduced closely on return and risk, and the 1963–2016 factor
-attribution of the Conservative-minus-Speculative contrast matches the paper almost exactly; turnover is higher than reported
-({pct(N['rep_turnover'])} against {pct(N['paper_turnover'], 0)} a quarter), which the paper's unstated definition leaves unexplained.
+    say(f"""We obtain {pct(N['rep_cons_compounded'], 2)} annual compound return on the paper's sample, close to the published
+{pct(N['paper_cons_compounded'])}. Volatility is also close. Turnover is the main unresolved implementation gap:
+{pct(N['rep_turnover'])} per quarter versus {pct(N['paper_turnover'], 0)}. The full-sample regression alphas differ too,
+although the post-1963 comparisons are closer.
 
-**Known factors.** The return is largely a bundle of known premia. The long-only portfolio's Carhart alpha over 1929–2016 is
-{pct(N['att_cons_carhart_alpha'], 2)}, and over 1963–2016 the five factors plus momentum leave {pct(N['att_cons_ff5umd_alpha'], 2)}.
+The recent sample is less favorable. At 30 bps over 1990–2024, annual excess return is {pct(N['ct_excess|' + h], 2)}
+{ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}, and annual Carhart alpha is {pct(N['ct_alpha|' + h], 2)}
+{ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}. These estimates do not give us strong evidence of recent
+outperformance. Lower volatility is a more consistent feature of the portfolio than positive factor-adjusted alpha.
 
-**Decay and costs.** Carhart alphas are positive and significant before 1990 and not significant afterwards. In the headline period
-1990–2024, net of 30 bps, the excess return over the market is {pct(N['ct_excess|' + h], 2)} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}
-and the Carhart alpha {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}; the alpha's break-even cost is
-{N['be_alpha|1990–2024']:.0f} bps. **The evidence does not support the claim that the formula beats the market on recent data once known
-factors and realistic costs are taken into account.** It remains a cheap, transparent way to hold the low-volatility, momentum and payout
-premia with lower volatility than the market, and the contrast between low- and high-risk stocks persists more than the long-only edge
-over the market.
-
-**Extensions.** The declared rank buffer cuts turnover and adds {pct(N['buf_diff'], 2)} a year net (not significant); a turnover-budgeted,
-industry-banded optimizer does better than the paper rule over 1990–2024 ({pct(N['opt_alpha_9024_min'], 2)}–{pct(N['opt_alpha_9024_max'], 2)}
-alpha; {N['opt_ci_9024_text']}, unadjusted for the selection from a {N['opt_runs_spec']}-run grid), and its 2017–2024 alphas lie
-between {pct(N['opt_alpha_1724_min'], 2)} and {pct(N['opt_alpha_1724_max'], 2)}. The decile long/short barely
-survives costs and borrow fees.""")
+The payout comparison shows why dividends alone are insufficient for this implementation. Industry attribution
+helps separate the effect of allocation from stock selection, while the sector quota strategy gives a direct
+comparison with the course recommendation. The buffer reduces turnover, but its net gain is not significant.
+Some optimizer settings look better in the recent sample; their intervals are unadjusted for testing a
+{N['opt_runs_spec']}-run grid, and {N['opt_ci_1724_text']} in 2017–2024. The long/short results are particularly weak
+after trading and borrow costs. We would need an unseen sample before treating any of these variants
+as evidence of a better strategy.""")
 ''')
 
 md(r'''
-**Limitations.**
-- *Data release:* WRDS exposes no release identifier; the extract is identified by its time stamp, coverage and file
-  hashes, and later CRSP revisions could change individual returns.
-- *Dividends:* NPY uses dividends implied by the difference between total and price returns, which includes special
-  cash distributions; it agrees with CRSP's ordinary cash distributions in the large majority of stock-months.
-- *Share classes and size:* one class per company and security-level market cap may change membership at the margin
-  of the 1,000-stock universe relative to the paper's unstated choice.
-- *Turnover:* our turnover exceeds the paper's, and the paper does not state its measure.
-- *Selection across grids:* the optimization grid and the long/short n × cost table contain many configurations; their
-  best cells are selected results. The long/short convention and the optimizer's alpha-scaling sensitivity were chosen
-  after results were seen and are labeled so.
-- *Post-sample length:* 2017–2024 covers only eight years, and it was seen before the declared improvement was tested.
-- *Costs:* proportional costs per dollar traded, with no market-impact model; capacity figures rest on stated volume
-  and participation assumptions.
+**What we still cannot resolve.**
+Our turnover is higher than the paper's. Share-class selection, security-level capitalization and inferred dividends
+may affect both rankings and turnover, but we cannot measure their individual effects without the authors' cleaned
+data and exact conventions. WRDS did not provide a release identifier; we retain source receipts and file hashes.
+
+Some delisting returns require imputation, and missing held returns use stale-price or price-ratio conventions.
+The optimization grid contains many configurations. The monthly-reweighted long/short, return-scaled objective
+and quadratic model were considered after results had been seen. Those choices and the short 2017–2024 sample
+limit what we can say about future performance. Our cost and capacity estimates also omit market impact and
+actual borrow availability.
 ''')
 
 md(r'''
@@ -676,6 +671,7 @@ python -m crsp_pipeline.import_web                       # downloaded web archiv
 python -m crsp_pipeline build                            # data/raw -> data/ panel, benchmark, factors, audits
 python -m research.run_all                               # every study -> results/ (aggregates) + results/manifest.json
 python build_notebook.py && python execute_notebook.py   # this notebook, reading results/
+python build_report_pdf.py                              # written PDF report
 python presentation/build_pdf.py                         # PDF slides and speaker notes
 python package_submission.py                             # private ZIP, including licensed data
 ```

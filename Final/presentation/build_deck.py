@@ -106,27 +106,25 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
     d = Deck(root)
     h, g = "1990–2024|net30", "1990–2024|gross"
 
-    d.slide("The Conservative Formula",
+    d.slide('Replicating the Conservative Formula',
             subtitle="Yingni Chang and Yikai Shen · MTH 9897 Project 8 · CRSP replication, 1929–2024",
             bullets=["Paper: Blitz and van Vliet (2018), The Conservative Formula, Journal of Portfolio Management 44(7)",
                      "Replicate the US results on the paper's sample, 1929–2016",
-                     "Then test three questions fixed in advance: known factors, decay, costs",
-                     "Headline period: 1990–2024 (2017–2024 is post-sample)"],
-            notes="The replication is the benchmark, not the conclusion. The three questions and their periods were fixed "
-                  f"before any 2017–2024 return was computed; the first load of those data is time-stamped {N['freeze_utc']}.")
+                     "Then examine factor exposure, later periods and trading costs",
+                     "Main recent comparison: 1990–2024; the paper ends in 2016"],
+            notes="We use monthly CRSP data to implement the paper's rule, then extend the backtest through 2024. The first comparison uses the paper's own sample. The later analysis asks whether the return survives factor adjustment and trading costs.")
 
-    d.slide("The question",
+    d.slide('What we test',
             bullets=["The rule: 1,000 largest US stocks → low-volatility half → rank on 12-1 momentum and net payout yield → best 100, equal weight, quarterly",
                      "1. Known factors: is the return explained by Carhart (primary) or FF5 + momentum (robustness)?",
                      "2. Decay: fixed periods 1929–1962, 1963–1989, 1990–2016, 2017–2024, plus rolling 120-month windows",
                      "3. Costs: net of 10 and 30 bps per dollar traded; break-even cost of the excess return and the alpha",
                      "All estimates with Newey–West (12 lags) or block-bootstrap intervals"],
-            notes="CAPM alphas are shown only for comparison with the paper. A positive average return is not treated as "
-                  "evidence unless its interval excludes zero.")
+            notes='We compare the published return and risk first. Then we examine known factors, changes across periods and trading costs. These comparisons were fixed before computing the post-2016 portfolio returns. The additional variants are separate experiments.')
 
     ex = L("data_audit", "extract_summary.json")
     s = ex["sample"]
-    d.slide("Data and audits",
+    d.slide('The data',
             bullets=[f"CRSP monthly stock file via WRDS, extracted {ex['extracted_at_utc'][:10]}; months {ex['start'][:7]} to {ex['end'][:7]}",
                      f"{s['panel_rows']:,} security-months, {s['securities']:,} securities, {s['terminal_rows']:,} delistings "
                      f"({s['delist_sources']['imputed_shumway']} imputed, {s['delist_sources']['missing_set_zero']} set to zero)",
@@ -134,34 +132,31 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      "One share class per company; dividends implied from total minus price return",
                      "Held stocks without a monthly return: stale-price carry or in-gap price ratio, every case counted",
                      "No release identifier on WRDS: the extract is identified by time stamp and file hashes"],
-            notes="All audit tables (coverage, exclusions, missing returns, delistings, dividends, benchmark) are in the "
-                  "notebook's data section; no security-level row appears in the report.")
+            notes='The data work matters here. We retain delisted stocks, use historical company and exchange information, and separate missing signal inputs from returns on already-held positions. The early universe is much smaller than 1,000 names.')
 
     dev = L("replication", "deviations.csv").set_index("item")["ours"]
-    d.slide("Baseline rule and deviations from the paper",
+    d.slide('The portfolio rule',
             bullets=["Paper order: history screen → top 1,000 by market cap → low-volatility half → ranks among complete signals",
                      "Weights drift between rebalances; delisted holdings become cash; costs charged per dollar traded",
                      "Controls: Speculative (high-volatility half, weakest scores), standalone signals, Small, CRSP VW market",
                      "Excluded: Value (no book equity in CRSP) and Table 2 panels C–D (factors not in our sources)"],
             table=dev.to_frame("our convention").head(6).rename_axis("deviation"), text_width=5.6,
-            notes="Every deviation is disclosed with its direction or magnitude in the notebook's deviations table.")
+            notes='We require 36 months of return history before the size cut. After that, we use the low-volatility half and combine momentum and payout ranks. The largest share class represents each company. We document the choices that the paper leaves open.')
 
     t1 = L("paper_targets", "table1_vs_paper.csv")
-    d.slide("Signal construction and timing",
+    d.slide('Building the signals',
             bullets=["Volatility: annualized standard deviation of 36 consecutive monthly total returns",
                      "Momentum: compound 11 monthly price returns, excluding the most recent month",
                      "Dividend yield: trailing 12 months of split-adjusted dividends divided by the current adjusted price",
                      "Net payout yield: dividend yield + 1 − latest adjusted shares / average adjusted shares over 24 months",
                      "A falling share count raises payout yield; new share issuance lowers it",
                      "Quarter-end information determines next month's holdings. No forward return enters selection."],
-            notes="The 12-month dividend window is a disclosed convention: the paper specifies the share-count ratio "
-                  "but does not fully specify the dividend window. Price returns exclude distributions; total returns "
-                  "include them. Adjusting both prices and shares prevents a stock split from looking like a buyback.")
+            notes='Momentum uses price returns and excludes the latest month. Portfolio returns include distributions. For payout, both prices and shares need split adjustment: a split should not appear as a repurchase. The 12-month dividend window is our disclosed convention.')
 
     t1 = t1.loc[t1["row"].isin(["Return (compounded)", "Volatility"]) & t1["status"].eq("compared")]
     t1["paper / ours"] = t1["paper"].map(pct) + " / " + t1["ours"].map(pct)
     tab = t1.pivot(index="row", columns="column", values="paper / ours")[["Formula", "Market", "Small", "Momentum", "Lowvol", "NPY"]]
-    d.slide("Replication 1929–2016: close on return and risk",
+    d.slide('Our results versus the paper',
             bullets=[f"Conservative {pct(N['rep_cons_compounded'], 2)} compounded, {pct(N['rep_cons_volatility'], 2)} volatility "
                      f"(paper {pct(N['paper_cons_compounded'])}, {pct(N['paper_cons_volatility'])})",
                      f"Market {pct(N['rep_mkt_compounded'], 2)} (paper {pct(N['paper_mkt_compounded'])})",
@@ -169,25 +164,24 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"Conservative beats the market in {N['decades_cons_beats_mkt']} of {N['decades_n']} decades",
                      f"Turnover {pct(N['rep_turnover'])} a quarter vs the paper's {pct(N['paper_turnover'], 0)} (unexplained; measure not stated)"],
             image=("replication", "fig3.png"), table=tab.rename_axis("paper / ours"), text_width=5.0, image_width=6.5,
-            notes="Gross of costs, paper definitions. Candidate explanations and unresolved material gaps are "
-                  "listed in the notebook; no parameter was adjusted to force agreement with the paper.")
+            notes='The main return and volatility figures are close. The turnover difference is larger and remains unresolved. We have not changed the rule to force agreement. Share classes, the size measure and payout estimation may affect the result, but we cannot separate their effects.')
 
-    d.slide("Factor attribution (Table 2): largely known premia",
+    d.slide('Factor-adjusted returns',
             bullets=[f"CMS (Conservative − Speculative), 1963–2016: CAPM {pct(N['t2_b_capm_ours'], 2)} vs {pct(N['t2_b_capm_paper'])}; "
                      f"FF5 {pct(N['t2_b_ff5_ours'], 2)} vs {pct(N['t2_b_ff5_paper'])}; FF5 + MOM {pct(N['t2_b_ff5mom_ours'], 2)} vs {pct(N['t2_b_ff5mom_paper'])}",
                      f"1929–2016: CAPM {pct(N['t2_a_capm_ours'], 2)} vs {pct(N['t2_a_capm_paper'])}; Carhart {pct(N['t2_a_carhart_ours'], 2)} vs {pct(N['t2_a_carhart_paper'])} "
-                     "(gap is pre-1963)",
+                     "(full-sample gap remains)",
                      f"Conservative long-only: Carhart alpha {pct(N['att_cons_carhart_alpha'], 2)} (t {num(N['att_cons_carhart_t'])})",
-                     f"  FF5 + momentum, 1963–2016: {pct(N['att_cons_ff5umd_alpha'], 2)} (t {num(N['att_cons_ff5umd_t'])}) — profitability and investment explain it",
+                     f"  FF5 + momentum, 1963–2016: {pct(N['att_cons_ff5umd_alpha'], 2)} (t {num(N['att_cons_ff5umd_t'])}) — adding profitability and investment reduces alpha",
                      f"CMS net of 30 bps, both legs paying: Carhart {pct(N['att_cms_carhart_net30_alpha'], 2)} (t {num(N['att_cms_carhart_net30_t'])})"],
-            notes="Paper t-values are compared with our OLS t; Newey–West t-statistics are reported alongside in the notebook.")
+            notes='The factor model changes the interpretation of the historical return. Adding profitability and investment reduces estimated alpha substantially. The post-1963 comparisons are closer than the full-sample ones; a different sample should not be mistaken for evidence of the cause of the gap.')
 
     be = L("critical_tests", "breakeven.csv")
     be["bps"] = [f"{b:.0f}" if st == "found" else "none" for b, st in zip(be.breakeven_bps, be.status)]
     bet = be.pivot(index="period", columns="measure", values="bps").rename(columns={
         "net Carhart alpha": "alpha", "net arithmetic excess over the market": "excess return"}).rename_axis("break-even, bps")
-    d.slide("Costs (Table 4) and break-even",
-            bullets=[f"Paper cost arithmetic reproduced: turnover × 8 × cost; our turnover {pct(N['rep_turnover'])} vs {pct(N['paper_turnover'], 0)}",
+    d.slide('How costs change the result',
+            bullets=[f"Annual cost estimate: turnover × 8 × cost; quarterly turnover {pct(N['rep_turnover'])} vs {pct(N['paper_turnover'], 0)}",
                      f"Net of 30 bps, 1929–2016: {pct(N['rep_cons_net30_compounded'], 2)} compounded",
                      f"1990–2024 break-even: {N['be_excess|1990–2024']:.0f} bps (excess return), {N['be_alpha|1990–2024']:.0f} bps (alpha)",
                      ("2017–2024: gross excess return and alpha already ≤ 0, so no break-even"
@@ -195,7 +189,7 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                       else f"2017–2024 break-even: {N['be_alpha|2017–2024']:.0f} bps (alpha)"),
                      "Early-period break-evens are high, but so were real trading costs then"],
             table=bet, text_width=6.6,
-            notes="Break-even is the cost per dollar traded at which the net excess return or net Carhart alpha reaches zero.")
+            notes='We charge both purchases and sales. Break-even is the cost per dollar traded at which market excess return or Carhart alpha reaches zero. Flat cost scenarios do not capture historical changes in liquidity or market impact.')
 
     rows = []
     for per in S.PERIODS:
@@ -203,16 +197,16 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      "excess, gross": pct(N[f"ct_excess|{per}|gross"]),
                      "Carhart α gross (t)": f"{pct(N[f'ct_alpha|{per}|gross'])} ({num(N[f'ct_alpha_t|{per}|gross'])})",
                      "Carhart α net 30 (t)": f"{pct(N[f'ct_alpha|{per}|net30'])} ({num(N[f'ct_alpha_t|{per}|net30'])})"})
-    d.slide("Decay: alphas fade after 1990",
+    d.slide('Results by period',
             bullets=[f"Carhart alpha (gross): {pct(N['ct_alpha|1929–1962|gross'])} → {pct(N['ct_alpha|1963–1989|gross'])} → "
                      f"{pct(N['ct_alpha|1990–2016|gross'])} → {pct(N['ct_alpha|2017–2024|gross'])}",
-                     "Significant before 1990, not after",
+                     "Carhart alpha is statistically significant in the two earlier periods",
                      f"2017–2024 is only {N['ct_months|2017–2024']} months: interval {ci(N['ct_alpha_lo|2017–2024|gross'], N['ct_alpha_hi|2017–2024|gross'])}"],
             image=("critical_tests", "fig_rolling.png"), table=pd.DataFrame(rows).set_index("period"), text_width=7.0,
             image_width=5.0,
-            notes="No evidence of outperformance in 2017–2024, rather than proof of failure: the interval is wide.")
+            notes='The earlier estimates are stronger than the recent ones. The sample after 2016 is only eight years, so its interval is wide. We do not interpret an insignificant estimate as proof that expected alpha is exactly zero.')
 
-    d.slide("Headline 1990–2024: no significant net alpha",
+    d.slide('The recent sample: 1990–2024',
             bullets=[f"Gross: excess over market {pct(N['ct_excess|' + g], 2)} {ci(N['ct_excess_lo|' + g], N['ct_excess_hi|' + g])}; "
                      f"Carhart alpha {pct(N['ct_alpha|' + g], 2)} (t {num(N['ct_alpha_t|' + g])})",
                      f"Net of 30 bps: excess {pct(N['ct_excess|' + h], 2)} {ci(N['ct_excess_lo|' + h], N['ct_excess_hi|' + h])}; "
@@ -221,13 +215,12 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"Still lower risk: {pct(N['ct_cons_compounded|1990–2024'])} compounded with {pct(N['ct_cons_vol|1990–2024'])} volatility "
                      f"(market {pct(N['ct_mkt_compounded|1990–2024'])}, {pct(N['ct_mkt_vol|1990–2024'])})",
                      f"Cost-inclusive CMS alpha {pct(N['ct_cms_net30_alpha|1990–2024'], 2)} (t {num(N['ct_cms_net30_t|1990–2024'])})"],
-            notes="The evidence does not support the claim that the formula beats the market on recent data once known factors "
-                  "and realistic costs are taken into account.")
+            notes="After costs, the recent alpha interval includes zero. The portfolio still has lower volatility than the market. The Conservative-minus-Speculative contrast remains different from the long-only portfolio's performance against the market.")
 
     pc = L("professor_checks", "payout_comparison.csv")
     payout = pc.loc[pc.period.eq("1929–2016")].set_index("strategy")
     base, div = payout.loc["Baseline NPY"], payout.loc["Dividends-only counterfactual"]
-    d.slide("Net payout: dividends and share repurchases",
+    d.slide('Dividends and share repurchases',
             bullets=["NPY = trailing dividend yield + 1 − latest adjusted shares / 24-month average adjusted shares",
                      "Repurchases raise NPY; share issuance lowers it. Splits must leave the adjusted share count unchanged",
                      f"1929–2016 gross CAGR: {pct(base.compounded, 2)} using NPY versus {pct(div.compounded, 2)} using dividends alone",
@@ -235,14 +228,12 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"{ci(base.paired_ci_low, base.paired_ci_high, 2)}",
                      "Same universe, low-volatility pool, momentum signal, weights, quarterly dates, and costs in the comparison",
                      "Share-count change measures net repurchases after issuance; it is not reported buyback cash flow"],
-            notes="This directly addresses the professor's payout warning. The latest/24-month-average share ratio "
-                  "comes from paper page 4; the 12-month dividend window is a disclosed convention. The review adds "
-                  "synthetic tests for repurchases, issuance and split neutrality, plus 1,200 independent signal calculations.")
+            notes='This is the payout issue raised in the assignment. We compare NPY with dividends alone using otherwise identical portfolio rules. The share-count term changes both selections and returns. It measures net repurchases after issuance, rather than reported buyback cash spending.')
 
     attr = L("professor_checks", "sector_attribution.csv").set_index("period")
     a = attr.loc["1929–2016"]
     quota = payout.loc["Sector quota variant"]
-    d.slide("Sector positioning: allocation versus selection",
+    d.slide('Industry allocation and stock selection',
             bullets=["Paper scores are compared across sectors (page 4); the professor's sector-aware variant is reported separately",
                      f"1929–2016 gross arithmetic excess return: {pct(a.baseline_minus_market_annual, 2)} per year",
                      f"  Industry allocation {pct(a.allocation_annual, 2)} + stock selection {pct(a.selection_annual, 2)} "
@@ -251,11 +242,9 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"Sector variant: 100 slots proportional to industry security counts; apply the rule separately within each FF12 industry. "
                      f"Gross CAGR {pct(quota.compounded, 2)}, net-30 {pct(quota.net30_compounded, 2)}",
                      "The sector variant is exploratory and changes the paper's global low-volatility screen. Contributions are arithmetic, not causal"],
-            notes="Exact monthly allocation plus selection plus the universe-to-market bridge reconciles to baseline excess "
-                  "returns. Selection includes interaction. The quota rule follows the professor's Enhanced Momentum "
-                  "example, using counts rather than cap weights, largest-remainder rounding and equal stock weights.")
+            notes="We compare with the same formation universe so that industry allocation is not confused with a broad-market universe difference. The attribution includes the selection interaction. We then apply the course's count-proportional quotas, which change the paper's global screen.")
 
-    d.slide("Signal diagnostics",
+    d.slide('Signal tests',
             bullets=[f"Composite rank IC (1 month): {num(N['ic_comp_h1'], 3)} (NW t {num(N['ic_comp_h1_t'], 1)})",
                      f"Decile spread D10−D1: {pct(N['dec_comp_spread|1963–1989'], 2)} (1963–1989), {pct(N['dec_comp_spread|1990–2016'], 2)} (1990–2016), "
                      f"{pct(N['dec_comp_spread|2017–2024'], 2)} (2017–2024)",
@@ -263,7 +252,7 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"  2017–2024 IR at K = 1: {num(N['fmp_ir_2017_K1'])}",
                      "Low volatility: positive rank IC, flat mean spread (right-skewed high-volatility deciles)"],
             image=("diagnostics", "fig_decay.png"), text_width=5.6,
-            notes="Signals are industry-neutralized, standardized and clipped at ±3; returns are industry-adjusted.")
+            notes='These tests use industry-neutral exposures and industry-adjusted returns. Rank IC and a mean decile spread can tell different stories when returns are skewed. The factor-mimicking portfolios are gross diagnostic portfolios and may have substantial leverage.')
 
     # A single-panel chart keeps the slide's labels legible. Its values come from the verified grid.
     import matplotlib
@@ -283,7 +272,7 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
     fig.savefig(chart, dpi=180)
     plt.close(fig)
 
-    d.slide("Construction: long/short and optimization",
+    d.slide('Long/short and linear optimization',
             bullets=[f"Decile long/short, n = 3, 10 bps, borrow: {pct(N['ls_er'], 2)} a year, IR {num(N['ls_ir'])}, max drawdown {pct(N['ls_mdd'])}",
                      "  Monthly re-weighted cohorts: chosen after the pre-specified buy-and-hold cohorts were ruined "
                      f"({', '.join(x[:7] for x in N['ls_ruin_dates'])})",
@@ -292,11 +281,10 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      f"(2–5% bands, 20–40% turnover budget); {N['opt_ci_9024_text']}",
                      f"  Unadjusted intervals, selected from a {N['opt_runs_spec']}-run grid; 2017–2024 alphas "
                      f"{pct(N['opt_alpha_1724_min'], 2)} to {pct(N['opt_alpha_1724_max'], 2)} ({N['opt_ci_1724_text']}); "
-                     "return-scaled alpha is a post-spec sensitivity",
-                     "The next slide adds the assignment's quadratic mean-variance extension"],
+                     "return-scaled alpha is a later sensitivity",
+                     "We also test a portfolio covariance penalty"],
             image=chart, text_width=6.0,
-            notes="Labels matter: the long/short convention and the optimizer's alpha-scaling sensitivity were chosen after "
-                  "results were seen.")
+            notes='The initial buy-and-hold long/short loses all capital in the early data. Monthly reweighting was considered after seeing that outcome, and still gives severe drawdowns. The linear optimizer results also need caution: the displayed intervals are unadjusted for testing several settings.')
 
     qm = L("mean_variance", "summary.csv")
     qr = qm.loc[qm.period.eq("1990–2024")].set_index("risk_aversion")
@@ -306,50 +294,45 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                        "IR": qr.ir.map(num), "Market corr.": qr.corr_market.map(num)})
     qt.index = [f"γ = {g:g}" for g in qt.index]
     qt.index.name = "1990–2024"
-    d.slide("Quadratic mean-variance optimization",
+    d.slide('Mean-variance portfolios',
             bullets=["Maximize expected return − half risk aversion × portfolio variance − trading costs",
                      "Covariance: trailing 36 monthly returns, 50% diagonal shrinkage; the window ends at formation",
                      "Return alpha: completed trailing IC × annual volatility × √(3/12) × composite exposure",
-                     "Quarterly: 2% stock cap, industry bands ±5pp, turnover budget 40%; scaled costs start at 30bps",
+                     "Quarterly: 2% stock cap, industry bands ±5pp, two-way turnover budget 40%; scaled costs start at 30bps",
                      f"Two fixed risk aversions (5 and 20); max constraint violation {qcheck.max_constraint_violation.max():.1e}; "
                      f"turnover relaxations {int(qcheck.turnover_relaxations.sum())}",
-                     "Added during final review after observing the baseline; no unseen test or claim of optimal parameters"],
+                     "We chose these settings after examining the baseline; an unseen test is still needed"],
             table=qt, text_width=6.6,
-            notes="This fulfills the quadratic optimization requirement using an estimated risk model. A positive "
-                  "semidefinite 50% diagonal shrinkage estimate regularizes 1,000 stocks with 36 observations. Covariance "
-                  "is scaled to three months assuming no autocorrelation. Both gamma values and all feasibility "
-                  "relaxations are reported in the notebook. These are long-only portfolios with substantial market exposure.")
+            notes='With only 36 observations for about 1,000 stocks, sample covariance needs regularization. We use half sample covariance and half diagonal covariance. More risk aversion lowers realized volatility, but these long-only portfolios remain highly correlated with the market. We chose these settings after examining the baseline.')
 
-    d.slide("Declared improvement: rank buffer of 150",
-            bullets=["Declared before any result: keep holdings ranked within the best 150; success = turnover −25% and positive net difference",
-                     f"Verdict: {N['buf_verdict']}",
+    d.slide('A buffer to reduce trading',
+            bullets=["Keep existing holdings while they remain in the eligible pool and within the best 150 ranks",
                      f"Turnover {pct(N['buf_turn_base'])} → {pct(N['buf_turn_buf'])} a quarter ({pct(N['buf_turn_red'])} lower)",
                      f"Net-of-30 paired difference {pct(N['buf_diff'], 2)} a year {ci(N['buf_lo'], N['buf_hi'], 2)}: not significant",
-                     f"Gross paired difference {pct(N['buf_gross_diff'], 2)}; the observed difference does not prove unchanged signal quality",
-                     "2017–2024 was already seen: not a holdout"],
+                     f"Gross paired difference {pct(N['buf_gross_diff'], 2)}; the buffer changes holdings as well as costs",
+                     "The recent period was already seen when we tested this variant"],
             image=("rank_buffer", "fig_paired_cum.png"), text_width=5.6,
-            notes="The buffer recovers part of the cost drag but does not change the answer to the critical tests.")
+            notes='We fixed the 150-rank buffer before testing it. It reduces turnover, and its net point estimate is positive, but the paired interval includes zero. Since it also changes holdings, we cannot attribute the entire difference to cost savings.')
 
-    d.slide("Conclusion and limitations",
-            bullets=["Replication close on return and risk; Table 2 panel B reproduced almost exactly",
-                     "The return is largely a bundle of low-volatility, momentum, profitability and investment premia",
+    d.slide('What we conclude',
+            bullets=["Return and volatility are close to the paper; turnover and some regression results differ",
+                     "Much of the historical return is associated with known equity factors",
                      f"Alphas decay; 1990–2024 net of 30 bps: alpha {pct(N['ct_alpha|' + h], 2)} {ci(N['ct_alpha_lo|' + h], N['ct_alpha_hi|' + h])}",
-                     "No evidence that the formula beats the market on recent data after known factors and costs",
-                     "A cheap, transparent way to hold these premia with lower volatility than the market",
+                     "The recent net-alpha interval includes zero",
+                     "Lower volatility is the most consistent feature of the portfolio",
                      "Limitations: no CRSP release identifier; implied dividends; share-class and size conventions; "
                      "turnover above the paper's; selection across grids; a short post-sample"],
-            notes="These statements follow the accepted conclusions of the replication, attribution and critical tests.")
+            notes='We reproduce much of the historical return-and-risk pattern. The remaining turnover and regression gaps prevent an exact replication claim. For recent data, lower volatility is more consistent than positive net alpha. The extra strategies need an unseen test before stronger claims would be justified.')
 
     man = results.manifest(root)
-    d.slide("Reproducibility",
+    d.slide('Running the project',
             bullets=["python -m crsp_pipeline.import_web   (full web exports; licensed data kept private)",
                      "python -m crsp_pipeline build",
                      "python -m research.run_all   → results/ (aggregates) + results/manifest.json",
                      "python build_notebook.py && python execute_notebook.py",
                      "python presentation/build_pdf.py   (PDF slides and speaker notes)",
                      f"{len(man['files'])} result files with sha256 hashes; data manifest {man['data_manifest_sha256'][:12]}…"],
-            notes="Every slide number is read from results/ through the loader, which refuses a file whose hash differs "
-                  "from the manifest. Security-level rows stay in the git-ignored output/ folder.")
+            notes='The notebook and both PDFs read saved aggregate results. The full calculation starts with the private CRSP inputs and runs through research.run_all. Source data, cleaning audits and run instructions are included in the private submission package.')
 
     bad = results.security_headers(d.table_headers())
     if bad:
@@ -358,7 +341,7 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
     path = out_dir / "conservative_formula.pptx"
     d.prs.save(path)
     lines = ["# Speaker notes", "", "**Authors:** Yingni Chang and Yikai Shen", "",
-             "Generated by `presentation/build_deck.py` from `results/`.", ""]
+             "Presentation notes. Data and tables are from the accompanying notebook.", ""]
     for i, (title, note) in enumerate(d.notes, 1):
         lines += [f"## {i}. {title}", "", note, ""]
     (out_dir / "speaker_notes.md").write_text("\n".join(lines), encoding="utf-8")

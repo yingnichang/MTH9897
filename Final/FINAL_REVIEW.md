@@ -1,10 +1,10 @@
-# Conservative Formula Final Review
+# Conservative Formula Calculation Checks
 
 **Project authors:** Yingni Chang and Yikai Shen
 
-Reviewed October 12, 2026. The project implements the US Conservative Formula on CRSP from January 1929 through December 2024, with the paper comparison ending in December 2016. Three review passes cover the assignment and paper, data and accounting, and independent calculations and deliverables. The checks below pass after the corrections. The results are a close replication of return and risk, with material differences from the paper still disclosed.
+We checked the implementation against the paper, examined the input data and accounting, and independently reconstructed the signals and portfolio returns. The checks were completed on October 12, 2026. This appendix records what we verified and what remains unresolved. The backtest covers January 1929 through December 2024; comparisons with the paper stop at December 2016.
 
-## Pass 1 Paper and assignment alignment
+## 1. Comparing the method with the paper
 
 The reference is Blitz and van Vliet, *The Conservative Formula: Quantitative Investing Made Easy* (2018), supplied as [the research paper](The%20Conservative%20Formula%20Quantitative%20Investing%20Made%20Easy.pdf). Page 4 defines the construction order and the adjusted-share payout proxy. The original [assignment](Instructions.md) also requires factor diagnostics and portfolio construction exercises.
 
@@ -21,9 +21,9 @@ The reference is Blitz and van Vliet, *The Conservative Formula: Quantitative In
 | Construction exercises | Long/short holding-period and cost comparisons, trade ledgers, borrow costs, linear optimization, quadratic mean-variance optimization, capacity estimates and risk statistics are included. |
 | Deliverables | An executed Jupyter notebook, an 18-slide PDF, speaker notes, generating code, aggregate results, and a separate private data package. |
 
-The final review filled the missing quadratic optimization exercise. It also added historical FF3 stock loadings to the factor-mimicking regressions. These extensions and the new sector variant were introduced after observing the baseline; their parameters are exploratory, without an unseen holdout or a claim of optimality.
+We added the quadratic model, historical FF3 stock loadings and the sector variant after examining the baseline. Their parameters are exploratory and have not been validated on an unseen sample.
 
-## Pass 2 Data and accounting
+## 2. Checking the data and accounting
 
 The full WRDS exports produce 3,954,591 security-months for 26,746 securities. The data start in December 1925 and end in December 2024. The review verifies all 18 raw, normalized and audit file hashes in `data/manifest.json`, and finds no duplicate security-months or duplicate eligible company-months. There are 3,747,988 eligible observations.
 
@@ -67,9 +67,9 @@ baseline − CRSP market = industry allocation + stock selection + reference uni
 
 The selection component includes the allocation/selection interaction. Over 1929–2016, the annual arithmetic contributions are 0.82 percentage points from industry allocation, 3.80 from stock selection and 0.18 from the reference-to-market difference, totaling 4.80. All 1,152 monthly identities reconcile within `7.9e−16`. These are arithmetic contributions, not compounded CAGR contributions or causal estimates. See `sector_attribution.csv`, `sector_exposures.csv` and `sector_monthly.csv` in `results/professor_checks/`.
 
-## Pass 3 Independent verification and deliverables
+## 3. Reconstructing the calculations independently
 
-The full research pipeline was rebuilt from the licensed inputs after the fixes. It completed all 12 studies and produced 85 aggregate result files. Every file hash, current study source identity, dependency identity and consumed cache identity verifies. Staged Git blobs also preserve all 85 result hashes, all recorded research source hashes and the data-manifest hash.
+We rebuilt all 12 studies from the licensed inputs and saved 85 aggregate files. Their hashes agree with the results manifest, as do the source, dependency and cache records. The published files preserve those hashes.
 
 | Independent verification | Coverage and outcome |
 |---|---|

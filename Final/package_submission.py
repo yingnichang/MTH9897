@@ -17,7 +17,7 @@ def main():
     tracked = subprocess.run(['git', 'ls-files', '--', '.'], cwd=ROOT,
                              check=True, capture_output=True, text=True).stdout.splitlines()
     selected = {ROOT / p for p in tracked if not p.endswith('.pptx')
-                and Path(p).name not in {'critique.md', '.gitattributes', '.gitignore'}}
+                and Path(p).name not in {'critique.md', 'PAPER_ALIGNMENT_REVIEW.md', '.gitattributes', '.gitignore'}}
     selected.update(ROOT / p for p in [
         'crsp_pipeline/import_web.py', 'tests/test_import_web.py',
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',

@@ -90,9 +90,9 @@ class WrittenReport:
             "small": ParagraphStyle("ReportSmall", fontName="ReportSans", fontSize=8.5,
                                     leading=11.5, textColor=MUTED, spaceAfter=7),
             "h1": ParagraphStyle("ReportH1", fontName="ReportSansBold", fontSize=19,
-                                 leading=23, textColor=NAVY, spaceAfter=14),
+                                 leading=23, textColor=NAVY, spaceAfter=14, keepWithNext=True),
             "h2": ParagraphStyle("ReportH2", fontName="ReportSansBold", fontSize=11.5,
-                                 leading=15, textColor=TEAL, spaceBefore=5, spaceAfter=7),
+                                 leading=15, textColor=TEAL, spaceBefore=5, spaceAfter=7, keepWithNext=True),
             "title": ParagraphStyle("ReportTitle", fontName="ReportSansBold", fontSize=28,
                                     leading=33, textColor=NAVY, spaceAfter=16),
             "cell": ParagraphStyle("ReportCell", fontName="ReportSans", fontSize=8.3,
@@ -110,8 +110,10 @@ class WrittenReport:
         self.story.append(Paragraph(text(value), self.styles[style]))
 
     def heading(self, title, first=False):
-        if not first:
+        if title.startswith("1. "):
             self.story.append(PageBreak())
+        elif not first:
+            self.story.append(Spacer(1, 14))
         self.p(title, "h1")
 
     def sub(self, title):
@@ -148,14 +150,7 @@ class WrittenReport:
             Paragraph(text(caption), self.styles["small"])]))
 
     def box(self, value):
-        t = Table([[Paragraph(text(value), self.styles["body"])]], colWidths=[WIDTH])
-        t.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), PALE),
-                              ("BOX", (0, 0), (-1, -1), .5, colors.HexColor("#BCD7DA")),
-                              ("LEFTPADDING", (0, 0), (-1, -1), 10),
-                              ("RIGHTPADDING", (0, 0), (-1, -1), 10),
-                              ("TOPPADDING", (0, 0), (-1, -1), 9),
-                              ("BOTTOMPADDING", (0, 0), (-1, -1), 4)]))
-        self.story.extend([t, Spacer(1, 10)])
+        self.story.append(Paragraph(text(value), self.styles["body"]))
 
     def code(self, value):
         self.story.append(Preformatted(value, self.styles["code"]))
@@ -164,39 +159,39 @@ class WrittenReport:
         N = self.numbers
         self.p("MTH 9897 SYSTEMATIC TRADING | PROJECT 8", "small")
         self.p("The Conservative Formula", "title")
-        self.p("A critical replication on CRSP, 1929-2024", "h1")
+        self.p("A replication using CRSP data, 1929-2024", "h1")
         self.p("<b>Yingni Chang and Yikai Shen</b><br/>Final written report | October 13, 2026")
         self.p("Reference: David Blitz and Pim van Vliet (2018), <i>The Conservative Formula: "
                "Quantitative Investing Made Easy</i>, The Journal of Portfolio Management 44(7); "
                "working paper SSRN 3145152.")
         self.sub("Abstract")
-        self.p(f"This project reproduces a quarterly, equal-weighted 100-stock strategy combining low "
-               f"volatility, price momentum and net payout yield. Over the paper's 1929-2016 sample, "
-               f"the CRSP replication earns {pct(N['rep_cons_compounded'])} compounded annually "
+        self.p(f"We implement the Conservative Formula, a quarterly portfolio of 100 stocks selected "
+               f"using volatility, momentum and net payout. Over 1929-2016, our portfolio earns "
+               f"{pct(N['rep_cons_compounded'])} compounded annually "
                f"with {pct(N['rep_cons_volatility'])} volatility, versus the paper's "
                f"{pct(N['paper_cons_compounded'])} and {pct(N['paper_cons_volatility'])}. "
-               "The project then tests factor attribution, performance decay and trading costs, "
-               "and implements the assignment's diagnostics and construction extensions.")
+               "We then extend the data through 2024, account for costs, and test whether "
+               "the return can be explained by familiar equity factors.")
         key = "1990–2024|net30"
-        self.box(f"<b>Main conclusion.</b> In 1990-2024, net of 30 bps per dollar traded, annual "
+        self.box(f"In 1990-2024, net of 30 bps per dollar traded, annual "
                  f"Carhart alpha is {pct(N['ct_alpha|'+key])}, with a 95% interval "
                  f"{interval(N['ct_alpha_lo|'+key],N['ct_alpha_hi|'+key])}. "
-                 "The evidence does not establish persistent recent outperformance after known "
-                 "factors and costs. The formula offers a simple way to hold several established premia.")
-        self.p("The professor's two concerns receive explicit tests: net payout includes both dividends "
-               "and adjusted-share repurchases/issuance, and industry allocation is separated from "
-               "stock selection. A sector quota variant is reported separately because it changes "
-               "the paper's global selection rule. The executed notebook remains the required "
-               "primary deliverable; this PDF is a readable companion.")
+                 "The interval includes zero. We obtain a close historical replication, but "
+                 "recent factor-adjusted performance is less convincing.")
+        self.p("The assignment highlights two possible implementation mistakes: using dividends "
+               "alone for net payout, and overlooking sector positions. We compare dividends "
+               "with net payout, measure industry contributions, and test a sector-by-sector "
+               "selection rule. We also examine long/short trading, linear and quadratic "
+               "optimization, and a rank buffer intended to reduce turnover.")
         self.table(["Scope", "Evidence"], [
             ["Paper replication", "1929-2016; 1,056 monthly observations"],
             ["Extended research", "1929-2024; 1,152 monthly observations"],
-            ["Verification", "12 studies; 85 verified aggregate result files; 139 tests passed"],
+            ["Implementation", "Monthly CRSP inputs; quarterly baseline; separate signal and trading experiments"],
         ], [.27, .73])
 
-        self.heading("1. Research question and test design")
-        self.p("The paper asks whether a small set of intuitive signals can capture major equity "
-               "factor premia without a complex model. Its Conservative portfolio combines low "
+        self.heading("1. What we test")
+        self.p("The appeal of the paper is that its rule is easy to describe and can be implemented "
+               "with monthly prices, returns and shares. The Conservative portfolio combines low "
                "historical return volatility with strong price momentum and high net payout. "
                "Its Speculative mirror uses the high-volatility half and weak combined scores.")
         self.table(["Question", "Test and interpretation"], [
@@ -205,13 +200,13 @@ class WrittenReport:
             ["Is return explained by known factors?", "Carhart four-factor alpha is primary. "
              "Fama-French five factors plus momentum is a robustness check from July 1963."],
             ["Has performance weakened?", "Fixed subperiods and rolling 120-month estimates. "
-             "1990-2024 is the headline; 2017-2024 is the post-paper sample."],
+             "The recent comparison is 1990-2024; 2017-2024 follows the paper's sample."],
             ["What survives costs?", "Returns at 10 and 30 bps per dollar traded and break-even "
              "costs for market excess return and Carhart alpha."],
         ], [.31, .69])
-        self.sub("Periods, uncertainty and interpretation")
-        self.p("The documented primary design fixes 1929-1962, 1963-1989, 1990-2016 and 2017-2024, "
-               "plus the combined recent period 1990-2024. The post-paper period contains only "
+        self.sub("Comparisons and uncertainty")
+        self.p("We use 1929-1962, 1963-1989, 1990-2016 and 2017-2024, "
+               "plus the combined recent period 1990-2024. The final period contains only "
                "96 months. Newey-West intervals account for serial dependence; the portfolio "
                "regressions use 12 lags. Some performance intervals use moving-block bootstrap "
                "resampling. Overlapping diagnostic horizons use longer lag choices recorded "
@@ -221,19 +216,19 @@ class WrittenReport:
                "sample standard deviation times the square root of 12. These measures are kept "
                "distinct. Information ratios divide annualized active return by tracking error; "
                "the long/short exercise instead reports excess over collateral risk-free return.")
-        self.box("<b>Research status.</b> The original critical tests and rank-buffer choice were "
-                 "documented before their results. The additional payout/sector comparisons, "
-                 "FF3 stock-beta controls and quadratic optimizer were added during the final "
-                 "review after the baseline was seen. They are exploratory. The observed "
-                 "2017-2024 data are not an unseen validation set for those additions.")
+        self.p("We fixed the primary comparison periods before computing post-2016 portfolio "
+               "returns and fixed the rank-buffer rule before testing that variant. The "
+               "additional payout/sector comparisons, FF3 stock-beta controls and quadratic "
+               "model came after the baseline analysis. We therefore treat them as "
+               "exploratory; the already-observed 2017-2024 period is not a holdout for them.")
         self.p("This report covers the US assignment. It does not reproduce the paper's "
                "international FactSet samples, and CRSP alone does not supply the book-equity "
                "inputs needed for a separate Value control.")
 
-        self.heading("2. CRSP inputs and data management")
+        self.heading("2. Data and cleaning")
         extract = self.load("data_audit", "extract_summary.json")
         sample = extract["sample"]
-        self.p(f"Full CRSP legacy web exports from WRDS supply the monthly history from December "
+        self.p(f"We use full CRSP legacy web exports from WRDS, with monthly history from December "
                f"1925 through December 2024. The normalized panel contains "
                f"{sample['panel_rows']:,} security-months and {sample['securities']:,} securities. "
                f"There are {sample['eligible_rows']:,} eligible observations. Source receipts, "
@@ -248,8 +243,8 @@ class WrittenReport:
             ["FF3, momentum and FF5", "Risk-free rate and factor-attribution regressions"],
         ], [.30, .70])
         self.sub("Cleaning choices")
-        self.p("The universe uses common-share codes 10/11 and exchange codes 1/2/3. Each month "
-               "retains the largest common share class per company, avoiding double counting. "
+        self.p("We keep common-share codes 10/11 and exchange codes 1/2/3. Each month "
+               "we retain the largest common share class per company to avoid double counting. "
                "Historical names are joined at their effective dates. Terminal events and "
                "delisted securities remain in the holding-period returns; later rows following "
                "the terminal event are removed. There are no duplicate security-months or "
@@ -269,7 +264,7 @@ class WrittenReport:
                "missing holding observation. The dividend and delisting audits document the "
                "limits of these conventions, especially in early data.", "small")
 
-        self.heading("3. Signals and baseline construction")
+        self.heading("3. Signals and portfolio rules")
         self.sub("Point-in-time signal definitions")
         self.code("Adjusted price P[t] = abs(PRC[t]) / CFACPR[t]\n"
                   "Adjusted shares S[t] = SHROUT[t] * CFACSHR[t]\n"
@@ -290,11 +285,11 @@ class WrittenReport:
             ["5", "Select the best 100, resolve ties deterministically, and assign 1% weights."],
             ["6", "Hold the next three months; weights drift, with terminal proceeds held as cash earning RF."],
         ], [.10, .90])
-        self.p("The history screen precedes the size cut, as described by the paper. Selection "
+        self.p("We apply the history requirement before the size cut, following the paper. Selection "
                "uses information available at the quarter-end before the first holding month. "
                "Signals do not change when later input values are changed in the tests. "
-               "Baseline factor ranks are compared across industries: the paper explicitly "
-               "uses global scores. Industry neutrality is an assignment extension.")
+               "The paper compares ranks across industries, so we keep that rule in the "
+               "original portfolio and examine industry constraints separately.")
         self.sub("Trading and costs")
         self.p("Trading cost is charged on total absolute changes in stock weights, with initial "
                "investment included in NAV. Published quarterly turnover is single-counted, "
@@ -303,12 +298,13 @@ class WrittenReport:
                "(1 + gross return), minus 1. This timing differs slightly from subtracting "
                "an annual cost estimate from CAGR.")
 
-        self.heading("4. Replication over the paper sample")
+        self.heading("4. How close are we to the paper?")
         self.p(f"The Conservative baseline earns {pct(N['rep_cons_compounded'])} gross annually "
                f"with {pct(N['rep_cons_volatility'])} volatility over 1929-2016. "
                f"The market earns {pct(N['rep_mkt_compounded'])}; the Speculative control earns "
                f"{pct(N['rep_spec_compounded'])} with {pct(N['rep_spec_volatility'])} volatility. "
-               "The risk/return contrast is reproduced, but exact numerical equality is not claimed.")
+               "The Conservative/Speculative comparison has the same broad pattern as the paper, "
+               "although several numbers differ.")
         target = self.load("paper_targets", "table1_vs_paper.csv")
         rows = []
         for portfolio in ["Formula", "Market", "Small", "Momentum", "Lowvol", "NPY"]:
@@ -320,14 +316,14 @@ class WrittenReport:
                    "book equity is unavailable in the CRSP-only inputs.")
         self.figure("replication", "fig3.png", "Growth of $100 using monthly gross returns. "
                     "A logarithmic scale makes long-sample compound growth comparable.", height=238)
-        self.box(f"<b>Unresolved turnover gap.</b> Quarterly single-counted turnover is "
+        self.p(f"Turnover is the largest unresolved implementation difference. Quarterly single-counted turnover is "
                  f"{pct(N['rep_turnover'],1)}, versus {pct(N['paper_turnover'],1)} in the paper. "
-                 "The paper's implementation and exact measure are not fully specified. "
-                 "The result is retained rather than tuned to force a match.")
+                 "We cannot tell how much of the gap comes from ranking inputs and how much "
+                 "comes from the authors' turnover convention. We leave it visible in the comparison.")
 
-        self.heading("5. Net payout and the repurchase check")
-        self.p("The professor highlighted an important failure mode: dividend yield alone "
-               "does not represent shareholder payout. A reduction in adjusted shares raises "
+        self.heading("5. What the share-count term adds")
+        self.p("Dividend yield misses the indirect payout from share repurchases, which the "
+               "assignment specifically asks us to account for. A reduction in adjusted shares raises "
                "the payout signal; net issuance lowers it. A split must not alter the adjusted "
                "share count. With dividend yield of 3%, 90 current adjusted shares and a "
                "100-share average, net payout is 13%.")
@@ -350,7 +346,7 @@ class WrittenReport:
             for r in components.loc[components.period.isin(["1929–2016","1990–2024","2017–2024"])].itertuples()],
                    [.20, .19, .19, .16, .26], "Formation averages among baseline holdings; "
                    "these are signal components, not realized cash payout returns.")
-        self.sub("Checks and limitations")
+        self.sub("Checking the payout calculation")
         self.p("Synthetic cases check buybacks, issuance and split neutrality. Direct "
                "recalculation on 1,200 actual observations verifies the 36-, 12- and "
                "24-month windows, with maximum differences below 8.0e-15. Implied dividends "
@@ -362,8 +358,8 @@ class WrittenReport:
                  "observations remain sources of uncertainty. The matched comparison "
                  "shows a material signal difference, not a causal estimate of buybacks.")
 
-        self.heading("6. Industry positioning and stock selection")
-        self.p("The baseline is compared with a capitalization-weighted reference drawn "
+        self.heading("6. Industry weights and stock selection")
+        self.p("We compare the original portfolio with a capitalization-weighted reference drawn "
                "from the same formation universe. Constituents and industry labels are "
                "fixed for each quarter; both portfolios drift with returns and move terminal "
                "proceeds to cash. This avoids confusing a broad-market universe difference "
@@ -383,7 +379,7 @@ class WrittenReport:
             for r in attribution.loc[attribution.period.isin(["1929–2016","1990–2024","2017–2024"])].itertuples()],
                    [.20, .18, .18, .22, .22], "Annual arithmetic contributions. They describe "
                    "portfolio positioning and do not identify causal industry effects.")
-        self.sub("Separate sector quota experiment")
+        self.sub("Selecting stocks within each industry")
         quotas = self.load("professor_checks", "sector_quota_checks.csv")
         comparison = self.load("professor_checks", "payout_comparison.csv")
         original = S.one(comparison, period="1929–2016", strategy="Baseline NPY")
@@ -399,13 +395,13 @@ class WrittenReport:
                f"percentage points. The variant earns {pct(quota_result.compounded)} gross "
                f"annually over 1929-2016 versus {pct(original.compounded)} for the original "
                "baseline, with more turnover. These values "
-               "are also shown in the matched strategy table on page 6.")
+               "are also shown in the payout comparison in Section 5.")
         self.box("Industry neutrality is not silently imposed on the paper baseline. "
                  "The quota variant changes the global volatility screen and is exploratory. "
                  "FF12 industries are the available US grouping used for both the diagnostics "
                  "and these sector-positioning checks.")
 
-        self.heading("7. Factor attribution and known premia")
+        self.heading("7. How much return is explained by factors?")
         self.p("Monthly portfolio excess returns are regressed on the market factor, then "
                "size/value, momentum and the FF5 profitability/investment factors. "
                "Carhart is the primary attribution model. FF5 plus momentum uses July "
@@ -439,7 +435,7 @@ class WrittenReport:
                "an investable cost-inclusive spread. The result tables distinguish "
                "cost-inclusive CMS from the difference of two net long-only return series.")
 
-        self.heading("8. Trading costs and performance decay")
+        self.heading("8. Costs and changes over time")
         subperiods = self.load("critical_tests", "subperiods.csv")
         rows = []
         for period in S.PERIODS:
@@ -457,12 +453,11 @@ class WrittenReport:
         self.figure("critical_tests", "fig_rolling.png", "Rolling 120-month excess return "
                     "and Carhart alpha; gross and net series use the same holdings. "
                     "Window estimates are descriptive and strongly overlapping.", height=265)
-        self.p("The headline recent net alpha interval includes zero. This is evidence "
-               "against a strong claim of persistent recent outperformance, not proof "
-               "that the expected alpha is exactly zero. The short post-paper sample "
-               "also leaves substantial estimation uncertainty.", "small")
+        self.p("The recent net alpha interval includes zero. Positive and negative "
+               "expected alpha both remain plausible, particularly in the short "
+               "sample after 2016.", "small")
 
-        self.heading("9. Industry-neutral factor diagnostics")
+        self.heading("9. Examining each signal")
         self.p("Diagnostics use the monthly history-first universe. Low volatility is "
                "oriented favorably as negative volatility. Each signal is demeaned within "
                "industry, divided by the cross-sectional standard deviation of demeaned "
@@ -502,8 +497,8 @@ class WrittenReport:
                f"with at least 24 factor-covered observations and an intercept. All "
                f"{len(controls):,} formation checks use historical returns; the minimum "
                f"factor coverage is {controls.factor_months_used.min()} months. "
-               "The final review added these stock-level controls, rather than treating "
-               "future realized market factors as contemporaneous security exposures.")
+               "We added these controls after the baseline analysis; only historical "
+               "stock returns are used to estimate them.")
         pm = self.load("fmp", "paper_metrics.csv")
         chosen = pm.loc[pm.weighting.eq("equal") & pm.period.eq("1929–2024")]
         self.table(["Lagged portfolios K", "Annual active mean", "IR", "Monthly turnover", "Gross leverage"], [
@@ -517,7 +512,7 @@ class WrittenReport:
                  "in the separate trading exercise; the WLS result is not an implementable "
                  "net strategy claim.")
 
-        self.heading("11. Long/short trading and capacity")
+        self.heading("11. Long/short trading")
         self.p("The simple trading exercise buys the top and sells the bottom composite "
                "decile. Cohorts are added monthly and expire after n months, for "
                "n = 1, 3, 6 or 12. Costs of 0, 5, 10, 20 and 30 bps per dollar traded "
@@ -543,7 +538,7 @@ class WrittenReport:
             ["Borrow cost",pct(selected.borrow_annual)],
             ["Collateral RF",pct(selected.collateral_rf_annual)],
         ], [.65,.35])
-        self.sub("Capacity is a screening estimate")
+        self.sub("How large could the portfolio be?")
         self.p(f"The n = 3 monthly-reweighted capacity estimate for the 2020s is "
                f"${N['ls_capacity_2020s']/1e9:.2f} billion at the 10% volume assumption. "
                "Holdings and turnover are related to reported monthly dollar volume. "
@@ -552,7 +547,7 @@ class WrittenReport:
                "They omit market impact, daily trade timing and actual borrow "
                "availability; they are not executable AUM guarantees.")
 
-        self.heading("12. Linear portfolio optimization")
+        self.heading("12. Linear optimization")
         self.p("The long-only linear optimizer maximizes a signal-weighted portfolio "
                "subject to full investment, nonnegative weights, a 2% stock cap, "
                "industry bands around universe capitalization weights, and a "
@@ -573,15 +568,15 @@ class WrittenReport:
         self.p(f"For these four recent-period examples, "
                f"{text(N['opt_ci_9024_text'])}. They are nominal intervals selected "
                "from a broader parameter grid and are not adjusted for multiple "
-               "comparisons. The post-paper grid produces no alpha interval "
+               "comparisons. The 2017-2024 grid produces no alpha interval "
                "excluding zero among the 12 specified 30-bps examples. "
                "Positive selected-grid estimates are not independent validation.")
         self.sub("Expected-return sensitivity and units")
         self.p("A separate exploratory objective converts a signal to expected "
                "three-month return using only completed trailing IC estimates: "
                "alpha = IC times annual volatility times sqrt(3/12) times exposure. "
-               "The final review corrected the horizon conversion; sqrt(3) would "
-               "incorrectly treat an annualized volatility as monthly. The original "
+               "The sqrt(3/12) conversion reflects the annual volatility units; sqrt(3) would "
+               "incorrectly treat that input as monthly. The original "
                "z-score objective is unchanged.")
         self.p("When a stock cap makes an industry's lower band infeasible, the "
                "relaxation is recorded. Minimum feasible turnover is determined "
@@ -589,8 +584,8 @@ class WrittenReport:
                "than hidden. Capacity, active skew/kurtosis, market correlation, "
                "hit rates and drawdowns are included in the grid result files.")
 
-        self.heading("13. Quadratic mean-variance optimization")
-        self.p("The required quadratic extension adds a true portfolio covariance "
+        self.heading("13. Adding a covariance penalty")
+        self.p("We also add a portfolio covariance "
                "penalty to expected return and trading cost. The risk model uses "
                "the last 36 monthly total returns ending at formation. It combines "
                "50% sample covariance with 50% diagonal covariance and scales "
@@ -626,7 +621,7 @@ class WrittenReport:
                "neutrality. The extension was introduced after seeing baseline "
                "results and does not establish an optimal parameter choice.")
 
-        self.heading("14. Rank buffer and independent validation")
+        self.heading("14. Reducing turnover with a rank buffer")
         self.p("The rank-buffer variant retains an existing holding while it "
                "remains among the best 150 ranks in the eligible low-volatility "
                "pool, then fills vacancies with the best available names. "
@@ -649,7 +644,7 @@ class WrittenReport:
                "economic quality is unchanged. The paired intervals remain "
                "important even when the mechanical success criterion passes.")
         independent = self.load("professor_checks", "independent_checks.csv")
-        self.sub("Three verification passes")
+        self.sub("Checking the calculations")
         self.table(["Pass", "Evidence"], [
             ["Paper and assignment", "Construction order, momentum timing, payout definition, "
              "sector distinction and all required diagnostics/construction exercises."],
@@ -668,10 +663,10 @@ class WrittenReport:
                "before reuse. This validates the tested implementation; "
                "it does not remove the data and modeling assumptions.","small")
 
-        self.heading("15. Running and submitting the project")
+        self.heading("15. Running the analysis")
         self.p("<b>Main calculation entry point:</b> <font face='Courier'>research/run_all.py</font>, "
-               "invoked as a module from Final. It orchestrates all 12 studies "
-               "and writes the aggregate result contract and provenance manifest. "
+               "run as a module from Final. It runs all 12 studies "
+               "and saves their results and file hashes. "
                "The Jupyter notebook is the primary assignment deliverable.")
         self.table(["File or module", "Role"], [
             ["research/run_all.py", "Runs the full research pipeline or selected studies."],
@@ -706,27 +701,27 @@ class WrittenReport:
                  "Licensed CRSP rows stay in the authorized course package; "
                  "GitHub contains source and aggregate outputs.")
 
-        self.heading("16. Conclusions, limitations and references")
-        self.p("The original formula reproduces the central contrast between "
+        self.heading("16. Conclusions")
+        self.p("Our implementation reproduces the main contrast between "
                "Conservative and Speculative stocks: higher compound return "
                "with lower realized volatility. The net-payout share-count "
                "term materially changes selections and returns relative to "
                "dividend yield alone. Industry attribution shows that "
                "both positioning and stock selection contribute, and "
                "the professor's sector-quota construction is tested explicitly.")
-        self.p("The recent sample gives a more cautious conclusion. After "
-               "known factors and costs, the baseline's recent Carhart "
-               "alpha is not significantly different from zero. "
-               "Exploratory optimizers and buffers can change risk and "
-               "turnover, but selected results do not establish persistent "
-               "outperformance or a superior unseen strategy.")
+        self.p("We are less confident about recent outperformance. After "
+               "factor adjustment and costs, the original portfolio's recent Carhart "
+               "alpha is not significantly different from zero. The "
+               "optimizers and buffer change risk and turnover, but their "
+               "results do not yet give us evidence of a better strategy on "
+               "an unseen sample. Lower volatility is the more consistent finding.")
         self.table(["Limitation", "Implication"], [
             ["Turnover 38.9% versus paper 32%", "An unresolved implementation/definition gap remains."],
             ["Early universe below 1,000", "The 1929-1964 strategy uses all available history-eligible names."],
             ["Share-class and size conventions", "Security capitalization and largest-class selection may differ from the authors' universe."],
             ["Dividend and terminal-return proxies", "Corporate-action timing and imputation introduce model uncertainty."],
             ["Some regression/control mismatches", "Close return/risk replication does not imply all paper tables are matched."],
-            ["Short post-paper period and grid selection", "Unadjusted intervals and exploratory choices limit inference."],
+            ["Short post-2016 period and grid selection", "Unadjusted intervals and exploratory choices limit inference."],
             ["Capacity and trading assumptions", "Monthly volume omits impact, trade scheduling and borrow availability."],
         ], [.42,.58])
         self.sub("References")
