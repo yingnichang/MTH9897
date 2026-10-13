@@ -1,5 +1,6 @@
 # Preserve exact bytes of files covered by the data/result provenance hashes.
 * whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.pdf binary
 results/** -text
 data/audit/** -text
 data/manifest.json -text

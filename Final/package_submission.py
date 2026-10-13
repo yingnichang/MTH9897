@@ -19,7 +19,8 @@ def main():
     selected.update(ROOT / p for p in [
         'crsp_pipeline/import_web.py', 'tests/test_import_web.py',
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
-        'presentation/conservative_formula.pdf', 'package_submission.py'])
+        'presentation/conservative_formula.pdf', 'build_report_pdf.py',
+        'output/pdf/conservative_formula_report.pdf', 'package_submission.py'])
     selected.update(ROOT / 'data' / p for p in [
         'crsp_monthly_normalized.parquet', 'benchmark_monthly.csv', 'ff_factors_monthly.csv',
         'audit/worked_examples.csv'])
@@ -30,9 +31,10 @@ def main():
     selected = {p for p in selected if p.is_file()}
     required = [ROOT / 'conservative_formula_first_draft.ipynb',
                 ROOT / 'presentation/conservative_formula.pdf',
+                ROOT / 'output/pdf/conservative_formula_report.pdf',
                 ROOT / 'data/crsp_monthly_normalized.parquet']
     if not all(p in selected for p in required):
-        raise FileNotFoundError('Execute the notebook and build the PDF and normalized data first')
+        raise FileNotFoundError('Execute the notebook and build both PDFs and normalized data first')
     output = ROOT / 'output/submission/MTH9897_Conservative_Formula_Final.zip'
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=3) as z:
@@ -42,7 +44,8 @@ def main():
                    'Do not upload this archive to a public GitHub repository.\n'
                    'Run from Final: pip install -r requirements.txt; python -m crsp_pipeline build;\n'
                    'python -m research.run_all; python build_notebook.py; python execute_notebook.py;\n'
-                   'python presentation/build_pdf.py. The executed notebook also opens using cached results.\n')
+                   'python build_report_pdf.py; python presentation/build_pdf.py. '
+                   'The executed notebook also opens using cached results.\n')
     with zipfile.ZipFile(output) as z:
         bad = z.testzip()
         if bad: raise ValueError(f'Corrupt archive member: {bad}')
