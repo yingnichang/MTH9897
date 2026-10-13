@@ -1,5 +1,7 @@
 # Conservative Formula — final project
 
+**Authors:** Yingni Chang and Yikai Shen
+
 ## Main entry points and written report
 
 The main calculation entry point is `research/run_all.py`. Run `python -m research.run_all`

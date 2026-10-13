@@ -1,5 +1,7 @@
 """Create a private, runnable course package; never commit its licensed data.
 
+Project authors: Yingni Chang and Yikai Shen.
+
 Run from Final: python package_submission.py
 The package includes normalized data and the seven raw parquet inputs, so the
 grader can rebuild both the data pipeline and all research without WRDS login.
@@ -40,6 +42,7 @@ def main():
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=3) as z:
         for p in sorted(selected): z.write(p, 'Final/' + p.relative_to(ROOT).as_posix())
         z.writestr('PRIVATE_DATA_NOTICE.txt',
+                   'Project authors: Yingni Chang and Yikai Shen.\n'
                    'Contains licensed CRSP security data. Submit only through the authorized course channel.\n'
                    'Do not upload this archive to a public GitHub repository.\n'
                    'Run from Final: pip install -r requirements.txt; python -m crsp_pipeline build;\n'

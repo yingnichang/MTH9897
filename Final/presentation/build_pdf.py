@@ -1,5 +1,7 @@
 """Build the final PDF slides from the same data-driven content as build_deck.py.
 
+Project authors: Yingni Chang and Yikai Shen.
+
 Run: python presentation/build_pdf.py
 Requires python-pptx, reportlab and Pillow. Text and tables remain searchable.
 """
@@ -48,7 +50,7 @@ def export(source, destination):
     width, height = deck.slide_width / EMU, deck.slide_height / EMU
     pdf = canvas.Canvas(str(destination), pagesize=(width, height))
     pdf.setTitle('The Conservative Formula: CRSP Replication, 1929–2024')
-    pdf.setAuthor('Yingni Chang')
+    pdf.setAuthor('Yingni Chang and Yikai Shen')
     for slide in deck.slides:
         pdf.setFillColor(white)
         pdf.rect(0, 0, width, height, fill=1, stroke=0)

@@ -1,5 +1,7 @@
 """Generate the written final report from verified aggregate results.
 
+Project authors: Yingni Chang and Yikai Shen.
+
 Run from Final: python build_report_pdf.py
 Output: output/pdf/conservative_formula_report.pdf
 No licensed stock-level observations are read or included in the PDF.
@@ -163,7 +165,7 @@ class WrittenReport:
         self.p("MTH 9897 SYSTEMATIC TRADING | PROJECT 8", "small")
         self.p("The Conservative Formula", "title")
         self.p("A critical replication on CRSP, 1929-2024", "h1")
-        self.p("<b>Yingni Chang</b><br/>Final written report | October 13, 2026")
+        self.p("<b>Yingni Chang and Yikai Shen</b><br/>Final written report | October 13, 2026")
         self.p("Reference: David Blitz and Pim van Vliet (2018), <i>The Conservative Formula: "
                "Quantitative Investing Made Easy</i>, The Journal of Portfolio Management 44(7); "
                "working paper SSRN 3145152.")
@@ -752,7 +754,7 @@ class WrittenReport:
         canvas.line(44, letter[1]-29, letter[0]-44, letter[1]-29)
         canvas.setFont("ReportSans", 8)
         canvas.setFillColor(MUTED)
-        canvas.drawString(44, letter[1]-23, "Yingni Chang | MTH 9897 | Conservative Formula")
+        canvas.drawString(44, letter[1]-23, "Yingni Chang and Yikai Shen | MTH 9897 | Conservative Formula")
         canvas.drawString(44, 23, "CRSP 1929-2024 | Final written report")
         canvas.drawRightString(letter[0]-44, 23, str(doc.page))
         canvas.restoreState()
@@ -764,7 +766,7 @@ class WrittenReport:
         doc = SimpleDocTemplate(str(destination), pagesize=letter, rightMargin=44,
                                 leftMargin=44, topMargin=43, bottomMargin=42,
                                 title="The Conservative Formula: CRSP Final Report",
-                                author="Yingni Chang", subject="MTH 9897 Project 8")
+                                author="Yingni Chang and Yikai Shen", subject="MTH 9897 Project 8")
         doc.build(self.story, onFirstPage=self.footer, onLaterPages=self.footer)
         return destination
 

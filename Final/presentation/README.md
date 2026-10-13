@@ -1,5 +1,7 @@
 # Presentation
 
+**Authors:** Yingni Chang and Yikai Shen
+
 The final deliverable `conservative_formula.pdf` (18 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
 from the tracked results in `results/` through the hash-checked loader:
 

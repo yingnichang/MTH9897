@@ -1,5 +1,7 @@
 """Build the report notebook: a critical replication of the Conservative Formula on CRSP, 1929-2024.
 
+Project authors: Yingni Chang and Yikai Shen.
+
 Every result shown is read from the tracked result contract (`results/`, written by `python -m research.run_all`)
 through the hash-checked loader; prose numbers are formatted from `research.summary.numbers()`.
 Run `python build_notebook.py && python execute_notebook.py`.
@@ -25,7 +27,7 @@ def code(s):
 md(r'''
 # The Conservative Formula: A Critical Replication on CRSP, 1929–2024
 **MTH 9897 Systematic Trading · Project 8 · Final report**
-**Author:** Yingni Chang
+**Authors:** Yingni Chang and Yikai Shen
 
 **Paper:** David Blitz and Pim van Vliet (2018), "The Conservative Formula: Quantitative Investing Made Easy",
 *The Journal of Portfolio Management* 44(7); working paper [SSRN 3145152](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3145152).
@@ -741,6 +743,7 @@ md(r'''
 ''')
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={
+    "authors": [{"name": "Yingni Chang"}, {"name": "Yikai Shen"}],
     "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
     "language_info": {"name": "python", "version": "3.12"},
 })

@@ -1,5 +1,7 @@
 # Conservative Formula Final Review
 
+**Project authors:** Yingni Chang and Yikai Shen
+
 Reviewed October 12, 2026. The project implements the US Conservative Formula on CRSP from January 1929 through December 2024, with the paper comparison ending in December 2016. Three review passes cover the assignment and paper, data and accounting, and independent calculations and deliverables. The checks below pass after the corrections. The results are a close replication of return and risk, with material differences from the paper still disclosed.
 
 ## Pass 1 Paper and assignment alignment

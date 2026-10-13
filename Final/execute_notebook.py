@@ -1,5 +1,7 @@
 """Execute and validate the report notebook with the active Python environment.
 
+Project authors: Yingni Chang and Yikai Shen.
+
 CRSP mode (default) executes the tracked notebook in place: it reads only the aggregate results in results/
 (written by `python -m research.run_all`), so it shows no licensed security-level rows. CF_RECOMPUTE=1 reruns every
 study first. CF_MODE=demo runs the synthetic demonstration instead and writes output/demo_run.ipynb (git-ignored).

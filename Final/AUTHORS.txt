@@ -1,0 +1,12 @@
+The Conservative Formula: A Critical Replication on CRSP, 1929-2024
+MTH 9897 Systematic Trading, Project 8
+
+Project authors:
+Yingni Chang
+Yikai Shen
+
+The project notebook, written report, presentation, code and submission package
+are credited to Yingni Chang and Yikai Shen.
+
+The reference research paper remains credited to David Blitz and Pim van Vliet.
+The assignment and source data retain their original attribution.
