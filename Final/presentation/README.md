@@ -41,6 +41,8 @@ organized into labeled tables through `numeric_views.py`, using the same hash-ch
 Periods, units, confidence intervals and qualifications stay with the comparisons. It measures
 text and table height before drawing and preserves the 18-slide order, figures and dimensions.
 The final PDF layout is controlled by `build_pdf.py`; the PPTX supplies the original content.
+Slide 18 closes with five questions for the professor; `professor_questions.py` supplies the
+questions, and both speaking-note versions use the same final-slide title.
 
 For visual checks, render with `pdftoppm -scale-to 1400 -png
 presentation/conservative_formula.pdf presentation/build/check`.

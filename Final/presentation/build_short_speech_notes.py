@@ -105,10 +105,10 @@ def short_notes(root=results.RESULTS):
         "data, lower volatility is more consistent than positive net alpha. The extensions "
         "are useful experiments, but do not establish a superior strategy on unseen data.",
 
-        "The main calculation command is python, dash m, research dot run all. "
-        "The notebook and PDFs use saved results, while a full rebuild requires the "
-        "private CRSP inputs. The submission includes code, results and data checks. "
-        "Thank you. We're happy to take questions.",
+        "We'd appreciate guidance on payout, industry positioning and the turnover gap. "
+        "Could we compare our cleaning with your reference? For the weaker recent "
+        "extension, should we investigate further or document the result? Which checks "
+        "would you prioritize? Thank you.",
     ]
     titles = [note['title'] for note in make_notes(root)]
     if len(scripts) != len(titles):

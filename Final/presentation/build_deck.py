@@ -324,15 +324,9 @@ def build(root: Path = results.RESULTS, out_dir: Path = FINAL / "presentation") 
                      "turnover above the paper's; selection across grids; a short post-sample"],
             notes='We reproduce much of the historical return-and-risk pattern. The remaining turnover and regression gaps prevent an exact replication claim. For recent data, lower volatility is more consistent than positive net alpha. The extra strategies need an unseen test before stronger claims would be justified.')
 
-    man = results.manifest(root)
-    d.slide('Running the project',
-            bullets=["python -m crsp_pipeline.import_web   (full web exports; licensed data kept private)",
-                     "python -m crsp_pipeline build",
-                     "python -m research.run_all   → results/ (aggregates) + results/manifest.json",
-                     "python build_notebook.py && python execute_notebook.py",
-                     "python presentation/build_pdf.py   (PDF slides and speaker notes)",
-                     f"{len(man['files'])} result files with sha256 hashes; data manifest {man['data_manifest_sha256'][:12]}…"],
-            notes='The notebook and both PDFs read saved aggregate results. The full calculation starts with the private CRSP inputs and runs through research.run_all. Source data, cleaning audits and run instructions are included in the private submission package.')
+    from professor_questions import TITLE, questions
+    d.slide(TITLE, bullets=[f'{topic}: {question}' for topic, question in questions(root)],
+            notes='Ask for guidance on payout, industry positioning, turnover, cleaning and the recent extension.')
 
     bad = results.security_headers(d.table_headers())
     if bad:

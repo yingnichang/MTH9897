@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,032 words. At 130 words per minute, that is about 16 minutes before pauses and discussion of charts. Allow roughly 15-18 minutes with short pauses.
+The read-aloud script contains approximately 2,029 words. At 130 words per minute, that is about 16 minutes before pauses and discussion of charts. Allow roughly 15-18 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-18; change this to suit your delivery.
 
@@ -210,17 +210,17 @@ Our implementation reproduces much of the paper's historical return and risk pat
 
 For recent data, lower volatility is more consistent than positive net alpha. The buffer and optimizers change trading and risk, but their results do not yet show a stronger strategy on unseen data. Our conclusion is that this is a useful, understandable factor portfolio, with important limits to a claim of persistent outperformance.
 
-**Transition:** I'll finish with the code and data needed to rerun the project.
+**Transition:** We'd like to finish with a few questions about implementation and next steps.
 
-## 18. Running the project
+## 18. Questions for the professor
 
-**Approximate speaking time:** 46 seconds, plus pauses.
+**Approximate speaking time:** 44 seconds, plus pauses.
 
-**Presenter cue:** Give the entry point; finish without reading every command.
+**Presenter cue:** Invite guidance; pause after each question and allow discussion.
 
-The main calculation command is python, dash m, research dot run all, from the Final folder. The notebook and PDFs read the saved aggregate results, so they can be opened without the licensed stock-level data. A full rebuild uses the private CRSP inputs and the cleaning code first.
+We would appreciate guidance on a few implementation choices. Is our twelve-month dividend yield plus the share-count term based on a twenty-four-month average the intended payout definition? Should our main result keep the paper's global ranking or use an industry adjustment? And which turnover convention should we use when comparing our higher turnover with the paper?
 
-We include the source, notebook, reports, data audits and run instructions in the course package. The public repository contains code and aggregate results; the licensed data stay in the private submission. This allows the calculations to be checked without putting the raw observations on GitHub. Thank you. We're happy to take questions.
+You mentioned sharing the data-cleaning work. Could we compare our dividends, split adjustments and delistings with your reference? Finally, should we investigate the weaker recent extension further, or document it as a finding? Which checks would you prioritize? Thank you.
 
 # Questions to Prepare For
 

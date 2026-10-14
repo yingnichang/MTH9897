@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 18 slides: approximately 740 words, or 5.7 minutes at 130 words per minute. Allow about 6-8 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-18.
+Brief script for all 18 slides: approximately 736 words, or 5.7 minutes at 130 words per minute. Allow about 6-8 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-18.
 
 ## 1. Replicating the Conservative Formula
 
@@ -72,6 +72,6 @@ The buffer keeps an existing holding while it remains eligible and within the be
 
 We reproduce much of the historical return and risk pattern, although turnover still differs. We address payout and industry positioning explicitly. In recent data, lower volatility is more consistent than positive net alpha. The extensions are useful experiments, but do not establish a superior strategy on unseen data.
 
-## 18. Running the project
+## 18. Questions for the professor
 
-The main calculation command is python, dash m, research dot run all. The notebook and PDFs use saved results, while a full rebuild requires the private CRSP inputs. The submission includes code, results and data checks. Thank you. We're happy to take questions.
+We'd appreciate guidance on payout, industry positioning and the turnover gap. Could we compare our cleaning with your reference? For the weaker recent extension, should we investigate further or document the result? Which checks would you prioritize? Thank you.

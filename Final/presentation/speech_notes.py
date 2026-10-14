@@ -233,16 +233,16 @@ def make_notes(root=results.RESULTS):
         "data. Our conclusion is that this is a useful, understandable "
         "factor portfolio, with important limits to a claim of persistent outperformance.")
 
-    add("Running the project", "Give the entry point; finish without reading every command.",
-        "The main calculation command is python, dash m, research dot run all, "
-        "from the Final folder. The notebook and PDFs read the saved aggregate "
-        "results, so they can be opened without the licensed stock-level data. "
-        "A full rebuild uses the private CRSP inputs and the cleaning code first.",
-        "We include the source, notebook, reports, data audits and run instructions "
-        "in the course package. The public repository contains code and aggregate "
-        "results; the licensed data stay in the private submission. This allows "
-        "the calculations to be checked without putting the raw observations "
-        "on GitHub. Thank you. We're happy to take questions.")
+    add("Questions for the professor", "Invite guidance; pause after each question and allow discussion.",
+        "We would appreciate guidance on a few implementation choices. Is our twelve-month "
+        "dividend yield plus the share-count term based on a twenty-four-month average the "
+        "intended payout definition? Should our main result keep the paper's global ranking "
+        "or use an industry adjustment? And which turnover convention should we use "
+        "when comparing our higher turnover with the paper?",
+        "You mentioned sharing the data-cleaning work. Could we compare our dividends, "
+        "split adjustments and delistings with your reference? Finally, should we investigate "
+        "the weaker recent extension further, or document it as a finding? Which checks "
+        "would you prioritize? Thank you.")
 
     transitions = [
         "Let me start with what we wanted to test.",
@@ -261,7 +261,7 @@ def make_notes(root=results.RESULTS):
         "The next model adds a covariance penalty.",
         "Finally, we test a simpler change aimed at reducing turnover.",
         "These comparisons lead us to the main conclusion.",
-        "I'll finish with the code and data needed to rerun the project.",
+        "We'd like to finish with a few questions about implementation and next steps.",
         "",
     ]
     for note, transition in zip(notes, transitions): note["transition"] = transition

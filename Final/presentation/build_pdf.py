@@ -22,6 +22,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 from build_deck import build
 from numeric_views import make_views
+from professor_questions import TITLE as QUESTIONS_TITLE
 
 EMU = 12700
 FONT, BOLD = 'Helvetica', 'Helvetica-Bold'
@@ -236,7 +237,8 @@ def export(source, destination, root=None):
             raise ValueError('Unexpected slide evidence layout')
         title_size = 38 if number == 1 else 32
         title_top = height-(55 if number == 1 else 30)
-        used = paragraph(pdf, title.paragraphs[0].text, margin, title_top,
+        slide_title = QUESTIONS_TITLE if number == 18 else title.paragraphs[0].text
+        used = paragraph(pdf, slide_title, margin, title_top,
                          content_width, title_size, bold=True)
         if len(title.paragraphs) > 1:
             used += 9
