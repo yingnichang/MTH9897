@@ -7,6 +7,7 @@ Requires python-pptx, reportlab and Pillow. Text and tables remain searchable.
 """
 from io import BytesIO
 from pathlib import Path
+from types import SimpleNamespace
 from xml.sax.saxutils import escape
 
 from pptx import Presentation
@@ -20,6 +21,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 from build_deck import build
+from numeric_views import make_views
 
 EMU = 12700
 FONT, BOLD = 'Helvetica', 'Helvetica-Bold'
@@ -78,7 +80,7 @@ def draw_body(pdf, paras, x, top, width, size, gap):
 
 def table_layout(table, width, size, fractions):
     widths = [width*f for f in fractions]
-    cells = [[c.text for c in row.cells] for row in table.rows]
+    cells = table if isinstance(table, list) else [[c.text for c in row.cells] for row in table.rows]
     heights = []
     for row_i, row in enumerate(cells):
         needed = max(paragraph(None, value, 0, 0, cw-18, size,
@@ -130,17 +132,91 @@ def draw_picture(pdf, shape, x, top, width, height):
                   top-(height-h)/2-h, w, h, mask='auto')
 
 
-def export(source, destination):
-    """Reflow the existing slide objects for PDF without rewriting their content.
+def text_paras(lines):
+    return [SimpleNamespace(text=line, level=0) for line in lines]
 
-    The PPTX is read only. Every slide retains its text, table cells, picture
-    bytes and page dimensions. Only PDF typography, spacing and placement change.
+
+def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
+    """Place a verified numerical table with its context and source figure."""
+    kind = view['kind']
+    intro, notes = text_paras(view['intro']), text_paras(view['notes'])
+    bottom = top-height
+    if kind == 'wide':
+        intro_h = body_height(intro, width, 16, 6)
+        notes_h = body_height(notes, width, 16, 6)
+        gaps = (12 if intro else 0)+(12 if notes else 0)
+        size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps,
+                                 view['font'], view['widths'])
+        if intro:
+            draw_body(pdf, intro, x, top, width, 16, 6)
+        table_top = top-intro_h-(12 if intro else 0)
+        draw_table(pdf, x, table_top, size, layout, prose=view['prose'])
+        if notes:
+            draw_body(pdf, notes, x, bottom+notes_h, width, 16, 6)
+        return
+
+    left_w = width*.49
+    right_x, right_w = x+left_w+28, width-left_w-28
+    if kind == 'with_bottom_table':
+        base_size, base_layout = fit_table(tables[0], width, 190, 14, [.20]+[.80/6]*6)
+        base_h = sum(base_layout[1])
+        notes_h = body_height(notes, width, 13.5, 6)
+        main_h = height-base_h-notes_h-24
+        size, layout = fit_table(view['rows'], left_w, main_h,
+                                 view['font'], view['widths'])
+        draw_table(pdf, x, top, size, layout)
+        draw_body(pdf, notes, x, bottom+base_h+12+notes_h, width, 13.5, 6)
+        draw_picture(pdf, pictures[0], right_x, top, right_w, main_h)
+        draw_table(pdf, x, bottom+base_h, base_size, base_layout)
+        return
+
+    if kind == 'picture_with_notes_below':
+        intro_h = body_height(intro, width, 15, 6)
+        notes_h = body_height(notes, width, 15, 6)
+        main_h = height-intro_h-notes_h-24
+        size, layout = fit_table(view['rows'], left_w, main_h,
+                                 view['font'], view['widths'])
+        draw_body(pdf, intro, x, top, width, 15, 6)
+        main_top = top-intro_h-12
+        draw_table(pdf, x, main_top, size, layout)
+        draw_picture(pdf, pictures[0], right_x, main_top, right_w, main_h)
+        draw_body(pdf, notes, x, bottom+notes_h, width, 15, 6)
+        return
+
+    intro_h = body_height(intro, left_w, 16, 6)
+    notes_h = body_height(notes, left_w, 14.5, 6)
+    gaps = (12 if intro else 0)+(12 if notes else 0)
+    size, layout = fit_table(view['rows'], left_w, height-intro_h-notes_h-gaps,
+                             view['font'], view['widths'])
+    if intro:
+        draw_body(pdf, intro, x, top, left_w, 16, 6)
+    draw_table(pdf, x, top-intro_h-(12 if intro else 0), size, layout)
+    if notes:
+        draw_body(pdf, notes, x, bottom+notes_h, left_w, 14.5, 6)
+    if kind == 'with_picture':
+        draw_picture(pdf, pictures[0], right_x, top, right_w, height)
+    elif kind == 'with_side_table':
+        rows = [[c.text for c in row.cells] for row in tables[0].rows]
+        rows[0] = ['Period', 'Carhart alpha', 'Excess return']
+        paragraph(pdf, 'Break-even cost (bps per dollar traded)', right_x, top, right_w, 16, bold=True)
+        size_r, layout_r = fit_table(rows, right_w, height-48, 16, [.38, .30, .32])
+        draw_table(pdf, right_x, top-45, size_r, layout_r)
+    else:
+        raise ValueError(f'Unknown numerical layout: {kind}')
+
+
+def export(source, destination, root=None):
+    """Build readable PDF evidence tables from the same saved numerical results.
+
+    The PPTX is read only. Slide order, figures, dimensions and scientific
+    results are retained; numerical prose is reorganized into labeled tables.
     """
     deck = Presentation(source)
     width, height = deck.slide_width / EMU, deck.slide_height / EMU
     pdf = canvas.Canvas(str(destination), pagesize=(width, height))
     pdf.setTitle('The Conservative Formula: CRSP Replication, 1929–2024')
     pdf.setAuthor('Yingni Chang and Yikai Shen')
+    views = make_views() if root is None else make_views(root)
     margin, gutter = 42, 28
     content_width = width-2*margin
     bottom = 48
@@ -170,7 +246,10 @@ def export(source, destination):
         body_top = min(height-(190 if number == 1 else 116), title_top-used-26)
         available = body_top-bottom
         paras = list(body.paragraphs)
-        if not pictures and not tables:
+        if number in views:
+            draw_numeric_view(pdf, views[number], pictures, tables, margin,
+                              body_top, content_width, available)
+        elif not pictures and not tables:
             size, gap, used = fit_body(paras, content_width, available, 24)
             draw_body(pdf, paras, margin, body_top-(available-used)*.18,
                       content_width, size, gap)

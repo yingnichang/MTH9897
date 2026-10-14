@@ -21,6 +21,7 @@ def main():
     selected.update(ROOT / p for p in [
         'crsp_pipeline/import_web.py', 'tests/test_import_web.py',
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
+        'presentation/numeric_views.py',
         'presentation/build_speech_notes.py', 'presentation/speech_notes.py',
         'presentation/speaker_notes.md', 'output/pdf/conservative_formula_speech_notes.pdf',
         'presentation/build_short_speech_notes.py', 'presentation/speaker_notes_short.md',

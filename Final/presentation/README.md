@@ -36,9 +36,11 @@ For a shorter talk, `speaker_notes_short.md` gives a few sentences per slide. Th
 `build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
 searchable text and tables. No LibreOffice installation is required. The PPTX is
 an intermediate editable version; submit the PDF. The PDF exporter reflows the same content
-with larger type, balanced text and figure placement, and shaded tables. It measures text and
-table height before drawing and preserves every slide's wording, values, images and dimensions.
-The final PDF layout is controlled by `build_pdf.py`; the PPTX supplies the content.
+with larger type, balanced text and figure placement, and shaded tables. Numerical prose is
+organized into labeled tables through `numeric_views.py`, using the same hash-checked results.
+Periods, units, confidence intervals and qualifications stay with the comparisons. It measures
+text and table height before drawing and preserves the 18-slide order, figures and dimensions.
+The final PDF layout is controlled by `build_pdf.py`; the PPTX supplies the original content.
 
 For visual checks, render with `pdftoppm -scale-to 1400 -png
 presentation/conservative_formula.pdf presentation/build/check`.
