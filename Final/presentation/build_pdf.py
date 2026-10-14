@@ -11,7 +11,7 @@ from xml.sax.saxutils import escape
 
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
-from reportlab.lib.colors import HexColor, white, black
+from reportlab.lib.colors import HexColor, white
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Paragraph
@@ -36,74 +36,184 @@ else:
     FONT, BOLD = 'SlideSans', 'SlideSansBold'
 
 
-def paragraph(pdf, text, x, top, width, size, bold=False, color=black):
+INK, MUTED = HexColor('#203449'), HexColor('#526475')
+HEADER, RULE, STRIPE = HexColor('#203449'), HexColor('#D7E0E7'), HexColor('#F1F5F8')
+
+
+def paragraph(pdf, text, x, top, width, size, bold=False, color=INK, align=0, measure=False):
     style = ParagraphStyle('slide', fontName=BOLD if bold else FONT,
-                           fontSize=size, leading=size * 1.2, textColor=color)
+                           fontSize=size, leading=size * 1.28, textColor=color,
+                           alignment=align, splitLongWords=False)
     p = Paragraph(escape(text).replace('\n', '<br/>'), style)
     _, height = p.wrap(width, 10000)
-    p.drawOn(pdf, x, top - height)
+    if not measure:
+        p.drawOn(pdf, x, top - height)
     return height
 
 
+def body_height(paras, width, size, gap):
+    return sum(paragraph(None, p.text, 0, 0, width-(18 if p.level else 0),
+                         size-(2 if p.level else 0), measure=True)
+               for p in paras) + gap * max(0, len(paras)-1)
+
+
+def fit_body(paras, width, height, preferred, minimum=16):
+    for half in range(round(preferred*2), round(minimum*2)-1, -1):
+        size = half/2
+        gap = max(8, size*.48)
+        used = body_height(paras, width, size, gap)
+        if used <= height:
+            return size, gap, used
+    raise ValueError('Slide body does not fit without changing content')
+
+
+def draw_body(pdf, paras, x, top, width, size, gap):
+    for i, p in enumerate(paras):
+        indent = 18 if p.level else 0
+        used = paragraph(pdf, p.text, x+indent, top, width-indent,
+                         size-(2 if p.level else 0), color=MUTED if p.level else INK)
+        top -= used + (gap if i+1 < len(paras) else 0)
+    return top
+
+
+def table_layout(table, width, size, fractions):
+    widths = [width*f for f in fractions]
+    cells = [[c.text for c in row.cells] for row in table.rows]
+    heights = []
+    for row_i, row in enumerate(cells):
+        needed = max(paragraph(None, value, 0, 0, cw-18, size,
+                               bold=row_i == 0 or col_i == 0, measure=True)
+                     for col_i, (value, cw) in enumerate(zip(row, widths)))
+        heights.append(max(size*2.05, needed+12))
+    return widths, heights, cells
+
+
+def fit_table(table, width, height, preferred, fractions):
+    for half in range(round(preferred*2), 25, -1):
+        size = half/2
+        layout = table_layout(table, width, size, fractions)
+        words_fit = all(pdfmetrics.stringWidth(word, BOLD if ri == 0 or ci == 0 else FONT, size)
+                        <= layout[0][ci]-18
+                        for ri, row in enumerate(layout[2]) for ci, value in enumerate(row)
+                        for word in value.split())
+        if words_fit and sum(layout[1]) <= height:
+            return size, layout
+    raise ValueError('Slide table does not fit without changing content')
+
+
+def draw_table(pdf, x, top, size, layout, prose=False):
+    widths, heights, cells = layout
+    for row_i, (row, rh) in enumerate(zip(cells, heights)):
+        pdf.setFillColor(HEADER if row_i == 0 else STRIPE if row_i % 2 else white)
+        pdf.rect(x, top-rh, sum(widths), rh, stroke=0, fill=1)
+        left = x
+        for col_i, (value, cw) in enumerate(zip(row, widths)):
+            align = 0 if col_i == 0 or prose else 1
+            needed = paragraph(None, value, 0, 0, cw-18, size,
+                               bold=row_i == 0 or col_i == 0, measure=True)
+            paragraph(pdf, value, left+9, top-(rh-needed)/2, cw-18, size,
+                      bold=row_i == 0 or col_i == 0,
+                      color=white if row_i == 0 else INK, align=align)
+            left += cw
+        pdf.setStrokeColor(RULE)
+        pdf.setLineWidth(.6)
+        pdf.line(x, top-rh, x+sum(widths), top-rh)
+        top -= rh
+    return top
+
+
+def draw_picture(pdf, shape, x, top, width, height):
+    ratio = shape.width/shape.height
+    w = min(width, height*ratio)
+    h = w/ratio
+    pdf.drawImage(ImageReader(BytesIO(shape.image.blob)), x+(width-w)/2,
+                  top-(height-h)/2-h, w, h, mask='auto')
+
+
 def export(source, destination):
+    """Reflow the existing slide objects for PDF without rewriting their content.
+
+    The PPTX is read only. Every slide retains its text, table cells, picture
+    bytes and page dimensions. Only PDF typography, spacing and placement change.
+    """
     deck = Presentation(source)
     width, height = deck.slide_width / EMU, deck.slide_height / EMU
     pdf = canvas.Canvas(str(destination), pagesize=(width, height))
     pdf.setTitle('The Conservative Formula: CRSP Replication, 1929–2024')
     pdf.setAuthor('Yingni Chang and Yikai Shen')
-    for slide in deck.slides:
+    margin, gutter = 42, 28
+    content_width = width-2*margin
+    bottom = 48
+    fractions = {4: [.36, .64], 6: [.20]+[.80/6]*6,
+                 8: [.40, .25, .35], 9: [.17, .09, .20, .27, .27],
+                 15: [.25, .19, .23, .15, .18]}
+    for number, slide in enumerate(deck.slides, 1):
         pdf.setFillColor(white)
         pdf.rect(0, 0, width, height, fill=1, stroke=0)
-        for shape in slide.shapes:
-            x, y, w, h = shape.left/EMU, shape.top/EMU, shape.width/EMU, shape.height/EMU
-            if x < 0 or y < 0 or x+w > width+1 or y+h > height+1:
-                raise ValueError('Slide object extends beyond the page boundary')
-            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                pdf.drawImage(ImageReader(BytesIO(shape.image.blob)), x, height-y-h, w, h, mask='auto')
-            elif shape.has_table:
-                table = shape.table
-                top = height-y
-                for row_idx, row in enumerate(table.rows):
-                    rh = row.height/EMU
-                    # Expand rows to fit wrapped text instead of clipping it.
-                    for col_idx, cell in enumerate(row.cells):
-                        cw = table.columns[col_idx].width/EMU
-                        font = cell.text_frame.paragraphs[0].font
-                        size = font.size.pt if font.size else 11
-                        style = ParagraphStyle('measure', fontName=BOLD if row_idx == 0 else FONT,
-                                               fontSize=size, leading=size*1.2)
-                        _, needed = Paragraph(escape(cell.text), style).wrap(cw-10, 10000)
-                        rh = max(rh, needed+9)
-                    if top-rh < 18:
-                        raise ValueError('Table exceeds slide: split it across slides')
-                    left = x
-                    for col_idx, cell in enumerate(row.cells):
-                        cw = table.columns[col_idx].width/EMU
-                        pdf.setStrokeColor(black)
-                        pdf.setLineWidth(0.4)
-                        pdf.rect(left, top-rh, cw, rh, stroke=1, fill=0)
-                        font = cell.text_frame.paragraphs[0].font
-                        size = font.size.pt if font.size else 11
-                        used = paragraph(pdf, cell.text, left+5, top-4, cw-10, size, row_idx == 0)
-                        if used > rh-7:
-                            raise ValueError(f'Table text exceeds row height: {cell.text[:60]}')
-                        left += cw
-                    top -= rh
-            elif shape.has_text_frame:
-                tf = shape.text_frame
-                top = height-y-tf.margin_top/EMU
-                for para in tf.paragraphs:
-                    size = para.font.size.pt if para.font.size else 15
-                    rgb = None
-                    try: rgb = para.font.color.rgb
-                    except (AttributeError, TypeError): pass
-                    color = HexColor('#'+str(rgb)) if rgb else HexColor('#1f2a33')
-                    used = paragraph(pdf, para.text, x+tf.margin_left/EMU, top,
-                                     w-(tf.margin_left+tf.margin_right)/EMU,
-                                     size, bool(para.font.bold), color)
-                    top -= used + (para.space_after.pt if para.space_after else 0)
-                    if top < height-y-h-2:
-                        raise ValueError(f'Text exceeds slide textbox: {para.text[:60]}')
+        text_shapes = [s for s in slide.shapes if s.has_text_frame]
+        if len(text_shapes) != 3:
+            raise ValueError('Expected title, body and author credit on each slide')
+        title, body, footer = [s.text_frame for s in text_shapes]
+        pictures = [s for s in slide.shapes if s.shape_type == MSO_SHAPE_TYPE.PICTURE]
+        tables = [s.table for s in slide.shapes if s.has_table]
+        if len(pictures) > 1 or len(tables) > 1:
+            raise ValueError('Unexpected slide evidence layout')
+        title_size = 38 if number == 1 else 32
+        title_top = height-(55 if number == 1 else 30)
+        used = paragraph(pdf, title.paragraphs[0].text, margin, title_top,
+                         content_width, title_size, bold=True)
+        if len(title.paragraphs) > 1:
+            used += 9
+            for p in list(title.paragraphs)[1:]:
+                used += paragraph(pdf, p.text, margin, title_top-used,
+                                  content_width, 15, color=MUTED)
+        body_top = min(height-(190 if number == 1 else 116), title_top-used-26)
+        available = body_top-bottom
+        paras = list(body.paragraphs)
+        if not pictures and not tables:
+            size, gap, used = fit_body(paras, content_width, available, 24)
+            draw_body(pdf, paras, margin, body_top-(available-used)*.18,
+                      content_width, size, gap)
+        elif pictures and tables and number == 9:
+            # Keep the rolling chart tall beside the period table and its explanation.
+            left_w = content_width*.56
+            size_t, layout = fit_table(tables[0], left_w, available*.60, 14,
+                                       [.19, .14, .17, .25, .25])
+            table_h = sum(layout[1])
+            size, gap, used = fit_body(paras, left_w, available-table_h-22, 21)
+            draw_body(pdf, paras, margin, body_top, left_w, size, gap)
+            draw_picture(pdf, pictures[0], margin+left_w+gutter, body_top,
+                         content_width-left_w-gutter, available)
+            draw_table(pdf, margin, bottom+table_h, size_t, layout)
+        elif pictures and tables:
+            # Preserve a wide table below the text/chart comparison.
+            table = tables[0]
+            size_t, layout = fit_table(table, content_width, 190, 14,
+                                       fractions[number])
+            table_h = sum(layout[1])
+            main_h = available-table_h-20
+            left_w = content_width*.49
+            size, gap, used = fit_body(paras, left_w, main_h, 21)
+            draw_body(pdf, paras, margin, body_top, left_w, size, gap)
+            draw_picture(pdf, pictures[0], margin+left_w+gutter, body_top,
+                         content_width-left_w-gutter, main_h)
+            draw_table(pdf, margin, bottom+table_h, size_t, layout)
+        else:
+            # Use a balanced text/evidence spread instead of small objects at the top.
+            left_w = content_width*(.49 if tables else .46)
+            right_w = content_width-left_w-gutter
+            size, gap, used = fit_body(paras, left_w, available, 21)
+            draw_body(pdf, paras, margin, body_top, left_w, size, gap)
+            if pictures:
+                draw_picture(pdf, pictures[0], margin+left_w+gutter, body_top,
+                             right_w, available)
+            else:
+                size_t, layout = fit_table(tables[0], right_w, available, 17,
+                                           fractions[number])
+                table_h = sum(layout[1])
+                draw_table(pdf, margin+left_w+gutter, body_top-(available-table_h)*.15,
+                           size_t, layout, prose=number == 4)
+        paragraph(pdf, footer.text, margin, 26, content_width, 9, color=MUTED)
         pdf.showPage()
     pdf.save()
     return destination
