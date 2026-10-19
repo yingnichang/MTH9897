@@ -2,9 +2,9 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,406 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
+The read-aloud script contains approximately 2,355 words. At 130 words per minute, that is about 18 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
 
-Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-23; change this to suit your delivery.
+Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
 ## 1. Replicating the Conservative Formula
 
@@ -251,14 +251,6 @@ For the UK comparison, we download Compustat Global daily data and take each mon
 **Presenter cue:** Explain the comparison and its limits.
 
 At ten basis points, the US strategy returns 10.66% annually against 13.01% for its benchmark. The UK base sample returns 7.23% against 5.40%. The UK exit stress returns 1.65% against 3.55% for its comparator, reversing the relative advantage. Adding a fifty-basis-point purchase tax to the ordinary ten-basis-point costs gives 6.34% for the UK base case. The relative UK result is more encouraging in this sample, but pounds and dollars represent different investor exposures. The benchmark definitions also differ. We should check historical classifications, terminal payments and a common-currency benchmark before calling this a robust country effect.
-
-## 23. Questions for the professor
-
-**Approximate speaking time:** 24 seconds, plus pauses.
-
-**Presenter cue:** Invite guidance; pause after each question and allow discussion.
-
-The remaining questions concern the turnover difference and better UK inputs. We would like historical country and exchange classifications and observed terminal payments. We also need guidance on a national benchmark and UK factors for a common-currency comparison. Finally, we can refine costs by traded stock and order size. Thank you.
 
 # Questions to Prepare For
 

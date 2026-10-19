@@ -25,7 +25,6 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from research import results
 from research.feedback_summary import extras
 from numeric_views import make_views
-from professor_questions import TITLE as QUESTIONS_TITLE
 
 EMU = 12700
 FONT, BOLD = 'Helvetica', 'Helvetica-Bold'
@@ -235,7 +234,7 @@ def draw_feedback_slide(pdf, view, width, height, root):
 def export(source, destination, root=None):
     """Build readable PDF evidence tables from the same saved numerical results.
 
-    The PPTX is read only. Five feedback slides precede the final questions. Existing figures, dimensions and scientific
+    The PPTX is read only. Five feedback slides follow the original 17 content slides. Existing figures, dimensions and scientific
     results are retained; numerical prose is reorganized into labeled tables.
     """
     deck = Presentation(source)
@@ -255,6 +254,7 @@ def export(source, destination, root=None):
         if number == 18:
             for view in extras(root):
                 draw_feedback_slide(pdf, view, width, height, root)
+            break  # The old professor-questions slide is excluded from the final submission.
         pdf.setFillColor(white)
         pdf.rect(0, 0, width, height, fill=1, stroke=0)
         text_shapes = [s for s in slide.shapes if s.has_text_frame]
@@ -267,7 +267,7 @@ def export(source, destination, root=None):
             raise ValueError('Unexpected slide evidence layout')
         title_size = 38 if number == 1 else 32
         title_top = height-(55 if number == 1 else 30)
-        slide_title = QUESTIONS_TITLE if number == 18 else title.paragraphs[0].text
+        slide_title = title.paragraphs[0].text
         used = paragraph(pdf, slide_title, margin, title_top,
                          content_width, title_size, bold=True)
         if len(title.paragraphs) > 1:

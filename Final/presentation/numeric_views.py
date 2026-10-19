@@ -1,11 +1,10 @@
 """Tables for numerical slide content, built from verified aggregate results.
 
 Project authors: Yingni Chang and Yikai Shen.
-The PDF keeps the 18-slide sequence; these views replace numerical prose.
+These views supply numerical tables for the original content slides.
 """
 from research import results, summary as S
 from research.summary import pct, num, ci
-from professor_questions import questions
 
 
 def make_views(root=results.RESULTS):
@@ -175,6 +174,4 @@ def make_views(root=results.RESULTS):
         intro=['Keep holdings while eligible and within the best 150 ranks.'],
         notes=['Net paired interval includes zero: not significant. The buffer changes holdings as well as costs.',
                'The recent period was already seen when we tested this variant.'], kind='with_picture', font=15)
-    add(18, [['Topic', 'Question']]+[list(q) for q in questions(root)], [.20, .80],
-        font=18, prose=True)
     return views

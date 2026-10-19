@@ -233,17 +233,6 @@ def make_notes(root=results.RESULTS):
         "data. Our conclusion is that this is a useful, understandable "
         "factor portfolio, with important limits to a claim of persistent outperformance.")
 
-    add("Questions for the professor", "Invite guidance; pause after each question and allow discussion.",
-        "We would appreciate guidance on a few implementation choices. Is our twelve-month "
-        "dividend yield plus the share-count term based on a twenty-four-month average the "
-        "intended payout definition? Should our main result keep the paper's global ranking "
-        "or use an industry adjustment? And which turnover convention should we use "
-        "when comparing our higher turnover with the paper?",
-        "You mentioned sharing the data-cleaning work. Could we compare our dividends, "
-        "split adjustments and delistings with your reference? Finally, should we investigate "
-        "the weaker recent extension further, or document it as a finding? Which checks "
-        "would you prioritize? Thank you.")
-
     transitions = [
         "Let me start with what we wanted to test.",
         "Those comparisons depend on the data, so I'll turn to the CRSP inputs.",
@@ -267,9 +256,8 @@ def make_notes(root=results.RESULTS):
     for note, transition in zip(notes, transitions): note["transition"] = transition
     from research.feedback_summary import extension_notes
     extra=extension_notes(root)
-    notes=notes[:17]+extra+notes[17:]
+    notes=notes[:17]+extra
     notes[16]['transition']='We now turn to the follow-up work suggested after the presentation.'
-    notes[-1]['paragraphs']=["The remaining questions concern the turnover difference and better UK inputs. We would like historical country and exchange classifications and observed terminal payments. We also need guidance on a national benchmark and UK factors for a common-currency comparison. Finally, we can refine costs by traded stock and order size. Thank you."]
     for i,note in enumerate(notes,1):note['number']=i
     return notes
 
@@ -322,7 +310,7 @@ def write_markdown(notes, destination, root=results.RESULTS):
              f"that is about {words/130:.0f} minutes before pauses and discussion of charts. "
              f"Allow roughly {math.floor(words/130)}-{math.ceil(words/130+2)} minutes with short pauses.", "",
              "Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 "
-             "and Yikai on slides 10-23; change this to suit your delivery.", ""]
+             "and Yikai on slides 10-22; change this to suit your delivery.", ""]
     for note in notes:
         seconds = round(word_count(note)/130*60)
         lines += [f"## {note['number']}. {note['title']}", "",

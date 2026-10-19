@@ -13,13 +13,14 @@ def test_deck_builds_with_aligned_scripts(tmp_path):
     pdf=PdfReader(build_deck.build(out_dir=tmp_path))
     from speech_notes import make_notes
     notes=make_notes()
-    assert len(pdf.pages)==len(notes)==23
+    assert len(pdf.pages)==len(notes)==22
     for page,note in zip(pdf.pages,notes):
         text=page.extract_text()
         assert 'Yingni Chang and Yikai Shen' in text
         assert note['title'].replace('–','-').replace('—','-') in text.replace('–','-').replace('—','-')
     markdown=(tmp_path/'speaker_notes.md').read_text(encoding='utf-8')
-    assert markdown.count('\n## ')==23
+    assert markdown.count('\n## ')==22
+    assert 'Questions for the professor' not in '\n'.join(p.extract_text() for p in pdf.pages)
     text=pdf.pages[17].extract_text()
     from research.feedback_summary import cost_rows,load
     for row in cost_rows(load())[1:]:

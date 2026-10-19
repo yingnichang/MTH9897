@@ -118,7 +118,7 @@ def short_notes(root=results.RESULTS):
         "For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.",
         "The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.",
     ]
-    scripts=scripts[:17]+short_extra+["Our remaining questions concern the turnover gap, historical UK classifications and terminal payments, and a common-currency benchmark and factor comparison. Thank you."]
+    scripts=scripts[:17]+short_extra
     titles = [note['title'] for note in make_notes(root)]
     if len(scripts) != len(titles):
         raise ValueError('Every slide must have a short script')
@@ -129,10 +129,10 @@ def short_notes(root=results.RESULTS):
 def main():
     notes = short_notes()
     words = sum(len(n['script'].split()) for n in notes)
-    intro = (f'Brief script for all 23 slides: approximately {words:,} words, or '
+    intro = (f'Brief script for all 22 slides: approximately {words:,} words, or '
              f'{words/130:.1f} minutes at 130 words per minute. Allow about '
              f'{round(words/130)}-{round(words/130)+2} minutes with pauses, plus questions. '
-             'Optional split: Yingni, slides 1-9; Yikai, slides 10-23.')
+             'Optional split: Yingni, slides 1-9; Yikai, slides 10-22.')
     lines = ['# Short Speaking Notes for the Conservative Formula', '',
              f'**Authors:** {AUTHORS}', '', intro, '']
     for n in notes:
