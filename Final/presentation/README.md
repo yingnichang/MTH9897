@@ -28,3 +28,5 @@ An optional presenter split is Yingni on pages 1-9 and Yikai on pages 10-22.
 Numbers and figures come from hash-checked aggregate results. The UK comparison identifies local currencies,
 different market benchmarks, missing terminal payments and the separate purchase-tax scenario. No UK alpha is
 estimated using US factors. Render the final PDF with Poppler for visual review.
+
+The approved Navy & Teal Research design uses a navy title band, warm cream background, teal accents, and consistent native tables. The cover and cost-summary page use dedicated layouts. `chart_theme.py` redraws presentation charts from the same hash-checked aggregate data; it does not rerun or modify the backtests. Presentation generation code remains in GitHub for audit and is excluded from the submission archive.

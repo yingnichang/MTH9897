@@ -25,6 +25,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from research import results
 from research.feedback_summary import extras
 from numeric_views import make_views
+from chart_theme import chart as themed_chart
 
 EMU = 12700
 FONT, BOLD = 'Helvetica', 'Helvetica-Bold'
@@ -41,8 +42,9 @@ else:
     FONT, BOLD = 'SlideSans', 'SlideSansBold'
 
 
-INK, MUTED = HexColor('#203449'), HexColor('#526475')
-HEADER, RULE, STRIPE = HexColor('#203449'), HexColor('#D7E0E7'), HexColor('#F1F5F8')
+NAVY, TEAL, CREAM = HexColor('#102C3B'), HexColor('#087F83'), HexColor('#F5F3EE')
+INK, MUTED = HexColor('#183342'), HexColor('#536B73')
+HEADER, RULE, STRIPE = NAVY, HexColor('#D5DEDA'), HexColor('#E7EFEB')
 
 
 def paragraph(pdf, text, x, top, width, size, bold=False, color=INK, align=0, measure=False):
@@ -89,7 +91,7 @@ def table_layout(table, width, size, fractions):
         needed = max(paragraph(None, value, 0, 0, cw-18, size,
                                bold=row_i == 0 or col_i == 0, measure=True)
                      for col_i, (value, cw) in enumerate(zip(row, widths)))
-        heights.append(max(size*2.05, needed+12))
+        heights.append(max(size*1.95, needed+10))
     return widths, heights, cells
 
 
@@ -208,17 +210,82 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
         raise ValueError(f'Unknown numerical layout: {kind}')
 
 
-def draw_feedback_slide(pdf, view, width, height, root):
-    margin=42; available_width=width-2*margin
-    title_h=paragraph(pdf, view['title'], margin, height-30, available_width, 32, bold=True)
-    top=min(height-116,height-30-title_h-26)
-    notes=text_paras([view.get('notes','')]); nh=body_height(notes,available_width,14.5,6)
+def theme_header(pdf, title, number, width, height):
+    pdf.setFillColor(CREAM);pdf.rect(0,0,width,height,stroke=0,fill=1)
+    pdf.setFillColor(NAVY);pdf.rect(0,height-104,width,104,stroke=0,fill=1)
+    pdf.setFillColor(TEAL);pdf.rect(0,height-104,10,104,stroke=0,fill=1)
+    section=('STUDY DESIGN' if number==2 else 'DATA AND METHODOLOGY' if number<=5
+             else 'US RESULTS' if number<=10 else 'IMPLEMENTATION CHECKS' if number<=12
+             else 'PORTFOLIO EXPERIMENTS' if number<=16 else 'CONCLUSIONS' if number==17
+             else 'RECENT US RESULTS' if number<=20 else 'UK EXTENSION')
+    paragraph(pdf,section,42,height-19,width-84,11,bold=True,color=HexColor('#8BD0C9'))
+    paragraph(pdf,title,42,height-44,width-84,30,bold=True,color=white)
+
+
+def theme_footer(pdf,number,width,dark=False):
+    color=HexColor('#B5CACB') if dark else MUTED
+    paragraph(pdf,'Yingni Chang and Yikai Shen',42,27,width-120,9,color=color)
+    paragraph(pdf,f'{number:02d}',width-76,28,40,10,bold=True,color=color)
+
+
+def cover(pdf,title,body,width,height):
+    pdf.setFillColor(NAVY);pdf.rect(0,0,width,height,stroke=0,fill=1)
+    pdf.setFillColor(HexColor('#163F49'));pdf.rect(width-282,0,282,height,stroke=0,fill=1)
+    pdf.setFillColor(TEAL);pdf.rect(54,height-74,66,5,stroke=0,fill=1)
+    heading=title.paragraphs[0].text.replace('the Conservative','the\nConservative')
+    paragraph(pdf,heading,54,height-99,590,45,bold=True,color=white)
+    subtitle='\n'.join(p.text for p in list(title.paragraphs)[1:])
+    paragraph(pdf,subtitle,57,305,580,12,color=HexColor('#BADEDA'))
+    paras=list(body.paragraphs)
+    size,gap,_=fit_body(paras,580,191,16,minimum=14)
+    top=251
+    for p in paras:
+        used=paragraph(pdf,p.text,57,top,580,size,color=HexColor('#D1DEDF'))
+        top-=used+gap
+    x=width-248
+    for label,years,top in [('US REPLICATION','1929-2016',391),('RECENT EXTENSION','2017-2024',267)]:
+        paragraph(pdf,label,x,top,214,11,bold=True,color=HexColor('#8BD0C9'))
+        paragraph(pdf,years,x,top-27,214,28,bold=True,color=white)
+    theme_footer(pdf,1,width,True)
+
+
+def cost_slide(pdf,view,width,height,root):
+    theme_header(pdf,view['title'],18,width,height)
+    pdf.setFillColor(NAVY);pdf.rect(0,0,244,height-104,stroke=0,fill=1)
+    data=results.load('feedback_costs','cost_summary.csv',root=root)[0]
+    data=data.loc[data.period.eq('2017–2024')&data.cost_model.eq('flat')].set_index('reference_bps')
+    for label,value,top,color in [('Before costs',data.loc[0,'compounded'],386,white),
+                                  ('At 30 bps',data.loc[30,'compounded'],257,HexColor('#8BD0C9'))]:
+        paragraph(pdf,label,30,top,185,13,color=HexColor('#B6CECE'))
+        paragraph(pdf,f'{value*100:.2f}%',30,top-27,185,36,bold=True,color=color)
+    paragraph(pdf,'Annual compound return',30,311,185,12,color=HexColor('#B6CECE'))
+    pdf.setFillColor(TEAL);pdf.rect(30,280,175,2,stroke=0,fill=1)
+    paragraph(pdf,f"Market: {100*data.loc[0,'market_cagr']:.2f}% per year",30,174,185,13,color=white)
+    paragraph(pdf,view['intro'],30,138,185,13,color=HexColor('#C5D8D7'))
+    rows=[row[:] for row in view['rows']]
+    rows[0]=['Cost (bps)','Annual return','Above market / yr','Carhart alpha / yr','Final $100']
+    size,layout=fit_table(rows,width-312,290,14.5,[.12,.19,.24,.25,.20])
+    draw_table(pdf,278,394,size,layout)
+    paragraph(pdf,view['notes'],278,113,width-312,12.5,color=MUTED)
+    paragraph(pdf,'Yingni Chang and Yikai Shen',30,27,210,8,color=HexColor('#C5D8D7'))
+    paragraph(pdf,'18',width-88,28,40,10,bold=True,color=MUTED)
+    pdf.showPage()
+
+
+def draw_feedback_slide(pdf, view, width, height, root,number):
+    if number==18:
+        cost_slide(pdf,view,width,height,root);return
+    theme_header(pdf,view['title'],number,width,height)
+    margin=42;available_width=width-2*margin;top=height-126
+    notes=text_paras([view.get('notes','')]);nh=body_height(notes,available_width,14.5,6)
     bottom=48+nh+15
     if 'figure' in view:
-        path=results.path(*view['figure'],root=root)
-        from PIL import Image
-        with Image.open(path) as im: iw,ih=im.size
-        shape=SimpleNamespace(width=iw,height=ih,image=SimpleNamespace(blob=path.read_bytes()))
+        shape=themed_chart(number,root)
+        if shape is None:
+            path=results.path(*view['figure'],root=root)
+            from PIL import Image
+            with Image.open(path) as im:iw,ih=im.size
+            shape=SimpleNamespace(width=iw,height=ih,image=SimpleNamespace(blob=path.read_bytes()))
         draw_picture(pdf,shape,margin,top,available_width,top-bottom)
     else:
         intro=text_paras([view['intro']]) if view.get('intro') else []
@@ -227,7 +294,7 @@ def draw_feedback_slide(pdf, view, width, height, root):
         size,layout=fit_table(view['rows'],available_width,top-bottom-ih-12,17,view['widths'])
         draw_table(pdf,margin,top-ih-(12 if intro else 0),size,layout,prose=view.get('prose',False))
     draw_body(pdf,notes,margin,48+nh,available_width,14.5,6)
-    paragraph(pdf,'Yingni Chang and Yikai Shen | MTH 9897',margin,26,available_width,9,color=MUTED)
+    theme_footer(pdf,number,width)
     pdf.showPage()
 
 
@@ -246,17 +313,15 @@ def export(source, destination, root=None):
     views = make_views(root)
     margin, gutter = 42, 28
     content_width = width-2*margin
-    bottom = 48
+    bottom = 40
     fractions = {4: [.36, .64], 6: [.20]+[.80/6]*6,
                  8: [.40, .25, .35], 9: [.17, .09, .20, .27, .27],
                  15: [.25, .19, .23, .15, .18]}
     for number, slide in enumerate(deck.slides, 1):
         if number == 18:
-            for view in extras(root):
-                draw_feedback_slide(pdf, view, width, height, root)
+            for extra_number,view in enumerate(extras(root),18):
+                draw_feedback_slide(pdf,view,width,height,root,extra_number)
             break  # The old professor-questions slide is excluded from the final submission.
-        pdf.setFillColor(white)
-        pdf.rect(0, 0, width, height, fill=1, stroke=0)
         text_shapes = [s for s in slide.shapes if s.has_text_frame]
         if len(text_shapes) != 3:
             raise ValueError('Expected title, body and author credit on each slide')
@@ -265,17 +330,13 @@ def export(source, destination, root=None):
         tables = [s.table for s in slide.shapes if s.has_table]
         if len(pictures) > 1 or len(tables) > 1:
             raise ValueError('Unexpected slide evidence layout')
-        title_size = 38 if number == 1 else 32
-        title_top = height-(55 if number == 1 else 30)
-        slide_title = title.paragraphs[0].text
-        used = paragraph(pdf, slide_title, margin, title_top,
-                         content_width, title_size, bold=True)
-        if len(title.paragraphs) > 1:
-            used += 9
-            for p in list(title.paragraphs)[1:]:
-                used += paragraph(pdf, p.text, margin, title_top-used,
-                                  content_width, 15, color=MUTED)
-        body_top = min(height-(190 if number == 1 else 116), title_top-used-26)
+        if number==1:
+            cover(pdf,title,body,width,height)
+            pdf.showPage();continue
+        theme_header(pdf,title.paragraphs[0].text,number,width,height)
+        restyled=themed_chart(number,root) if pictures else None
+        if restyled is not None:pictures=[restyled]
+        body_top=height-126
         available = body_top-bottom
         paras = list(body.paragraphs)
         if number in views:
@@ -324,7 +385,7 @@ def export(source, destination, root=None):
                 table_h = sum(layout[1])
                 draw_table(pdf, margin+left_w+gutter, body_top-(available-table_h)*.15,
                            size_t, layout, prose=number == 4)
-        paragraph(pdf, footer.text, margin, 26, content_width, 9, color=MUTED)
+        theme_footer(pdf,number,width)
         pdf.showPage()
     pdf.save()
     return destination

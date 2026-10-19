@@ -17,7 +17,8 @@ def test_deck_builds_with_aligned_scripts(tmp_path):
     for page,note in zip(pdf.pages,notes):
         text=page.extract_text()
         assert 'Yingni Chang and Yikai Shen' in text
-        assert note['title'].replace('–','-').replace('—','-') in text.replace('–','-').replace('—','-')
+        normalize=lambda s:' '.join(s.replace('–','-').replace('—','-').split())
+        assert normalize(note['title']) in normalize(text)
     markdown=(tmp_path/'speaker_notes.md').read_text(encoding='utf-8')
     assert markdown.count('\n## ')==22
     assert 'Questions for the professor' not in '\n'.join(p.extract_text() for p in pdf.pages)
