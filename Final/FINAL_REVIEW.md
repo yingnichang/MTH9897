@@ -96,7 +96,7 @@ Recent returns do not justify a claim that the formula reliably beats the market
 
 ## Submission files
 
-The main deliverable is [the executed notebook](conservative_formula_first_draft.ipynb). The [PDF slides](presentation/conservative_formula.pdf), generating code, notes and aggregate results are included in Git. Run instructions are in [README.md](README.md).
+The main deliverable is [the executed notebook](conservative_formula_final.ipynb). The [PDF slides](presentation/conservative_formula.pdf), generating code, notes and aggregate results are included in Git. Run instructions are in [README.md](README.md).
 
 `python package_submission.py` creates `output/submission/MTH9897_Conservative_Formula_Final.zip` with the notebook, PDF, source, aggregates, all seven raw parquet inputs, normalized inputs and the licensed worked examples needed for all 18 input-hash checks. The ZIP contains licensed CRSP observations and belongs in the authorized course submission channel; it is excluded from Git.
 
@@ -126,7 +126,17 @@ a robust country-effect claim. Historical classifications and observed terminal 
 Validation includes new split/quotation-unit, gap, exit-loss and past-only spread tests. All 144 scientific and
 presentation tests passed. Separately recomputing compounded returns and market excess from the monthly cash flows
 reproduced all 35 country/cost/exit summary rows within 1e-14. The seven US cost scenarios are monotone and all recent
-Carhart confidence intervals include zero. The executed notebook has 18 code cells, with no error outputs.
+Carhart confidence intervals include zero. The executed notebook has 19 code cells, with no error outputs.
 The PDF presentation has 22 pages, with aligned full and short notes. New and changed PDF pages were rendered and
 visually reviewed. The private course ZIP contains the UK export and original CRSP quote export needed to rebuild
 these tests. Licensed observations remain excluded from GitHub.
+
+
+## Notebook-first submission
+
+The main deliverable is now `conservative_formula_final.ipynb`. Its visible RUN_MODE setting controls cached,
+analysis and full execution through `submission_runner.py`, with all report results displayed in subsequent
+cells. Full mode invokes raw-data cleaning before all study scripts; analysis mode reuses normalized inputs.
+Cached mode validates result and source hashes and works without private inputs. Preflight checks stop a
+recompute before any stage runs if required private files are absent. Stage failures stop notebook execution.
+The private ZIP includes the code, all input data and cached outputs. No email or forum message is sent by this code.

@@ -23,7 +23,7 @@ def main():
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
         'presentation/numeric_views.py', 'presentation/conservative_formula.pptx',
         'research/studies/feedback_costs.py','research/studies/uk_comparison.py','research/feedback_summary.py',
-        'tests/test_feedback.py','data/uk_source.json',
+        'tests/test_feedback.py','data/uk_source.json','submission_runner.py','tests/test_submission_runner.py',
         'presentation/professor_questions.py',
         'presentation/build_speech_notes.py', 'presentation/speech_notes.py',
         'presentation/speaker_notes.md', 'output/pdf/conservative_formula_speech_notes.pdf',
@@ -44,7 +44,7 @@ def main():
     # Source receipts contain metadata, not security observations.
     selected.add(ROOT / 'data/raw/wrds_complete/download_manifest.json')
     selected = {p for p in selected if p.is_file()}
-    required = [ROOT / 'conservative_formula_first_draft.ipynb',
+    required = [ROOT / 'conservative_formula_final.ipynb',
                 ROOT / 'presentation/conservative_formula.pdf',
                 ROOT / 'output/pdf/conservative_formula_report.pdf',
                 ROOT / 'output/pdf/conservative_formula_speech_notes.pdf',

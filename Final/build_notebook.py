@@ -12,7 +12,7 @@ from textwrap import dedent
 import nbformat as nbf
 
 ROOT = Path(__file__).resolve().parent
-NOTEBOOK = "conservative_formula_first_draft.ipynb"
+NOTEBOOK = "conservative_formula_final.ipynb"
 cells = []
 
 
@@ -38,6 +38,50 @@ performance. We also study trading costs and several alternative portfolio const
 analysis, we focus on 1990–2024.
 ''')
 
+md(r'''
+## How to run this submission
+This notebook is the **final written report and the main execution interface**. All tables, charts and conclusions
+appear below. The accompanying Python files implement the cleaning, signals and portfolio simulations.
+
+1. Extract the private submission ZIP and keep the `Final/` folder intact. Install Python 3.12 and run
+   `python -m pip install -r requirements.txt` once in that folder. Open this notebook in JupyterLab or VS Code.
+2. Choose `RUN_MODE` in the next cell, then **Restart Kernel and Run All Cells**.
+
+| RUN_MODE | What Run All does | Inputs needed |
+|---|---|---|
+| `"cached"` (default) | Verifies saved results and scientific source hashes, then displays the complete report. | Code and saved aggregate results. No WRDS login. |
+| `"analysis"` | Calls the analysis Python scripts to recompute all 14 studies, then displays their new results. | Private data package, including normalized US data and original UK/quote exports. |
+| `"full"` | Cleans the supplied raw US inputs, recomputes all 14 studies, then displays their new results. | Complete private data package. No WRDS login or downloads. |
+
+Cached mode uses permitted on-disk intermediates and takes seconds. A full research rebuild previously took about
+16 minutes on the tested computer; allow longer on another machine. Progress appears in this notebook and in
+`output/execution/project_run.log`. If a calculation fails, execution stops before the report displays a mixture
+of old and new results. After a rebuild, **save the notebook** to retain its tables and figures for the TA.
+
+### Accompanying code
+| File or folder | Role in this notebook |
+|---|---|
+| [`submission_runner.py`](submission_runner.py) | Runs the selected workflow, checks private inputs and verifies saved outputs. |
+| [`crsp_pipeline/`](crsp_pipeline/) | Cleans raw US data, handles corporate actions and constructs the normalized panel. |
+| [`research/engine.py`](research/engine.py) | Builds portfolios and accounts for monthly returns, turnover and trading costs. |
+| [`research/run_all.py`](research/run_all.py) | Runs every study and writes tables, figures and the results manifest. |
+| [`research/studies/`](research/studies/) | Replication, payout/sector checks, factor tests, portfolio variants and recent cost/UK analyses. |
+| [`results/`](results/) | On-disk intermediates used to populate this report. All displayed files have checked hashes. |
+
+**Submission:** send `conservative_formula_final.ipynb` as the required notebook, together with its accompanying
+code and private data package through the authorized course submission channel. The PDF report and slides are
+optional companions. The complete package is about 550 MiB, so confirm the TA's accepted transfer method for
+large data attachments. Do not publish the licensed data in the public GitHub repository.
+''')
+
+code(r'''
+# Edit this one setting, then restart the kernel and run all cells.
+# cached = read verified saved results; analysis = rerun simulations; full = rebuild data and simulations.
+import os
+RUN_MODE = os.environ.get("CF_PROJECT_RUN", "cached")
+# For example, change the preceding line to: RUN_MODE = "full"
+''')
+
 code(r'''
 from pathlib import Path
 import os
@@ -61,8 +105,12 @@ from research.summary import ci, ci_num, num, pct, pp
 MODE = os.environ.get("CF_MODE", "crsp")                     # "crsp" (default): empirical; "demo": synthetic only
 assert MODE in {"crsp", "demo"}, f"CF_MODE must be crsp or demo, got {MODE!r}"
 RESULTS = Path(os.environ.get("CF_RESULTS", str(BASE / "results")))
-if MODE == "crsp" and os.environ.get("CF_RECOMPUTE") == "1":   # recompute every study from data/ first
-    subprocess.run([sys.executable, "-m", "research.run_all", "--results", str(RESULTS)], cwd=BASE, check=True)
+from submission_runner import run_project
+if MODE == "crsp":
+    # CF_RECOMPUTE remains supported for older launch commands.
+    effective_run = "analysis" if os.environ.get("CF_RECOMPUTE") == "1" and RUN_MODE == "cached" else RUN_MODE
+    execution_record = run_project(effective_run, base=BASE, result_root=RESULTS)
+    display(pd.DataFrame([execution_record]))
 EMPIRICAL = MODE == "crsp"
 N = S.numbers(RESULTS) if EMPIRICAL else {}
 pd.set_option("display.max_columns", 30, "display.width", 200)
@@ -677,7 +725,10 @@ python package_submission.py                             # private ZIP, includin
 ```
 Every table and figure above is read from `results/`, whose files are checked against the sha256 hashes in
 `results/manifest.json`; security-level rows never leave the git-ignored `output/` folder. Setting
-`CF_RECOMPUTE=1` reruns every study from `data/` before the notebook reads the results.
+The visible `RUN_MODE` setting at the top controls the complete workflow: `cached` displays verified results,
+`analysis` reruns all studies, and `full` rebuilds the raw data and all studies before displaying the report.
+`submission_runner.py` calls `crsp_pipeline` and `research/run_all.py`; those modules call the individual study
+scripts. The notebook reads the resulting tables and figures through the same hash-checked loader.
 ''')
 
 code(r'''

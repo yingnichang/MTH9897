@@ -16,7 +16,7 @@ these results and the assumptions behind them.
 
 | File | Purpose |
 |---|---|
-| [conservative_formula_first_draft.ipynb](conservative_formula_first_draft.ipynb) | Executed notebook and main course deliverable |
+| [conservative_formula_final.ipynb](conservative_formula_final.ipynb) | Executed notebook and main course deliverable |
 | [Written report](output/pdf/conservative_formula_report.pdf) | Methods, results, figures and discussion in PDF form |
 | [Presentation](presentation/conservative_formula.pdf) | 22 slides for the final presentation |
 | [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 22 slides, presenter cues and likely questions |
@@ -25,8 +25,39 @@ these results and the assumptions behind them.
 | [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 22 slides |
 | [Calculation checks](FINAL_REVIEW.md) | Paper comparison, data checks and independent return reconstruction |
 
-The notebook's filename is retained from the initial draft, but it contains the completed analysis.
+The final notebook is the primary submission report and execution interface. Set RUN_MODE near the top and select Restart Kernel and Run All Cells.
 All project materials credit Yingni Chang and Yikai Shen. The reference paper and source data retain their own attribution.
+
+## Submit and run the notebook
+
+`conservative_formula_final.ipynb` is the primary written report and the main way to run the project.
+It includes the methods, results, charts, limitations, references and execution instructions. The old
+`conservative_formula_first_draft.ipynb` filename has been replaced by this final filename.
+
+Open the notebook, choose `RUN_MODE` near the top, and select **Restart Kernel and Run All Cells**:
+
+| RUN_MODE | Action |
+|---|---|
+| `"cached"` | Verify the saved results and scientific code, then display the complete report. No private data or WRDS login needed. |
+| `"analysis"` | Run all 14 study scripts using the supplied normalized/raw private inputs, then display the new results. |
+| `"full"` | Clean the supplied raw US inputs, run all 14 studies and display their results. No downloads or WRDS login needed. |
+
+Use the complete private submission ZIP for analysis/full mode. Keep its `Final/` folder intact so relative
+paths to Python modules, data and results work. Cached mode takes seconds; a complete analysis rebuild previously
+took about 16 minutes on the tested computer. `submission_runner.py` streams calculation progress to the notebook
+and `output/execution/project_run.log`. Save the notebook after running it.
+
+For command-line execution, `CF_PROJECT_RUN=full` selects the complete workflow (or `analysis` to reuse cleaned inputs).
+In PowerShell:
+
+```powershell
+$env:CF_PROJECT_RUN = "full"
+python execute_notebook.py
+```
+
+Email the executed `.ipynb` as required by the course and provide the accompanying code and private data package
+through the TA's accepted transfer method. The complete ZIP is about 550 MiB and may exceed email attachment limits.
+The PDF report and slides are optional companions; the notebook contains the report itself.
 
 ## Main code
 

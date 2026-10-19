@@ -10,7 +10,7 @@ FINAL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(FINAL))
 from research import results  # noqa: E402
 
-NOTEBOOK = FINAL / "conservative_formula_first_draft.ipynb"
+NOTEBOOK = FINAL / "conservative_formula_final.ipynb"
 HTML_HEADER = re.compile(r"<th[^>]*>(.*?)</th>", re.IGNORECASE | re.DOTALL)
 
 

@@ -33,12 +33,12 @@ os.environ["JUPYTER_PATH"] = str(root / ".jupyter")
 os.environ["JUPYTER_RUNTIME_DIR"] = str(root / ".jupyter" / "runtime")
 os.environ["IPYTHONDIR"] = str(root / ".ipython")
 os.environ["MPLCONFIGDIR"] = str(root / ".matplotlib")
-path = root / "conservative_formula_first_draft.ipynb"
+path = root / "conservative_formula_final.ipynb"
 default_out = path if mode == "crsp" else root / "output" / "demo_run.ipynb"
 out = Path(os.environ.get("CF_NB_OUT", default_out)).resolve()
 if mode == "demo" and out == path.resolve():
     raise SystemExit("A demo run must not overwrite the tracked empirical notebook; set CF_NB_OUT elsewhere")
-timeout = int(os.environ.get("CF_CELL_TIMEOUT", 600 if os.environ.get("CF_RECOMPUTE") != "1" else 7200))
+timeout = int(os.environ.get("CF_CELL_TIMEOUT", 7200 if os.environ.get("CF_RECOMPUTE") == "1" or os.environ.get("CF_PROJECT_RUN") in {"analysis", "full"} else 600))
 
 nb = nbformat.read(path, as_version=4)
 client = NotebookClient(nb, timeout=timeout, kernel_name="project-python", resources={"metadata": {"path": str(root)}})
