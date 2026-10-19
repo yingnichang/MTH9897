@@ -95,7 +95,7 @@ import pandas as pd
 from IPython.display import Image, Markdown, display
 
 BASE = Path.cwd()
-if (BASE / "Final" / "build_notebook.py").exists():          # opened from the parent folder
+if (BASE / "Final" / "submission_runner.py").exists():          # opened from the parent folder
     BASE = BASE / "Final"
 sys.path.insert(0, str(BASE))
 from research import results
@@ -712,16 +712,16 @@ actual borrow availability.
 
 md(r'''
 ## 11. Reproducibility
+The submission contains this executed notebook, the analysis/runtime Python modules, all input data, saved
+aggregate results and the final presentation PDF. The document-generation scripts and speech notes remain
+in the [GitHub audit repository](https://github.com/yingnichang/MTH9897/tree/main/Final).
+
+Use the RUN_MODE setting near the top and run all cells. For an equivalent command-line rebuild from the
+extracted `Final/` folder:
 ```bash
-python -m crsp_pipeline.import_web                       # downloaded web archives -> data/raw/*.parquet
-# Alternatively: python -m crsp_pipeline extract --user <wrds_username>
-# The private submission package already contains the parquet inputs: skip the import there.
-python -m crsp_pipeline build                            # data/raw -> data/ panel, benchmark, factors, audits
-python -m research.run_all                               # every study -> results/ (aggregates) + results/manifest.json
-python build_notebook.py && python execute_notebook.py   # this notebook, reading results/
-python build_report_pdf.py                              # written PDF report
-python presentation/build_pdf.py                         # PDF slides and speaker notes
-python package_submission.py                             # private ZIP, including licensed data
+python -m pip install -r requirements.txt
+python submission_runner.py --mode full   # raw data -> cleaned inputs -> every analysis study
+python execute_notebook.py                # display the new results in this final notebook
 ```
 Every table and figure above is read from `results/`, whose files are checked against the sha256 hashes in
 `results/manifest.json`; security-level rows never leave the git-ignored `output/` folder. Setting

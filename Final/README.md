@@ -100,21 +100,18 @@ python presentation/build_short_speech_notes.py
 
 ## Rebuild from the private data package
 
-The private course ZIP is `output/submission/MTH9897_Conservative_Formula_Final.zip`. It contains the raw parquet
-inputs, normalized inputs, code, notebook, report, slide and speech-note PDFs, and results. After extracting it, run from `Final/`:
+The private course ZIP is `output/submission/MTH9897_Conservative_Formula_Final.zip`. It includes only the
+final notebook, analysis/runtime Python modules, complete input data, cached results, requirements, a submission
+README and `conservative_formula_presentation.pdf` at the top of its `Final/` folder.
+
+Speech notes, the `presentation/` source folder, tests, document-generation scripts and the duplicate PDF report
+are excluded from the submission ZIP. These audit materials remain in GitHub. The final notebook is the report.
+After extraction, open the notebook, select RUN_MODE and run all cells, or run from `Final/`:
 
 ```bash
 python -m pip install -r requirements.txt
-python -m crsp_pipeline build
-python -m research.run_all
-python build_notebook.py
+python submission_runner.py --mode full
 python execute_notebook.py
-python build_report_pdf.py
-python presentation/build_pdf.py
-python presentation/build_speech_notes.py
-python presentation/build_short_speech_notes.py
-python -m pytest tests -q
-python package_submission.py
 ```
 
 The full research run took about 16 minutes in the reviewed environment; runtime varies by machine. If you already
