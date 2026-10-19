@@ -2,9 +2,9 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,029 words. At 130 words per minute, that is about 16 minutes before pauses and discussion of charts. Allow roughly 15-18 minutes with short pauses.
+The read-aloud script contains approximately 2,406 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
 
-Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-18; change this to suit your delivery.
+Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-23; change this to suit your delivery.
 
 ## 1. Replicating the Conservative Formula
 
@@ -210,17 +210,55 @@ Our implementation reproduces much of the paper's historical return and risk pat
 
 For recent data, lower volatility is more consistent than positive net alpha. The buffer and optimizers change trading and risk, but their results do not yet show a stronger strategy on unseen data. Our conclusion is that this is a useful, understandable factor portfolio, with important limits to a claim of persistent outperformance.
 
-**Transition:** We'd like to finish with a few questions about implementation and next steps.
+**Transition:** We now turn to the follow-up work suggested after the presentation.
 
-## 18. Questions for the professor
+## 18. 2017-2024 trading-cost scenarios
+
+**Approximate speaking time:** 37 seconds, plus pauses.
+
+**Presenter cue:** Explain the comparison and its limits.
+
+Following the professor's feedback, we keep the portfolio fixed and vary costs from zero to thirty basis points in steps of five. Annual return falls from 11.01% before costs to 9.97% at thirty basis points. At five basis points it is 10.83%. These are still positive absolute returns, but the market grows faster over these eight years. Lower costs help without creating positive full-period market excess or alpha. The final column shows what happens to an initial one hundred dollars.
+
+## 19. When the recent return gap developed
+
+**Approximate speaking time:** 36 seconds, plus pauses.
+
+**Presenter cue:** Explain the comparison and its limits.
+
+The time-series view explains what an eight-year average can hide. The top panel shows the actual wealth paths. The lower panel compares the most recent twelve months of strategy and market returns. The sign can change during the sample. We also calculate trailing thirty-six-month Carhart alpha with Newey-West intervals in the notebook. Those windows overlap, and the short windows produce uncertain estimates. We use them to describe changing performance, rather than claim that we can forecast the next regime.
+
+## 20. Costs that change with quoted spreads
+
+**Approximate speaking time:** 37 seconds, plus pauses.
+
+**Presenter cue:** Explain the comparison and its limits.
+
+The transcript also suggests scaling costs with average spreads. We use CRSP closing bid and ask quotes for the eligible large-stock universe. We fix the reference average using 2016, then use only the previous month's spread to set the next month's cost. A five-basis-point reference therefore need not remain five in every month. The chart shows the changing cost assumption and quote coverage. It is a market-wide quote proxy. It does not measure our actual execution price, commissions or market impact.
+
+## 21. UK data and implementation
+
+**Approximate speaking time:** 41 seconds, plus pauses.
+
+**Presenter cue:** Explain the comparison and its limits.
+
+For the UK comparison, we download Compustat Global daily data and take each month's final available observation. We use ordinary London shares quoted in pounds, retain inactive companies, and use earlier observations to build the same thirty-six-month history. We adjust prices and shares for splits, then use the total-return factor to include distributions. Our benchmark holds the same eligible UK universe at capitalization weights. Current country and exchange headers and incomplete terminal payments make this a qualified extension. We do not use US factors to claim UK alpha.
+
+## 22. UK and US after the paper period
 
 **Approximate speaking time:** 44 seconds, plus pauses.
 
+**Presenter cue:** Explain the comparison and its limits.
+
+At ten basis points, the US strategy returns 10.66% annually against 13.01% for its benchmark. The UK base sample returns 7.23% against 5.40%. The UK exit stress returns 1.65% against 3.55% for its comparator, reversing the relative advantage. Adding a fifty-basis-point purchase tax to the ordinary ten-basis-point costs gives 6.34% for the UK base case. The relative UK result is more encouraging in this sample, but pounds and dollars represent different investor exposures. The benchmark definitions also differ. We should check historical classifications, terminal payments and a common-currency benchmark before calling this a robust country effect.
+
+## 23. Questions for the professor
+
+**Approximate speaking time:** 24 seconds, plus pauses.
+
 **Presenter cue:** Invite guidance; pause after each question and allow discussion.
 
-We would appreciate guidance on a few implementation choices. Is our twelve-month dividend yield plus the share-count term based on a twenty-four-month average the intended payout definition? Should our main result keep the paper's global ranking or use an industry adjustment? And which turnover convention should we use when comparing our higher turnover with the paper?
-
-You mentioned sharing the data-cleaning work. Could we compare our dividends, split adjustments and delistings with your reference? Finally, should we investigate the weaker recent extension further, or document it as a finding? Which checks would you prioritize? Thank you.
+The remaining questions concern the turnover difference and better UK inputs. We would like historical country and exchange classifications and observed terminal payments. We also need guidance on a national benchmark and UK factors for a common-currency comparison. Finally, we can refine costs by traded stock and order size. Thank you.
 
 # Questions to Prepare For
 
@@ -246,4 +284,4 @@ The main comparison periods were fixed before computing post-2016 portfolio retu
 
 **Are the capacity and cost assumptions realistic?**
 
-They are simplified scenarios. Costs are proportional to traded dollars, sometimes scaled by size and volatility. Capacity uses monthly volume and a 10% participation assumption, normalized to 2024 market size. Market impact, daily scheduling and actual borrow availability are omitted.
+They are simplified scenarios. Costs are proportional to traded dollars, sometimes scaled by size and volatility. Capacity uses monthly volume and a 10% participation assumption, normalized to 2024 market size. The follow-up also uses lagged quoted spreads and a separate UK purchase-tax scenario. Market impact, daily scheduling and actual borrow availability are omitted.

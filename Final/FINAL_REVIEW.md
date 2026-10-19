@@ -99,3 +99,34 @@ Recent returns do not justify a claim that the formula reliably beats the market
 The main deliverable is [the executed notebook](conservative_formula_first_draft.ipynb). The [PDF slides](presentation/conservative_formula.pdf), generating code, notes and aggregate results are included in Git. Run instructions are in [README.md](README.md).
 
 `python package_submission.py` creates `output/submission/MTH9897_Conservative_Formula_Final.zip` with the notebook, PDF, source, aggregates, all seven raw parquet inputs, normalized inputs and the licensed worked examples needed for all 18 input-hash checks. The ZIP contains licensed CRSP observations and belongs in the authorized course submission channel; it is excluded from Git.
+
+## Post-presentation follow-up, 2026-10-18
+
+**Authors: Yingni Chang and Yikai Shen.**
+
+The feedback adds a US cost grid from 0 to 30 bps in 5-bps steps, annual returns, trailing 12-month return gaps,
+36-month Carhart alpha with HAC intervals, and lagged quoted-spread scaling. Reference spreads use only 2016;
+the next month's cost uses the previous calendar month. Original US holdings and earlier return series are unchanged.
+
+At 5 bps, 2017-2024 US CAGR is 10.83%; at 30 bps it is 9.97%, versus 13.01% for the CRSP market. The full-period
+market excess and Carhart alpha are negative even before costs. Lower cost does not establish outperformance.
+The time-series analysis is descriptive; overlapping rolling estimates do not provide a forecast or a formal break test.
+
+The new WRDS Compustat Global export contains 7,906,471 daily UK-incorporation observations from 2013 through 2024.
+The London ordinary GBP sample has 178,848 monthly observations across 2,008 issues before formation screens,
+including inactive securities. Price uses PRCCD/QUNIT/AJEXDI, shares use CSHOC*AJEXDI and total-return index uses TRFD.
+The same volatility, momentum and net-payout rule applies with quarterly formation. No US factors are used for UK alpha.
+
+At 10 bps the UK base CAGR is 7.23%, versus 5.40% for its own-universe cap-weight comparator. A separate scenario
+adds 50 bps on purchases, giving 6.34% CAGR. Under a deliberately severe 100%-loss assumption for every disappearing
+issue, strategy CAGR falls to 1.65% against 3.55% for its stressed comparator: the relative advantage reverses.
+This sensitivity, current country/exchange/type headers, local currencies and different comparator definitions prevent
+a robust country-effect claim. Historical classifications and observed terminal payments remain priorities.
+
+Validation includes new split/quotation-unit, gap, exit-loss and past-only spread tests. All 144 scientific and
+presentation tests passed. Separately recomputing compounded returns and market excess from the monthly cash flows
+reproduced all 35 country/cost/exit summary rows within 1e-14. The seven US cost scenarios are monotone and all recent
+Carhart confidence intervals include zero. The executed notebook has 18 code cells, with no error outputs.
+The PDF presentation has 23 pages, with aligned full and short notes. New and changed PDF pages were rendered and
+visually reviewed. The private course ZIP contains the UK export and original CRSP quote export needed to rebuild
+these tests. Licensed observations remain excluded from GitHub.

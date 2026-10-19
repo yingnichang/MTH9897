@@ -21,7 +21,9 @@ def main():
     selected.update(ROOT / p for p in [
         'crsp_pipeline/import_web.py', 'tests/test_import_web.py',
         'presentation/build_pdf.py', 'presentation/render_previews.mjs',
-        'presentation/numeric_views.py',
+        'presentation/numeric_views.py', 'presentation/conservative_formula.pptx',
+        'research/studies/feedback_costs.py','research/studies/uk_comparison.py','research/feedback_summary.py',
+        'tests/test_feedback.py','data/uk_source.json',
         'presentation/professor_questions.py',
         'presentation/build_speech_notes.py', 'presentation/speech_notes.py',
         'presentation/speaker_notes.md', 'output/pdf/conservative_formula_speech_notes.pdf',
@@ -34,6 +36,11 @@ def main():
         'audit/worked_examples.csv'])
     selected.update((ROOT / 'data/raw').glob('*.parquet'))
     selected.add(ROOT / 'data/raw/extract_log.json')
+    selected.add(ROOT / 'data/raw/uk/compustat_global_uk_2013_2024.zip')
+    selected.add(ROOT / 'data/raw/uk/query.sql')
+    selected.add(ROOT / 'data/raw/wrds_complete/crsp_monthly_legacy_1925_2024.zip')
+    selected.update((ROOT / 'results/feedback_costs').glob('*'))
+    selected.update((ROOT / 'results/uk_comparison').glob('*'))
     # Source receipts contain metadata, not security observations.
     selected.add(ROOT / 'data/raw/wrds_complete/download_manifest.json')
     selected = {p for p in selected if p.is_file()}
@@ -50,7 +57,7 @@ def main():
         for p in sorted(selected): z.write(p, 'Final/' + p.relative_to(ROOT).as_posix())
         z.writestr('PRIVATE_DATA_NOTICE.txt',
                    'Project authors: Yingni Chang and Yikai Shen.\n'
-                   'Contains licensed CRSP security data. Submit only through the authorized course channel.\n'
+                   'Contains licensed CRSP and Compustat Global security data. Submit only through the authorized course channel.\n'
                    'Do not upload this archive to a public GitHub repository.\n'
                    'Run from Final: pip install -r requirements.txt; python -m crsp_pipeline build;\n'
                    'python -m research.run_all; python build_notebook.py; python execute_notebook.py;\n'

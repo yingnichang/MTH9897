@@ -20,7 +20,10 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-from build_deck import build
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from research import results
+from research.feedback_summary import extras
 from numeric_views import make_views
 from professor_questions import TITLE as QUESTIONS_TITLE
 
@@ -206,10 +209,33 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
         raise ValueError(f'Unknown numerical layout: {kind}')
 
 
+def draw_feedback_slide(pdf, view, width, height, root):
+    margin=42; available_width=width-2*margin
+    title_h=paragraph(pdf, view['title'], margin, height-30, available_width, 32, bold=True)
+    top=min(height-116,height-30-title_h-26)
+    notes=text_paras([view.get('notes','')]); nh=body_height(notes,available_width,14.5,6)
+    bottom=48+nh+15
+    if 'figure' in view:
+        path=results.path(*view['figure'],root=root)
+        from PIL import Image
+        with Image.open(path) as im: iw,ih=im.size
+        shape=SimpleNamespace(width=iw,height=ih,image=SimpleNamespace(blob=path.read_bytes()))
+        draw_picture(pdf,shape,margin,top,available_width,top-bottom)
+    else:
+        intro=text_paras([view['intro']]) if view.get('intro') else []
+        ih=body_height(intro,available_width,16,6) if intro else 0
+        if intro:draw_body(pdf,intro,margin,top,available_width,16,6)
+        size,layout=fit_table(view['rows'],available_width,top-bottom-ih-12,17,view['widths'])
+        draw_table(pdf,margin,top-ih-(12 if intro else 0),size,layout,prose=view.get('prose',False))
+    draw_body(pdf,notes,margin,48+nh,available_width,14.5,6)
+    paragraph(pdf,'Yingni Chang and Yikai Shen | MTH 9897',margin,26,available_width,9,color=MUTED)
+    pdf.showPage()
+
+
 def export(source, destination, root=None):
     """Build readable PDF evidence tables from the same saved numerical results.
 
-    The PPTX is read only. Slide order, figures, dimensions and scientific
+    The PPTX is read only. Five feedback slides precede the final questions. Existing figures, dimensions and scientific
     results are retained; numerical prose is reorganized into labeled tables.
     """
     deck = Presentation(source)
@@ -217,7 +243,8 @@ def export(source, destination, root=None):
     pdf = canvas.Canvas(str(destination), pagesize=(width, height))
     pdf.setTitle('The Conservative Formula: CRSP Replication, 1929–2024')
     pdf.setAuthor('Yingni Chang and Yikai Shen')
-    views = make_views() if root is None else make_views(root)
+    root = results.RESULTS if root is None else root
+    views = make_views(root)
     margin, gutter = 42, 28
     content_width = width-2*margin
     bottom = 48
@@ -225,6 +252,9 @@ def export(source, destination, root=None):
                  8: [.40, .25, .35], 9: [.17, .09, .20, .27, .27],
                  15: [.25, .19, .23, .15, .18]}
     for number, slide in enumerate(deck.slides, 1):
+        if number == 18:
+            for view in extras(root):
+                draw_feedback_slide(pdf, view, width, height, root)
         pdf.setFillColor(white)
         pdf.rect(0, 0, width, height, fill=1, stroke=0)
         text_shapes = [s for s in slide.shapes if s.has_text_frame]
@@ -301,6 +331,6 @@ def export(source, destination, root=None):
 
 
 if __name__ == '__main__':
-    source = build()
+    source = Path(__file__).resolve().parent / 'conservative_formula.pptx'  # read-only layout input
     output = export(source, Path(__file__).resolve().parent / 'conservative_formula.pdf')
     print(f'Wrote {output}')

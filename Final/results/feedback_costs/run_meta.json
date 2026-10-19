@@ -1,0 +1,18 @@
+{
+  "authors": [
+    "Yingni Chang",
+    "Yikai Shen"
+  ],
+  "feedback_date": "2026-10-18",
+  "source_interpretation": "Cost scenarios by period and scaling with average spreads; no ARIMA request identified.",
+  "reconstruction_net10_max_abs_error": 1.5265566588595902e-16,
+  "quote_source_sha256": "ad05fa591b5a9cda60ed7fdd8b5a92ba733b46b9ad95d14c0506cbc4cbe8ad42",
+  "quote_query": "https://wrds-www.wharton.upenn.edu/query-manager/query/11778832/",
+  "private_quote_cache_sha256": "da5de9bd643ca96c6d2176db3596a9b84c963d8ad5c035150ca80c4f353cf34e",
+  "calibration": "2016 mean of monthly equal-weighted top-1000 eligible-stock quoted half spreads",
+  "timing": "Previous calendar month only; 2016 reference fixed before 2017; no future normalization",
+  "quote_filters": "BID>0; ASK>=BID; full relative spread<=50%; coverage>=80% every month",
+  "limitations": "Month-end quote proxy, not execution cost. Relative market-wide scaling; no trade-specific impact or commissions. Rolling windows overlap, are descriptive and have only 36 months.",
+  "panel_sha256": "766b8558ddc3a00057bb33c71d9d9f48ec3b5c57bf79cc8a7022f1cc5342ece2",
+  "factor_sha256": "c7c4bf167162980e9db6f312ef871f6a4fb46620f1ee5b21dde7d71e1a1d5c53"
+}

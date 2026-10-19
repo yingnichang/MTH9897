@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 18 slides: approximately 736 words, or 5.7 minutes at 130 words per minute. Allow about 6-8 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-18.
+Brief script for all 23 slides: approximately 888 words, or 6.8 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-23.
 
 ## 1. Replicating the Conservative Formula
 
@@ -72,6 +72,26 @@ The buffer keeps an existing holding while it remains eligible and within the be
 
 We reproduce much of the historical return and risk pattern, although turnover still differs. We address payout and industry positioning explicitly. In recent data, lower volatility is more consistent than positive net alpha. The extensions are useful experiments, but do not establish a superior strategy on unseen data.
 
-## 18. Questions for the professor
+## 18. 2017-2024 trading-cost scenarios
 
-We'd appreciate guidance on payout, industry positioning and the turnover gap. Could we compare our cleaning with your reference? For the weaker recent extension, should we investigate further or document the result? Which checks would you prioritize? Thank you.
+We test zero to thirty basis points in steps of five, with the same holdings. Lower costs improve the 2017-2024 profit, but the US strategy still trails its market over the full period, even before costs.
+
+## 19. When the recent return gap developed
+
+These wealth paths and rolling twelve-month comparisons show when performance improves or weakens. Rolling alpha is also in the notebook. These overlapping windows describe the sample and do not provide a forecast.
+
+## 20. Costs that change with quoted spreads
+
+We also let costs change with CRSP bid-ask spreads. We fix a 2016 reference and use only the previous month's spread. The result measures relative liquidity, without estimating our actual execution costs.
+
+## 21. UK data and implementation
+
+For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.
+
+## 22. UK and US after the paper period
+
+The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.
+
+## 23. Questions for the professor
+
+Our remaining questions concern the turnover gap, historical UK classifications and terminal payments, and a common-currency benchmark and factor comparison. Thank you.

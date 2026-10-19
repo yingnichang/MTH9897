@@ -18,11 +18,11 @@ these results and the assumptions behind them.
 |---|---|
 | [conservative_formula_first_draft.ipynb](conservative_formula_first_draft.ipynb) | Executed notebook and main course deliverable |
 | [Written report](output/pdf/conservative_formula_report.pdf) | Methods, results, figures and discussion in PDF form |
-| [Presentation](presentation/conservative_formula.pdf) | 18 slides for the final presentation |
-| [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 18 slides, presenter cues and likely questions |
+| [Presentation](presentation/conservative_formula.pdf) | 23 slides for the final presentation |
+| [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 23 slides, presenter cues and likely questions |
 | [Editable speech notes](presentation/speaker_notes.md) | The same scripts in Markdown, with per-slide timing |
 | [Short speech notes PDF](output/pdf/conservative_formula_short_speech_notes.pdf) | A few sentences per slide for a shorter presentation |
-| [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 18 slides |
+| [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 23 slides |
 | [Calculation checks](FINAL_REVIEW.md) | Paper comparison, data checks and independent return reconstruction |
 
 The notebook's filename is retained from the initial draft, but it contains the completed analysis.
@@ -36,13 +36,12 @@ All project materials credit Yingni Chang and Yikai Shen. The reference paper an
 python -m research.run_all
 ```
 
-It runs 12 studies and saves their tables and figures in `results/`. Stock selection and baseline accounting
+It runs 14 studies and saves their tables and figures in `results/`. Stock selection and baseline accounting
 are in `research/engine.py`; the data import and cleaning code are in `crsp_pipeline/`.
 
 `build_notebook.py` creates the notebook and `execute_notebook.py` runs its cells. `build_report_pdf.py` creates
-the written report. `presentation/build_pdf.py` creates the slides using `presentation/build_deck.py`.
-`presentation/build_speech_notes.py` creates the rehearsal PDF and editable script; the deck builder
-also embeds the scripts in the PPTX notes. Allow approximately 15-18 minutes for the speech, plus questions.
+the written report. `presentation/build_pdf.py` creates the PDF slides from saved results and a read-only layout template.
+`presentation/build_speech_notes.py` creates the rehearsal PDF and editable script. Allow approximately 19-21 minutes for the full speech, plus questions; the short script takes about 7-9 minutes.
 
 ## Open the saved analysis
 
@@ -66,7 +65,7 @@ python presentation/build_short_speech_notes.py
 ```
 
 `requirements-lock.txt` records the tested versions. Some packages are Windows-specific; use
-`requirements.txt` on another platform. The PPTX is an editable intermediate; the requested slide deliverable is the PDF.
+`requirements.txt` on another platform. The original PPTX is a read-only layout input. The updated presentation deliverable is the PDF; current scripts and notes target its 23 pages.
 
 ## Rebuild from the private data package
 
@@ -154,3 +153,29 @@ empirical notebook, set `CF_RECOMPUTE=1` before starting its kernel.
 Capacity figures use monthly volume and a normalization to December 2024 market size, not CPI-adjusted dollars.
 They omit market impact and actual borrow availability. The calculation checks document the other unresolved
 data and modeling limitations.
+
+## Follow-up after the presentation
+
+The updated notebook and report add a fixed 0-30 bps grid in 5-bps steps, annual returns and rolling time-series
+comparisons for 2017-2024. A separate model scales costs with previous-month CRSP closing bid-ask spreads relative
+to a fixed 2016 reference. This describes changing liquidity without claiming actual execution prices or a forecast.
+
+`research/studies/feedback_costs.py` runs those tests. `research/studies/uk_comparison.py` applies the formula to
+Compustat Global UK ordinary London GBP shares. Its raw 2013-2024 daily export provides warm-up history for
+January 2017 returns. `data/uk_source.json` records query 11803424, variables and the download hash. The private ZIP
+includes that raw export and the original CRSP quote export needed for a full rebuild. These licensed observations
+are excluded from GitHub.
+
+The UK test reports an own-universe capitalization-weighted comparator, an exit-loss stress, a top-10% holding
+sensitivity, and a separate 0.5% purchase-side SDRT scenario in addition to ordinary trading costs. Local GBP/US USD
+returns, different benchmarks, current UK classifications and incomplete UK terminal payments limit inference.
+No UK factor alpha or Sharpe is claimed. This is a sample comparison, not a verified country effect.
+
+Recompute only the follow-up analyses from private inputs:
+
+```bash
+python -m research.run_all --only feedback_costs uk_comparison
+```
+
+The new slides are pages 18-22; page 23 contains remaining questions. Both speech-note versions match all 23 pages.
+The main stock-selection rule and earlier US results are unchanged.

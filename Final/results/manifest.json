@@ -290,6 +290,106 @@
       "returns": "n/a",
       "role": "primary"
     },
+    "feedback_costs/annual.csv": {
+      "path": "feedback_costs/annual.csv",
+      "study": "feedback_costs",
+      "sha256": "67d5f25c71e06328edee19ec8c8432cb6a4d0c5d4da1cdc838e20e2fdbd11228",
+      "bytes": 2785,
+      "description": "Calendar-year strategy and market returns at each fixed cost",
+      "window": "2017 .. 2024",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "feedback_costs/cost_summary.csv": {
+      "path": "feedback_costs/cost_summary.csv",
+      "study": "feedback_costs",
+      "sha256": "c42e57305ef4b01d5935862ae9c28e1cc5ebf4f7db6242b6536148a09445011a",
+      "bytes": 14137,
+      "description": "Fixed 0-30bps scenarios across fixed periods, plus recent lagged-spread scenarios",
+      "window": "1929–2024; 2017–2024 focus",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "feedback_costs/fig_costs.png": {
+      "path": "feedback_costs/fig_costs.png",
+      "study": "feedback_costs",
+      "sha256": "0ce8af4ff431ad83103d7ea7c991eb3bef44100e2f930716ec83dab853b2b2fd",
+      "bytes": 106556,
+      "description": "US recent cost grid: absolute return, market excess and Carhart alpha",
+      "window": "2017–2024",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "feedback_costs/fig_rolling_alpha.png": {
+      "path": "feedback_costs/fig_rolling_alpha.png",
+      "study": "feedback_costs",
+      "sha256": "83b6e9b78d33c5da9971682258710e764464d246a4858aaa08b77aa345841a24",
+      "bytes": 135007,
+      "description": "Trailing 36-month Carhart alpha with HAC intervals",
+      "window": "2019-12 .. 2024-12",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "feedback_costs/fig_spreads.png": {
+      "path": "feedback_costs/fig_spreads.png",
+      "study": "feedback_costs",
+      "sha256": "b3f6f7795bc155ecdc2c766d32164e46051679f5f4799dd9926a799668280572",
+      "bytes": 135546,
+      "description": "Lagged quoted-spread cost scaling and quote coverage",
+      "window": "2017–2024",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "feedback_costs/fig_time_series.png": {
+      "path": "feedback_costs/fig_time_series.png",
+      "study": "feedback_costs",
+      "sha256": "ca64acad4e7bd51ede38353baa65f366f6e03e3ef8202354075ed3b1d843ee1f",
+      "bytes": 280110,
+      "description": "Wealth and trailing 12-month compounded return gap",
+      "window": "2017–2024",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "feedback_costs/monthly.csv": {
+      "path": "feedback_costs/monthly.csv",
+      "study": "feedback_costs",
+      "sha256": "40a37c8c2c968c41a1c1988e1f3ccc07413bf009d3d4f2ff0d5f852f0b988660",
+      "bytes": 137344,
+      "description": "Recent monthly portfolio returns, actual modeled bps, wealth and 12-month return gaps",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "primary"
+    },
+    "feedback_costs/rolling_alpha.csv": {
+      "path": "feedback_costs/rolling_alpha.csv",
+      "study": "feedback_costs",
+      "sha256": "1d6a0fafeffed496be9a30a4204a638c20eb65a1d104859782714c2f0142ed6d",
+      "bytes": 19749,
+      "description": "Overlapping trailing 36-month Carhart regressions, descriptive only",
+      "window": "2019-12 .. 2024-12",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "feedback_costs/run_meta.json": {
+      "path": "feedback_costs/run_meta.json",
+      "study": "feedback_costs",
+      "sha256": "e61b5359fbb887d441a03cb5320bea1003cbf0fb21ebcf9a03b7559e06dfa731",
+      "bytes": 1239,
+      "description": "Source hashes, conventions, calibration and exact net10/net30 reconstruction checks",
+      "window": "run record",
+      "returns": "gross and net",
+      "role": "check"
+    },
+    "feedback_costs/spread_coverage.csv": {
+      "path": "feedback_costs/spread_coverage.csv",
+      "study": "feedback_costs",
+      "sha256": "480dc97d8a3239938c7de280e369790803a4c661da32ceed8f9e958719ae68b5",
+      "bytes": 6934,
+      "description": "Top-1000 eligible universe quote coverage and average half spread",
+      "window": "2016-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "check"
+    },
     "fmp/carhart_crosscheck.csv": {
       "path": "fmp/carhart_crosscheck.csv",
       "study": "fmp",
@@ -849,6 +949,76 @@
       "window": "1929-01 .. 2016-12",
       "returns": "n/a",
       "role": "check"
+    },
+    "uk_comparison/annual.csv": {
+      "path": "uk_comparison/annual.csv",
+      "study": "uk_comparison",
+      "sha256": "7fca198216ab26ab1b8f5de012dd79928dc586249a3f093ba8a25826851fdd74",
+      "bytes": 18218,
+      "description": "Calendar-year UK and US strategy and own-market returns",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/coverage.csv": {
+      "path": "uk_comparison/coverage.csv",
+      "study": "uk_comparison",
+      "sha256": "7f0461ee2e27115e2469f5429c823aa82927dfd75abb620877d0dc4a2bd6166d",
+      "bytes": 9283,
+      "description": "UK formation counts and missing-data diagnostics",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/fig_comparison.png": {
+      "path": "uk_comparison/fig_comparison.png",
+      "study": "uk_comparison",
+      "sha256": "5a432b74c62010606085355f7e6e9e6e2ef75188e31133a325fe15c042e240cf",
+      "bytes": 194408,
+      "description": "Country wealth relative to own benchmark and cost sensitivity",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/monthly.csv": {
+      "path": "uk_comparison/monthly.csv",
+      "study": "uk_comparison",
+      "sha256": "9c2c6e82f9bd1fd9f562849eb28fa3933857fab810f211431f29aa2c60204c6a",
+      "bytes": 270507,
+      "description": "Monthly country strategy, comparator and net returns; local currencies",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/run_meta.json": {
+      "path": "uk_comparison/run_meta.json",
+      "study": "uk_comparison",
+      "sha256": "b9e270cae6c957aea5b55a12e1b9d4bee65c00c737705786c04b017ee291767a",
+      "bytes": 3140,
+      "description": "Download identity, cleaning, terminal scenarios and interpretation limits",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/summary.csv": {
+      "path": "uk_comparison/summary.csv",
+      "study": "uk_comparison",
+      "sha256": "26e887f521830944d8ca502415f1139d61d8875479974a26ca378c54e950e813",
+      "bytes": 6364,
+      "description": "UK fixed-100 and proportional portfolios, exit stress, US reference, cost grid",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
+    },
+    "uk_comparison/tax_sensitivity.csv": {
+      "path": "uk_comparison/tax_sensitivity.csv",
+      "study": "uk_comparison",
+      "sha256": "1ddfca1e8dcac0732ff5a4619053ca817cac0f32955c0ee16fa8b2d9744d48ba",
+      "bytes": 2256,
+      "description": "UK generic costs plus 0.5% purchase-side SDRT scenario; no exemptions assumed",
+      "window": "2017-01 .. 2024-12",
+      "returns": "gross and net",
+      "role": "exploratory"
     }
   },
   "studies": {
@@ -1541,9 +1711,89 @@
           "clarabel": "0.11.1"
         }
       }
+    },
+    "feedback_costs": {
+      "run_utc": "2026-10-19T01:16:35+00:00",
+      "seconds": 3.0,
+      "end": "2024-12-31",
+      "files": 10,
+      "provenance": {
+        "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+        "sources": {
+          "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+          "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+          "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/feedback_costs.py": "234ad5eed568331168d8ced5179cbd17d286feeb95486834b2574a471b72196f"
+        },
+        "inputs": {
+          "critical_tests/returns_monthly.csv": "9ee7bde6bb711a50037dc78469f3ea58ac17ea0b6c937736bb1f95add53b6697"
+        },
+        "caches_read": {},
+        "caches_produced": {},
+        "depends": {
+          "critical_tests": "c8db8d04fdfda0d20a10dd6740de1f4e692fc131a954e7c0c9ffacc8bb42fb6b"
+        },
+        "packages": {
+          "python": "3.12.14",
+          "numpy": "2.5.3",
+          "pandas": "3.0.1",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
+        }
+      }
+    },
+    "uk_comparison": {
+      "run_utc": "2026-10-19T01:17:00+00:00",
+      "seconds": 24.8,
+      "end": "2024-12-31",
+      "files": 7,
+      "provenance": {
+        "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
+        "sources": {
+          "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
+          "crsp_pipeline/config.py": "417384fda581f26987fb89e86b331251d2b305ddca7d973250518fa005205980",
+          "crsp_pipeline/industries.py": "542a75e4dfce5715b02587cdf980a443f7e07c3664a2293a8a1d7a9759c09008",
+          "crsp_pipeline/normalize.py": "f1c7a1daf09790b685d2dba5fa152e93ea5e9a9a752375b6e4f7d79be3aeb18b",
+          "crsp_pipeline/signals.py": "7e33caf04382880776e20d4f90246cd360fe96921f807d56d2cb6d479d4b5e0c",
+          "research/__init__.py": "62fd8766d1e06af843814d49fab15c63dc843429f045ae44f761471a7758c834",
+          "research/cache.py": "5caac7468e63ff379d35059ceccbdab5eb44a9440efe6457c89a926f881fb888",
+          "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+          "research/report.py": "4221fe56c5bc90239da070af337d2e779c3fb483c1396048e88167497a8a1749",
+          "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
+          "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
+          "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
+          "research/studies/uk_comparison.py": "138fc043effd630b78d087fc6cf83afbb454d3c8f6115ba655ada5b7b060b747"
+        },
+        "inputs": {
+          "feedback_costs/cost_summary.csv": "c42e57305ef4b01d5935862ae9c28e1cc5ebf4f7db6242b6536148a09445011a",
+          "feedback_costs/monthly.csv": "40a37c8c2c968c41a1c1988e1f3ccc07413bf009d3d4f2ff0d5f852f0b988660"
+        },
+        "caches_read": {},
+        "caches_produced": {},
+        "depends": {
+          "feedback_costs": "79c3b7d2272cae7261158be729b955c7ff16f532d0ceb42414949ec908161e7f"
+        },
+        "packages": {
+          "python": "3.12.14",
+          "numpy": "2.5.3",
+          "pandas": "3.0.1",
+          "scipy": "1.18.1",
+          "matplotlib": "3.11.2",
+          "pyarrow": "26.0.0",
+          "clarabel": "0.11.1"
+        }
+      }
     }
   },
-  "updated_utc": "2026-10-13T02:28:58+00:00",
+  "updated_utc": "2026-10-19T01:17:00+00:00",
   "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
   "packages": {
     "python": "3.12.14",
@@ -1557,21 +1807,15 @@
   "last_run": {
     "status": "complete",
     "studies": [
-      "data_audit",
-      "replication",
-      "attribution",
-      "critical_tests",
-      "paper_targets",
-      "diagnostics",
-      "fmp",
-      "longshort",
-      "optimization",
-      "rank_buffer",
-      "mean_variance",
-      "professor_checks"
+      "feedback_costs",
+      "uk_comparison"
     ],
-    "seconds": 961.2,
-    "argv": [],
+    "seconds": 27.9,
+    "argv": [
+      "--only",
+      "feedback_costs",
+      "uk_comparison"
+    ],
     "source_sha256": {
       "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
       "crsp_pipeline/__main__.py": "ec44dab290ce4211b19b7418e558eb2ac2c5e6744f40b2bcc35b84dac2e79359",
@@ -1589,6 +1833,7 @@
       "research/checks.py": "d63b4ae529cbcd3b62e41662324436371ab771dde9aaca2e3f513b8189adf63d",
       "research/diagnostics.py": "86530ee147f30b585e5934cf513fbf672da8388d542517f3e09d7ae7f960f75a",
       "research/engine.py": "5599fb77587bb800e396f9c772793ce15bc268c9191d22c342acaddbb67946c8",
+      "research/feedback_summary.py": "d7b920147fd16e4b9d4d077919410a194c4823eed28af9f24675a28987938822",
       "research/fmp.py": "33af866d647ee2c24a77415736f82a69392b3b934c6ea839adca0a289d8a3ba1",
       "research/longshort.py": "ab0ffb35a4e64f60cfd8539d5565d2e9cd1b289e1331c90b0fcdec2dda1b07bb",
       "research/mean_variance.py": "478ff3d0c10c4acace1a2c7a12833eb144d3a6bdc7b1c36fd5681f38f8aaeb88",
@@ -1597,7 +1842,7 @@
       "research/results.py": "a35e526c3182dae9eb1c506f0fda3a11be58d820db691b45bc7814ee3e7d63d8",
       "research/run_all.py": "5a63aa3caa6d4b81a8a6fba2c740a975d4ade4a08923660a70b595a8324e74a9",
       "research/stats.py": "a0b66c74f9ba93e8c3525212d560eebaf360055f6d554721345129980cfafce8",
-      "research/studies/__init__.py": "762272d4f2d67f51fffe5899c8896d793538ae18a862900be314675e3225aa19",
+      "research/studies/__init__.py": "d4d9718af59aef288d135b1ec4b9a76077657a252b3d8b7178a823811ce00dfc",
       "research/studies/_common.py": "afe3523c640b5fac43bbe1daaacf726d8761ec4f98ba0b3831244cf268dbffd2",
       "research/studies/attribution.py": "8513a0de38d2454a82c40f0923609b91d3dc4e5c161c7ba8a3be7aa943be4dc8",
       "research/studies/critical_tests.py": "340bf54f875c73fc86a4b897a55dd5eb2681c3a28e7cd6a129d53fba0daed99d",
@@ -1608,6 +1853,7 @@
       "research/studies/data/replication_explanations.json": "ccfc0d260c8bb9c0055e35beaebdc9722c72d12ab733b211f5a871212d3a8129",
       "research/studies/data_audit.py": "78457bb2169507274dc6dbaf278407a7218508a77a101ae59641dbcc0afaeb50",
       "research/studies/diagnostics.py": "7e6ccc3a903d50371eccf3daeddfb6e0e334f885c098e8f7fc529cbb74aa835c",
+      "research/studies/feedback_costs.py": "234ad5eed568331168d8ced5179cbd17d286feeb95486834b2574a471b72196f",
       "research/studies/fmp.py": "87209ec02da2ad19e4ce0649d3bd14a177567a85785dcbc3f448d01021255862",
       "research/studies/longshort.py": "f15f7828975388b0e0210fbe5c27c2da621aae31eebc9d99093f0349b86be757",
       "research/studies/mean_variance.py": "6824b0efffba762c763ae81bed149c931c1d1c12e0fd0d8593ebd2e00bcd8daa",
@@ -1616,6 +1862,7 @@
       "research/studies/professor_checks.py": "d5918c9b8c05cfe67687c04bc23d25e9213e49ba6362cd80707115febde03df9",
       "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4",
       "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5",
+      "research/studies/uk_comparison.py": "138fc043effd630b78d087fc6cf83afbb454d3c8f6115ba655ada5b7b060b747",
       "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"
     }
   }

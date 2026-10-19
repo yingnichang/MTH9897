@@ -691,6 +691,68 @@ print({"python": platform.python_version(), "numpy": np.__version__, "pandas": p
 ''')
 
 md(r'''
+## Presentation feedback: recent costs and the UK extension
+We keep the original US holdings fixed and test **0, 5, 10, 15, 20, 25 and 30 bps** per dollar purchased or sold.
+The transcript suggests costs that change across periods and scale with average spreads. We therefore add annual
+returns, rolling 12-month return gaps and trailing 36-month Carhart alpha, with overlapping windows treated as
+**descriptive**. We do not infer a request for a forecasting model.
+
+For the spread test, cost in month t equals reference bps times the **previous calendar month's** average quoted
+half spread divided by the fixed **2016** average. Only the eligible large-stock universe contributes quotes.
+BID and ASK are closing quotes. Coverage, exclusions and source hashes accompany the results. These proxies do
+not measure execution costs or market impact.
+''')
+code(r'''
+if empirical():
+    from research.feedback_summary import cost_rows, country_rows, load as feedback_load
+    feedback = feedback_load(RESULTS)
+    rows = cost_rows(feedback)
+    display(pd.DataFrame(rows[1:], columns=rows[0]))
+    say("Lower US costs improve absolute profit, but full-period market excess and Carhart alpha remain negative even at zero costs. All recent alpha intervals include zero.")
+    for name in ['fig_costs.png','fig_time_series.png','fig_rolling_alpha.png','fig_spreads.png']:
+        figure('feedback_costs',name)
+    display(R('feedback_costs','annual.csv'))
+    display(R('feedback_costs','cost_summary.csv').query("cost_model == 'lagged_spread'"))
+''')
+md(r'''
+### UK data and comparability
+We downloaded **7,906,471 daily Compustat Global observations, 2013-2024** (WRDS query 11803424), selecting UK
+incorporation. We retain each issue's final daily row per month, ordinary London GBP shares, inactive firms and
+the largest eligible issue per company per month. The selected monthly input has 178,848 rows and 2,008 issues
+before history screens. No active-only filter or current index-constituent list is used.
+
+- Adjusted price = `PRCCD / QUNIT / AJEXDI`; adjusted shares = `CSHOC * AJEXDI`.
+- Total-return index = adjusted price times `TRFD`. Missing TRFD becomes one only when the whole observed issue
+  history is missing. Month-to-month ratios require consecutive calendar months.
+- Dividend cash uses `(total return - price return) * prior adjusted price`, matching the US cash-proxy convention.
+  The 24-month adjusted-share average still supplies the net-issuance term.
+- Missing calendar months break signal histories. Held positions carry missing months at zero and cannot be newly
+  selected. Terminal scenarios sell at last known value or impose a deliberately severe 100% loss.
+- The same 36-month history, volatility split, momentum/payout ranks and quarterly timing apply. First formation
+  is December 2016, first return January 2017. We show 100 holdings and a separate top-10% rule.
+
+The UK comparator cap-weights the same eligible largest-1,000 universe quarterly. The US comparator is broad CRSP VW.
+UK cash earns zero, because no UK cash-rate series is supplied. We do **not** estimate UK alpha or Sharpe using US
+factors. Returns are local GBP and USD, not common-currency investor returns. Current country/exchange/type fields,
+incomplete terminal payments and the selected sample limit the inference. We add **0.5% on UK purchase notional**
+as a separate SDRT scenario with no exemptions assumed, beyond the generic 0-30bps cost grid.
+
+Sources: [WRDS return calculation](https://wrds-www.wharton.upenn.edu/pages/support/support-articles/compustat/global/computing-returns/)
+and [HMRC electronic share-purchase tax](https://www.gov.uk/tax-buy-shares/buy-shares-electronically).
+''')
+code(r'''
+if empirical():
+    rows = country_rows(feedback)
+    display(pd.DataFrame(rows[1:], columns=rows[0]))
+    figure('uk_comparison','fig_comparison.png')
+    display(R('uk_comparison','summary.csv'))
+    display(R('uk_comparison','tax_sensitivity.csv'))
+    display(R('uk_comparison','coverage.csv'))
+    display(R('uk_comparison','annual.csv'))
+    say("The UK base case shows more encouraging relative results, but the severe exit-loss stress reverses that advantage. This exploratory comparison does not establish a country effect. Historical classifications, observed terminal payments and common-currency benchmarks remain priorities.")
+''')
+
+md(r'''
 ## Appendix: synthetic demonstration (no data required)
 With `CF_MODE=demo` the notebook skips every empirical section and instead runs the same selection and accounting
 engine on a seeded synthetic panel. The demonstration only shows that the code runs; its numbers are artificial and

@@ -724,6 +724,8 @@ class WrittenReport:
             ["Short post-2016 period and grid selection", "Unadjusted intervals and exploratory choices limit inference."],
             ["Capacity and trading assumptions", "Monthly volume omits impact, trade scheduling and borrow availability."],
         ], [.42,.58])
+        from research.feedback_summary import add_report
+        add_report(self)
         self.sub("References")
         self.p('Blitz, D. and van Vliet, P. (2018). <i>The Conservative Formula: Quantitative Investing Made Easy.</i> '
                'The Journal of Portfolio Management 44(7). Supplied working paper: '

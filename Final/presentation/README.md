@@ -1,49 +1,30 @@
 # Presentation
 
-**Authors:** Yingni Chang and Yikai Shen
+**Authors: Yingni Chang and Yikai Shen**
 
-The final deliverable `conservative_formula.pdf` (18 slides, 16:9) and `speaker_notes.md` (one section per slide) are generated
-from the tracked results in `results/` through the hash-checked loader:
-
-```bash
-python presentation/build_pdf.py      # needs requirements.txt and results/ (python -m research.run_all)
-```
-
-The slides use the same tables and figures as the notebook. Numbers are read through `research.summary`
-and the result loader; the linear-optimization chart is drawn from its saved grid table.
-
-The presentation covers the original rule, payout and industry positioning, costs, diagnostics and
-alternative portfolio rules. The speaker notes are full read-aloud scripts for all 18 slides, with
-presenter cues, transitions, per-slide timing and six likely questions with suggested answers.
-The script is about 2,000 words; allow 15-18 minutes with short pauses. An optional presenter split
-assigns slides 1-9 to Yingni and slides 10-18 to Yikai.
-
-The same scripts are embedded in the editable PPTX notes. A separate rehearsal PDF is saved as
-`output/pdf/conservative_formula_speech_notes.pdf`. Regenerate it and the Markdown script with:
+The submission deck is `conservative_formula.pdf`: 23 pages, 16:9, with searchable text and tables.
+Run from `Final/`:
 
 ```bash
+python presentation/build_pdf.py
 python presentation/build_speech_notes.py
+python presentation/build_short_speech_notes.py
 ```
 
-`speech_notes.py` holds the speaking text and reads figures from the saved results. Edit that source
-and rebuild the notes and deck when changing the script.
+`build_pdf.py` reads the original PPTX as a layout template. It never writes a new PowerPoint file.
+`numeric_views.py` supplies verified tables for the historical pages. `research/feedback_summary.py` supplies
+the five added pages and the extended report text. `professor_questions.py` supplies the final remaining questions.
+`build_deck.py` is a compatibility entry point for the same PDF workflow. Keep the original PPTX available as a
+source input; its embedded old notes are superseded by the current separate speech notes.
 
-For a shorter talk, `speaker_notes_short.md` gives a few sentences per slide. The matching PDF is
-`output/pdf/conservative_formula_short_speech_notes.pdf`. It explains the difference between the
-36-bps alpha and 52-bps market-excess break-even costs. Generate both short versions with
-`python presentation/build_short_speech_notes.py`; the detailed script remains available separately.
+Pages 1-17 cover the existing replication and experiments. Pages 18-22 add the 2017-2024 cost grid, time-series
+plots, lagged-spread model, UK data and UK/US results. Page 23 closes with remaining implementation questions.
 
-`build_pdf.py` invokes `build_deck.py` for shared content, then writes a PDF with
-searchable text and tables. No LibreOffice installation is required. The PPTX is
-an intermediate editable version; submit the PDF. The PDF exporter reflows the same content
-with larger type, balanced text and figure placement, and shaded tables. Numerical prose is
-organized into labeled tables through `numeric_views.py`, using the same hash-checked results.
-Periods, units, confidence intervals and qualifications stay with the comparisons. It measures
-text and table height before drawing and preserves the 18-slide order, figures and dimensions.
-The final PDF layout is controlled by `build_pdf.py`; the PPTX supplies the original content.
-Slide 18 closes with five questions for the professor; `professor_questions.py` supplies the
-questions, and both speaking-note versions use the same final-slide title.
+`speaker_notes.md` and `output/pdf/conservative_formula_speech_notes.pdf` provide a full script for all 23 pages.
+The script is about 2,400 words; allow 19-21 minutes with pauses. The shorter script in `speaker_notes_short.md`
+and `output/pdf/conservative_formula_short_speech_notes.pdf` is about 900 words, or 7-9 minutes with pauses.
+An optional presenter split is Yingni on pages 1-9 and Yikai on pages 10-23.
 
-For visual checks, render with `pdftoppm -scale-to 1400 -png
-presentation/conservative_formula.pdf presentation/build/check`.
-`render_previews.mjs` optionally renders PNG previews through `@oai/artifact-tool`.
+Numbers and figures come from hash-checked aggregate results. The UK comparison identifies local currencies,
+different market benchmarks, missing terminal payments and the separate purchase-tax scenario. No UK alpha is
+estimated using US factors. Render the final PDF with Poppler for visual review.

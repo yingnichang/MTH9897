@@ -1,0 +1,76 @@
+{
+  "authors": [
+    "Yingni Chang",
+    "Yikai Shen"
+  ],
+  "source": {
+    "authors": [
+      "Yingni Chang",
+      "Yikai Shen"
+    ],
+    "vendor": "S&P Compustat Global via WRDS",
+    "query": "https://wrds-www.wharton.upenn.edu/query-manager/query/11803424/",
+    "accessed": "2026-10-18",
+    "rows": 7906471,
+    "sha256": "7e86e0d9dfc2c8596acde04eafdc1e156f522f7a95e64db1a9e1456ca5ca0b43",
+    "file": "compustat_global_uk_2013_2024.zip",
+    "dates": [
+      "2013-01-01",
+      "2024-12-31"
+    ],
+    "screen": "FIC=GBR; no status screen; all daily observations. Month-end conditional was not present in downloaded SQL.",
+    "variables": [
+      "fic",
+      "gvkey",
+      "datadate",
+      "exchg",
+      "secstat",
+      "dlrsn",
+      "gsector",
+      "dldte",
+      "ajexdi",
+      "cshoc",
+      "curcdd",
+      "curcddv",
+      "div",
+      "prccd",
+      "qunit",
+      "tpci",
+      "iid",
+      "monthend",
+      "trfd"
+    ]
+  },
+  "cleaning": [
+    {
+      "input_monthly_rows": 178848,
+      "issues": 2008,
+      "inactive_rows": 74392,
+      "missing_share_rows": 906,
+      "negative_distribution_rows": 0,
+      "gap_or_terminal_rows": 285,
+      "terminal_events": 963,
+      "exit_loss": 0.0
+    },
+    {
+      "input_monthly_rows": 178848,
+      "issues": 2008,
+      "inactive_rows": 74392,
+      "missing_share_rows": 906,
+      "negative_distribution_rows": 0,
+      "gap_or_terminal_rows": 285,
+      "terminal_events": 963,
+      "exit_loss": -1.0
+    }
+  ],
+  "formula": "price=PRCCD/QUNIT/AJEXDI; shares=CSHOC*AJEXDI; total-return index=adjusted price*TRFD",
+  "dividend_proxy": "Monthly (total return-price return)*prior adjusted price; same cash-proxy convention as US",
+  "sample": "FIC=GBR, EXCHG=194 (London), TPCI=0, CURCDD=GBP; largest eligible issue per GVKEY each month; no active-only filter",
+  "timing": "2013-2024 inputs, 36 calendar-month history; Dec 2016 first formation, Jan 2017 first return; quarterly",
+  "benchmark": "UK same eligible top-1000 universe, cap weights reset quarterly, gross. US CRSP VW broad market.",
+  "cash": "UK idle cash earns zero: no UK risk-free data used. No UK alpha or Sharpe claimed.",
+  "terminal": "At first month after final observation, liquidate at last known value (base) or lose 100% of remaining value (stress). No observed CRSP-equivalent delisting payments. Stress is not an estimate.",
+  "limitations": "Exploratory and selected after feedback. Header country/exchange/type classifications are current. London main-market sample is narrower than all UK equities. Currency returns are local, no FX hedge or common USD investor return. Prices can be stale; gap cash carry at zero. No UK factor regression. Generic 0-30bps scenarios exclude tax and impact. A separate scenario charges 0.5% SDRT on all purchases, including entry, with no exemption assumed.",
+  "sdrt_reference": "https://www.gov.uk/tax-buy-shares/buy-shares-electronically",
+  "official_returns": "https://wrds-www.wharton.upenn.edu/pages/support/support-articles/compustat/global/computing-returns/"
+}

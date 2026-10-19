@@ -265,6 +265,12 @@ def make_notes(root=results.RESULTS):
         "",
     ]
     for note, transition in zip(notes, transitions): note["transition"] = transition
+    from research.feedback_summary import extension_notes
+    extra=extension_notes(root)
+    notes=notes[:17]+extra+notes[17:]
+    notes[16]['transition']='We now turn to the follow-up work suggested after the presentation.'
+    notes[-1]['paragraphs']=["The remaining questions concern the turnover difference and better UK inputs. We would like historical country and exchange classifications and observed terminal payments. We also need guidance on a national benchmark and UK factors for a common-currency comparison. Finally, we can refine costs by traded stock and order size. Thank you."]
+    for i,note in enumerate(notes,1):note['number']=i
     return notes
 
 
@@ -294,7 +300,7 @@ def question_answers(root=results.RESULTS):
         ("Are the capacity and cost assumptions realistic?",
          "They are simplified scenarios. Costs are proportional to traded dollars, sometimes scaled "
          "by size and volatility. Capacity uses monthly volume and a 10% participation assumption, "
-         "normalized to 2024 market size. Market impact, daily scheduling and actual borrow availability are omitted."),
+         "normalized to 2024 market size. The follow-up also uses lagged quoted spreads and a separate UK purchase-tax scenario. Market impact, daily scheduling and actual borrow availability are omitted."),
     ]
 
 
@@ -316,7 +322,7 @@ def write_markdown(notes, destination, root=results.RESULTS):
              f"that is about {words/130:.0f} minutes before pauses and discussion of charts. "
              f"Allow roughly {math.floor(words/130)}-{math.ceil(words/130+2)} minutes with short pauses.", "",
              "Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 "
-             "and Yikai on slides 10-18; change this to suit your delivery.", ""]
+             "and Yikai on slides 10-23; change this to suit your delivery.", ""]
     for note in notes:
         seconds = round(word_count(note)/130*60)
         lines += [f"## {note['number']}. {note['title']}", "",

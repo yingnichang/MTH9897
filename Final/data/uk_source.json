@@ -1,0 +1,38 @@
+{
+  "authors": [
+    "Yingni Chang",
+    "Yikai Shen"
+  ],
+  "vendor": "S&P Compustat Global via WRDS",
+  "query": "https://wrds-www.wharton.upenn.edu/query-manager/query/11803424/",
+  "accessed": "2026-10-18",
+  "rows": 7906471,
+  "sha256": "7e86e0d9dfc2c8596acde04eafdc1e156f522f7a95e64db1a9e1456ca5ca0b43",
+  "file": "compustat_global_uk_2013_2024.zip",
+  "dates": [
+    "2013-01-01",
+    "2024-12-31"
+  ],
+  "screen": "FIC=GBR; no status screen; all daily observations. Month-end conditional was not present in downloaded SQL.",
+  "variables": [
+    "fic",
+    "gvkey",
+    "datadate",
+    "exchg",
+    "secstat",
+    "dlrsn",
+    "gsector",
+    "dldte",
+    "ajexdi",
+    "cshoc",
+    "curcdd",
+    "curcddv",
+    "div",
+    "prccd",
+    "qunit",
+    "tpci",
+    "iid",
+    "monthend",
+    "trfd"
+  ]
+}
