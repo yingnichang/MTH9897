@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,496 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,515 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -32,13 +32,13 @@ These questions matter because a strong result over almost ninety years does not
 
 ## 3. The data
 
-**Approximate speaking time:** 51 seconds, plus pauses.
+**Approximate speaking time:** 60 seconds, plus pauses.
 
-**Presenter cue:** Point to the coverage counts, then emphasize delistings and the early universe.
+**Presenter cue:** Point to the coverage table, then the three cleaning choices on the right.
 
-We use the full monthly CRSP files from WRDS. After cleaning, the panel has about 3.95 million security-month observations and 26,746 securities. We combine stock returns with historical company information, delistings, distributions and the market index. We also use Fama-French factors.
+We use the full monthly CRSP files from WRDS. After cleaning, the panel has about 3.95 million security-month observations and 26,746 securities. We combine stock returns with historical company information, delistings, distributions and the market index. Fama-French factor returns help evaluate performance after the portfolio is constructed.
 
-Two choices are especially important. We keep stocks that disappear, including their terminal returns, instead of looking only at survivors. We also use one common share class per company to avoid double counting. The earliest portfolio universe has only 393 eligible stocks. It first reaches one thousand in June 1964, so the early backtest necessarily uses a smaller universe.
+Three data-cleaning choices are important. First, we keep stocks that disappear, including their terminal returns, instead of looking only at survivors. Second, we use one common share class per company each month to avoid double counting. Third, we respect the smaller early universe: only 393 stocks are eligible at the first formation. The universe first reaches one thousand in June 1964, so we use the available eligible stocks in the early backtest.
 
 **Transition:** With those files cleaned, the selection rule is fairly simple.
 

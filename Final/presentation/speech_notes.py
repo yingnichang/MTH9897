@@ -42,16 +42,18 @@ def make_notes(root=results.RESULTS):
         "the post-2016 portfolio results.")
 
     ex = load("data_audit", "extract_summary.json")["sample"]
-    add("The data", "Point to the coverage counts, then emphasize delistings and the early universe.",
+    add("The data", "Point to the coverage table, then the three cleaning choices on the right.",
         f"We use the full monthly CRSP files from WRDS. After cleaning, the panel has about "
         f"{ex['panel_rows']/1e6:.2f} million security-month observations and {ex['securities']:,} securities. "
         "We combine stock returns with historical company information, delistings, distributions "
-        "and the market index. We also use Fama-French factors.",
-        "Two choices are especially important. We keep stocks that disappear, including their "
-        "terminal returns, instead of looking only at survivors. We also use one common share "
-        "class per company to avoid double counting. The earliest portfolio universe has only "
-        f"{ex['first_formation_universe_n']} eligible stocks. It first reaches one thousand in June "
-        "1964, so the early backtest necessarily uses a smaller universe.")
+        "and the market index. Fama-French factor returns help evaluate performance after "
+        "the portfolio is constructed.",
+        "Three data-cleaning choices are important. First, we keep stocks that disappear, "
+        "including their terminal returns, instead of looking only at survivors. Second, "
+        "we use one common share class per company each month to avoid double counting. "
+        f"Third, we respect the smaller early universe: only {ex['first_formation_universe_n']} "
+        "stocks are eligible at the first formation. The universe first reaches one thousand "
+        "in June 1964, so we use the available eligible stocks in the early backtest.")
 
     add("The portfolio rule", "Trace the flowchart from top to bottom; point to both ranking boxes and the early-universe caveat.",
         "The flowchart shows how we narrow the universe from one thousand stocks to one hundred. "

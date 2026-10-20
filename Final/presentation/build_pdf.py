@@ -241,6 +241,27 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
     kind = view['kind']
     intro, notes = text_paras(view['intro']), text_paras(view['notes'])
     bottom = top-height
+    if kind == 'data_cleaning':
+        intro_h=body_height(intro,width,15,6)
+        footnote=' '.join(view['notes'])
+        note_h=paragraph(None,footnote,0,0,width,12,measure=True)
+        main_top=top-intro_h-18
+        main_h=height-intro_h-note_h-36
+        left_w=width*.49
+        right_x=x+left_w+24;right_w=width-left_w-24
+        size,layout=fit_table(view['rows'],left_w,main_h,view['font'],view['widths'])
+        draw_body(pdf,intro,x,top,width,15,6)
+        draw_table(pdf,x,main_top,size,layout)
+        box_h=(main_h-20)/3
+        for i,(heading,detail) in enumerate(view['cleaning']):
+            box_top=main_top-i*(box_h+10)
+            pdf.setFillColor(STRIPE if i==1 else white);pdf.setStrokeColor(RULE)
+            pdf.setLineWidth(.7)
+            pdf.roundRect(right_x,box_top-box_h,right_w,box_h,9,stroke=1,fill=1)
+            paragraph(pdf,heading,right_x+15,box_top-11,right_w-30,16,bold=True,color=TEAL)
+            paragraph(pdf,detail,right_x+15,box_top-39,right_w-30,14,color=INK)
+        paragraph(pdf,footnote,x,bottom+note_h,width,12,color=MUTED)
+        return
     if kind == 'wide':
         intro_h = body_height(intro, width, 16, 6)
         notes_h = body_height(notes, width, 16, 6)

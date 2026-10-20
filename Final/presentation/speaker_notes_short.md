@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 904 words, or 7.0 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 924 words, or 7.1 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -14,7 +14,7 @@ Follow the three boxes from left to right. Can we reproduce the paper? How much 
 
 ## 3. The data
 
-We use monthly CRSP stock data through 2024, together with delistings, dividends and factor returns. Earlier observations provide the history needed to begin investing in 1929. We retain disappearing stocks and use historical classifications to avoid looking only at companies that survived.
+We use monthly CRSP stock data through 2024, together with delistings, dividends and factor returns. Earlier observations provide the history needed to begin investing in 1929. The three boxes highlight our cleaning choices: retain delisted stocks and terminal returns, keep one common share class per company, and respect the smaller early universe rather than assume one thousand eligible stocks were always available.
 
 ## 4. The portfolio rule
 

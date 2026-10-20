@@ -35,8 +35,9 @@ def short_notes(root=results.RESULTS):
 
         "We use monthly CRSP stock data through 2024, together with delistings, dividends and "
         "factor returns. Earlier observations provide the history needed to begin investing in "
-        "1929. We retain disappearing stocks and use historical classifications to avoid looking "
-        "only at companies that survived.",
+        "1929. The three boxes highlight our cleaning choices: retain delisted stocks and terminal "
+        "returns, keep one common share class per company, and respect the smaller early universe "
+        "rather than assume one thousand eligible stocks were always available.",
 
         "Follow the chart from top to bottom: first the largest one thousand stocks with enough "
         "return history, then the five hundred with lower volatility. The two middle boxes rank "

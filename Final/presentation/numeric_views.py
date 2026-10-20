@@ -36,7 +36,13 @@ def make_views(root=results.RESULTS):
         intro=[f"Monthly CRSP via WRDS: {ex['start'][:7]} to {ex['end'][:7]}; extracted {ex['extracted_at_utc'][:10]}."],
         notes=['One share class per company; dividends implied from total minus price return.',
                'Missing held returns: stale-price carry or in-gap price ratio; every case counted. '
-               'WRDS provides no release identifier; time stamp and file hashes identify the extract.'])
+               'WRDS provides no release identifier; time stamp and file hashes identify the extract.'],
+        kind='data_cleaning',font=15)
+    views[3]['cleaning'] = [
+        ('01  Keep delisted stocks', 'Include terminal returns to reduce survivorship bias.'),
+        ('02  One common share class', 'Keep one class per company each month to avoid double counting.'),
+        ('03  Respect early coverage', f"{s['first_formation_universe_n']} eligible stocks at 1928-12; the universe first reaches 1,000 in {s['first_formation_with_full_universe'][:7]}."),
+    ]
 
     add(5, [
         ['Signal', 'History', 'Calculation'],
