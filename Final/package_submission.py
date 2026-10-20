@@ -1,6 +1,6 @@
 """Build the minimal private submission. Authors: Yingni Chang and Yikai Shen.
 
-Notebook, analysis/runtime code, complete data, cached results and final slide PDF.
+Notebook, analysis/runtime code, complete data, cached results and final report/slide PDFs.
 Document generators, speech notes and presentation source stay in GitHub for audit.
 """
 import json
@@ -38,6 +38,7 @@ def submission_files(root=ROOT):
     result_manifest=json.loads((root/'results/manifest.json').read_text(encoding='utf-8'))
     for name in result_manifest['files']:add('results/'+name)
     add('presentation/conservative_formula.pdf','conservative_formula_presentation.pdf')
+    add('output/pdf/conservative_formula_report.pdf','conservative_formula_report.pdf')
     return files
 
 
@@ -46,6 +47,7 @@ Authors: Yingni Chang and Yikai Shen
 MTH 9897, Project 8
 
 MAIN REPORT: conservative_formula_final.ipynb
+COMPANION WRITTEN REPORT: conservative_formula_report.pdf
 FINAL PRESENTATION: conservative_formula_presentation.pdf (22 slides)
 
 Keep this Final folder intact. Install Python 3.12 and run:

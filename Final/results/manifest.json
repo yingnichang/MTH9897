@@ -1023,7 +1023,7 @@
   },
   "studies": {
     "data_audit": {
-      "run_utc": "2026-10-13T02:12:57+00:00",
+      "run_utc": "2026-10-20T18:38:45+00:00",
       "seconds": 0.0,
       "end": "2024-12-31",
       "files": 8,
@@ -1793,7 +1793,7 @@
       }
     }
   },
-  "updated_utc": "2026-10-19T01:17:00+00:00",
+  "updated_utc": "2026-10-20T18:38:45+00:00",
   "data_manifest_sha256": "4816d582000aecfca4c73ad6ff86e050824956bdfb7f3d29e8aa8c8396d223c4",
   "packages": {
     "python": "3.12.14",
@@ -1807,14 +1807,12 @@
   "last_run": {
     "status": "complete",
     "studies": [
-      "feedback_costs",
-      "uk_comparison"
+      "data_audit"
     ],
-    "seconds": 27.9,
+    "seconds": 0.0,
     "argv": [
       "--only",
-      "feedback_costs",
-      "uk_comparison"
+      "data_audit"
     ],
     "source_sha256": {
       "crsp_pipeline/__init__.py": "e4a650585841965894aa96fa12ee9f064e527f751a569a99ffd165764d248e02",
@@ -1863,7 +1861,7 @@
       "research/studies/rank_buffer.py": "151467f5c046a611e277be216e61df41294880f9b5d0d55603697c140650a4f4",
       "research/studies/replication.py": "469376283efe1c233460cd69e6c93782b6fac422af9a245c229dedb89c4de0c5",
       "research/studies/uk_comparison.py": "138fc043effd630b78d087fc6cf83afbb454d3c8f6115ba655ada5b7b060b747",
-      "research/summary.py": "16738f8acca5363b47f399c37bb169bbe82d11ef4d64e6dc5b9149404503f3e9"
+      "research/summary.py": "9eeff875842e88d6e3a52178c616731b5431d0f5a0131c0914ceffc903181b4d"
     }
   }
 }

@@ -14,6 +14,7 @@ def test_submission_has_runtime_data_and_final_presentation_only():
     assert 'Final/conservative_formula_final.ipynb' in files
     assert 'Final/conservative_formula_presentation.pdf' in files
     assert files['Final/conservative_formula_presentation.pdf']==ROOT/'presentation/conservative_formula.pdf'
+    assert files['Final/conservative_formula_report.pdf']==ROOT/'output/pdf/conservative_formula_report.pdf'
     assert not any(p.startswith('Final/presentation/') or p.startswith('Final/tests/') for p in files)
     assert not any('speech_notes' in p or 'speaker_notes' in p for p in files)
     for name in ['build_notebook.py','build_report_pdf.py','package_submission.py']:

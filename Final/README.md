@@ -102,10 +102,11 @@ python presentation/build_short_speech_notes.py
 
 The private course ZIP is `output/submission/MTH9897_Conservative_Formula_Final.zip`. It includes only the
 final notebook, analysis/runtime Python modules, complete input data, cached results, requirements, a submission
-README and `conservative_formula_presentation.pdf` at the top of its `Final/` folder.
+README, `conservative_formula_report.pdf` and `conservative_formula_presentation.pdf` at the top of its `Final/` folder.
 
-Speech notes, the `presentation/` source folder, tests, document-generation scripts and the duplicate PDF report
-are excluded from the submission ZIP. These audit materials remain in GitHub. The final notebook is the report.
+Speech notes, the `presentation/` source folder, tests and document-generation scripts
+are excluded from the submission ZIP. These audit materials remain in GitHub. The notebook is the primary report;
+the written PDF is included as a companion and is also tracked at `output/pdf/conservative_formula_report.pdf`.
 After extraction, open the notebook, select RUN_MODE and run all cells, or run from `Final/`:
 
 ```bash

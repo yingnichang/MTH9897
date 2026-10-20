@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from xml.sax.saxutils import escape
 
 import pandas as pd
@@ -135,9 +137,10 @@ class WrittenReport:
             ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
             ("LINEBELOW", (0, -1), (-1, -1), .5, colors.HexColor("#CCD8DE")),
         ]))
-        self.story.extend([t, Spacer(1, 9)])
+        block = [t, Spacer(1, 9)]
         if caption:
-            self.p(caption, "small")
+            block.append(Paragraph(text(caption), self.styles["small"]))
+        self.story.append(KeepTogether(block))
 
     def figure(self, study, name, caption, height=225):
         path = results.path(study, name, root=self.root)
@@ -160,7 +163,8 @@ class WrittenReport:
         self.p("MTH 9897 SYSTEMATIC TRADING | PROJECT 8", "small")
         self.p("The Conservative Formula", "title")
         self.p("A replication using CRSP data, 1929-2024", "h1")
-        self.p("<b>Yingni Chang and Yikai Shen</b><br/>Final written report | October 13, 2026")
+        report_date = datetime.now(ZoneInfo("America/New_York")).strftime("%B %d, %Y")
+        self.p(f"<b>Yingni Chang and Yikai Shen</b><br/>Final written report | {report_date}")
         self.p("Reference: David Blitz and Pim van Vliet (2018), <i>The Conservative Formula: "
                "Quantitative Investing Made Easy</i>, The Journal of Portfolio Management 44(7); "
                "working paper SSRN 3145152.")
@@ -201,8 +205,10 @@ class WrittenReport:
              "Fama-French five factors plus momentum is a robustness check from July 1963."],
             ["Has performance weakened?", "Fixed subperiods and rolling 120-month estimates. "
              "The recent comparison is 1990-2024; 2017-2024 follows the paper's sample."],
-            ["What survives costs?", "Returns at 10 and 30 bps per dollar traded and break-even "
-             "costs for market excess return and Carhart alpha."],
+            ["What survives costs?", "The paper's 10- and 30-bps cases, a 2017-2024 grid from 0 to 30 bps "
+             "in 5-bps steps, lagged-spread costs, and break-even costs for excess return and alpha."],
+            ["Does the rule travel?", "An exploratory UK/US comparison for 2017-2024, with local "
+             "benchmarks, terminal-value stress and a UK purchase-tax sensitivity."],
         ], [.31, .69])
         self.sub("Comparisons and uncertainty")
         self.p("We use 1929-1962, 1963-1989, 1990-2016 and 2017-2024, "
@@ -221,9 +227,9 @@ class WrittenReport:
                "additional payout/sector comparisons, FF3 stock-beta controls and quadratic "
                "model came after the baseline analysis. We therefore treat them as "
                "exploratory; the already-observed 2017-2024 period is not a holdout for them.")
-        self.p("This report covers the US assignment. It does not reproduce the paper's "
-               "international FactSet samples, and CRSP alone does not supply the book-equity "
-               "inputs needed for a separate Value control.")
+        self.p("The US assignment is the main replication. Section 17 adds a UK extension using "
+               "Compustat Global; it does not reproduce the paper's international FactSet samples. "
+               "CRSP alone does not supply the book-equity inputs needed for a separate Value control.")
 
         self.heading("2. Data and cleaning")
         extract = self.load("data_audit", "extract_summary.json")
@@ -339,6 +345,17 @@ class WrittenReport:
                f"{interval(base.paired_ci_low,base.paired_ci_high)}. Universe, low-volatility "
                "pool, complete-case membership, momentum, portfolio size, weights, dates "
                "and costs are matched; only the payout ranking is replaced.")
+        periods = ("1929–2016", "1990–2024")
+        payout_returns = lambda strategy: [S.one(comparison, period=p, strategy=strategy).arithmetic
+                                          for p in periods]
+        npy_returns = payout_returns("Baseline NPY")
+        dividend_returns = payout_returns("Dividends-only counterfactual")
+        self.table(["Gross annual arithmetic return", *periods], [
+            ["Net payout rule", *map(pct, npy_returns)],
+            ["Dividends-only rule", *map(pct, dividend_returns)],
+            ["Gain from the share-count term", *[pct(a-b) for a,b in zip(npy_returns, dividend_returns)]],
+        ], [.48, .26, .26], "Matches the revised dividend slide. Differences use unrounded values; "
+                   "these arithmetic returns are distinct from the CAGR comparison above.")
         components = self.load("professor_checks", "payout_components.csv")
         self.table(["Period", "Dividend yield", "Net share proxy", "NPY", "Overlap with dividends-only"], [
             [r.period, pct(r.dividend_yield), pct(r.net_repurchase_proxy), pct(r.npy),
@@ -396,6 +413,15 @@ class WrittenReport:
                f"annually over 1929-2016 versus {pct(original.compounded)} for the original "
                "baseline, with more turnover. These values "
                "are also shown in the payout comparison in Section 5.")
+        periods = ("1929–2016", "1990–2024")
+        baseline = [S.one(comparison, period=p, strategy="Baseline NPY").arithmetic for p in periods]
+        variant = [S.one(comparison, period=p, strategy="Sector quota variant").arithmetic for p in periods]
+        self.table(["Gross annual arithmetic return", *periods], [
+            ["Industry quota variant", *map(pct, variant)],
+            ["Baseline global screen", *map(pct, baseline)],
+            ["Quota minus baseline", *[pct(a-b) for a,b in zip(variant, baseline)]],
+        ], [.48, .26, .26], "Matches the revised industry slide. Differences use unrounded values. "
+                   "This is a portfolio-rule comparison, separate from the attribution identity above.")
         self.box("Industry neutrality is not silently imposed on the paper baseline. "
                  "The quota variant changes the global volatility screen and is exploratory. "
                  "FF12 industries are the available US grouping used for both the diagnostics "
@@ -435,7 +461,30 @@ class WrittenReport:
                "an investable cost-inclusive spread. The result tables distinguish "
                "cost-inclusive CMS from the difference of two net long-only return series.")
 
+        self.story.append(PageBreak())
         self.heading("8. Costs and changes over time")
+        recent = "1990–2024"
+        gross, net10 = recent+"|gross", recent+"|net10"
+        self.sub("Recent-period comparison at the paper's low-cost case")
+        self.table(["1990-2024 measure", "Gross", "Net 10 bps", "Market"], [
+            ["Conservative CAGR", pct(N['ct_comp|'+gross]), pct(N['ct_comp|'+net10]),
+             pct(N['ct_mkt_compounded|'+recent])],
+            ["Conservative volatility", pct(N['ct_vol|'+gross]), pct(N['ct_vol|'+net10]),
+             pct(N['ct_mkt_vol|'+recent])],
+            ["Excess over market / year", pct(N['ct_excess|'+gross]), pct(N['ct_excess|'+net10]), "n/a"],
+            ["Carhart alpha / year", pct(N['ct_alpha|'+gross]), pct(N['ct_alpha|'+net10]), "n/a"],
+            ["FF5 + momentum alpha / year", pct(N['ct_ff5_alpha|'+gross]), pct(N['ct_ff5_alpha|'+net10]), "n/a"],
+            ["CMS Carhart alpha / year", pct(N['ct_cms_gross_alpha|'+recent]),
+             pct(N['ct_cms_net10_alpha|'+recent]), "n/a"],
+        ], [.43, .19, .19, .19], "The revised page 10 uses 10 bps per dollar traded as the paper's "
+                   "low-cost case; 30 bps remains its high-cost sensitivity. CMS charges both legs "
+                   "and omits borrow and financing. Alphas and excess returns are annual arithmetic measures.")
+        costs = self.load("feedback_costs", "cost_summary.csv")
+        selected = [S.one(costs, period=recent, cost_model="flat", reference_bps=c) for c in (0,5,10,30)]
+        self.table(["Flat cost / dollar traded", "Carhart alpha / year", "Newey-West t"], [
+            [f"{r.reference_bps:.0f} bps", pct(r.carhart_alpha), number(r.alpha_t_nw)]
+            for r in selected], [.40, .35, .25])
+        self.sub("Subperiod sensitivity at 30 bps")
         subperiods = self.load("critical_tests", "subperiods.csv")
         rows = []
         for period in S.PERIODS:
@@ -654,40 +703,44 @@ class WrittenReport:
              "returns from a separate dollar-holdings recursion; direct signals, "
              "Carhart/Newey-West and sector reconciliation."],
         ], [.30,.70])
+        notebook = json.loads((ROOT / "conservative_formula_final.ipynb").read_text(encoding="utf-8"))
+        code_cells = [c for c in notebook['cells'] if c['cell_type'] == 'code']
+        if any(c.get('execution_count') is None or any(o.get('output_type') == 'error'
+               for o in c.get('outputs', [])) for c in code_cells):
+            raise ValueError("The final notebook must be executed without errors before report generation")
         self.p(f"All {len(independent)} independent accounting checks pass. "
-               "The complete scientific test suite passes 139 tests. The "
-               "executed notebook runs 16 code cells without errors in "
-               "empirical and synthetic modes; a fresh checkout also runs "
-               "the empirical report without licensed data. Cache hashes "
+               f"The final empirical notebook contains {len(code_cells)} executed code cells without "
+               "recorded errors. Cached mode displays the report without licensed data. Cache hashes "
                "and producing data/source/package identities are checked "
                "before reuse. This validates the tested implementation; "
                "it does not remove the data and modeling assumptions.","small")
 
         self.heading("15. Running the analysis")
         self.p("<b>Main calculation entry point:</b> <font face='Courier'>research/run_all.py</font>, "
-               "run as a module from Final. It runs all 12 studies "
+               f"run as a module from Final. It runs all {len(self.manifest['studies'])} studies "
                "and saves their results and file hashes. "
                "The Jupyter notebook is the primary assignment deliverable.")
         self.table(["File or module", "Role"], [
             ["research/run_all.py", "Runs the full research pipeline or selected studies."],
             ["crsp_pipeline", "Imports or extracts raw data, normalizes the panel, writes audits."],
             ["research/engine.py", "Baseline selection and portfolio accounting."],
-            ["build_notebook.py / execute_notebook.py", "Generate and execute the Jupyter report."],
-            ["build_report_pdf.py", "Generate this written PDF from verified aggregate results."],
-            ["presentation/build_pdf.py", "Generate the separate 18-slide PDF and notes."],
-            ["package_submission.py", "Create the private runnable package with code and data."],
+            ["submission_runner.py", "Runs cached, analysis or full mode from the notebook or command line."],
+            ["execute_notebook.py", "Executes the supplied final notebook."],
+            ["conservative_formula_report.pdf", "This companion written report."],
+            ["conservative_formula_presentation.pdf", "The separate final 22-slide presentation."],
         ], [.48,.52])
         self.sub("Complete rebuild with the private inputs")
-        self.code("cd Final\n"
-                  "python -m pip install -r requirements.txt\n"
-                  "python -m crsp_pipeline build\n"
-                  "python -m research.run_all\n"
-                  "python build_notebook.py\n"
-                  "python execute_notebook.py\n"
-                  "python build_report_pdf.py\n"
-                  "python presentation/build_pdf.py\n"
-                  "python -m pytest tests -q\n"
-                  "python package_submission.py")
+        self.p("Run these commands inside the submission folder containing the notebook and "
+               "requirements.txt. The private GitHub path is Final/submission; the course ZIP "
+               "uses Final. No WRDS login or further data download is required.")
+        self.code("python -m pip install -r requirements.txt\n"
+                  "python submission_runner.py --mode full\n"
+                  "python execute_notebook.py")
+        self.p("Alternatively, open the notebook in JupyterLab, set RUN_MODE to cached, analysis "
+               "or full, then restart the kernel and run all cells. Cached verifies saved results; "
+               "analysis reruns the 14 studies; full also rebuilds the US inputs. Document-generation "
+               "scripts remain in the original public repository for audit and are not required "
+               "to run the submitted notebook.")
         self.p("The full reviewed research rebuild took approximately 16 minutes "
                "on the tested Windows environment; machine and library versions "
                "affect runtime. Cached notebook, written PDF and slides "
@@ -698,8 +751,9 @@ class WrittenReport:
                  "required by the assignment. This report and the slide PDF "
                  "are companions. The private ZIP includes the seven raw "
                  "parquet inputs, normalized inputs and worked examples. "
-                 "Licensed CRSP rows stay in the authorized course package; "
-                 "GitHub contains source and aggregate outputs.")
+                 "The UK export and original CRSP quote export are also included. Licensed rows "
+                 "stay in the authorized course package and private submission repository; "
+                 "the public GitHub repository contains source and aggregate outputs.")
 
         self.heading("16. Conclusions")
         self.p("Our implementation reproduces the main contrast between "
@@ -726,6 +780,7 @@ class WrittenReport:
         ], [.42,.58])
         from research.feedback_summary import add_report
         add_report(self)
+        references_start = len(self.story)
         self.sub("References")
         self.p('Blitz, D. and van Vliet, P. (2018). <i>The Conservative Formula: Quantitative Investing Made Easy.</i> '
                'The Journal of Portfolio Management 44(7). Supplied working paper: '
@@ -742,6 +797,7 @@ class WrittenReport:
                f"{len(self.manifest['files'])} files. Data-manifest SHA-256: "
                f"{self.manifest['data_manifest_sha256'][:24]}... "
                f"Results last updated UTC: {self.manifest['updated_utc']}.","small")
+        self.story[references_start:] = [KeepTogether(self.story[references_start:])]
 
     @staticmethod
     def footer(canvas, doc):
