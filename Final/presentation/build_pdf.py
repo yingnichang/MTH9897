@@ -416,6 +416,8 @@ def export(source, destination, root=None):
         body_top=height-126
         available = body_top-bottom
         paras = list(body.paragraphs)
+        if number == 2:
+            paras = [p for p in paras if not p.text.startswith('The rule:')]
         if number == 4:
             selection_flow(pdf,paras,margin,body_top,content_width,available)
         elif number in views:
