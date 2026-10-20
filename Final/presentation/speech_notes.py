@@ -59,9 +59,12 @@ def make_notes(root=results.RESULTS):
         "The flowchart shows how we narrow the universe from one thousand stocks to one hundred. "
         "At each quarter-end, we first require thirty-six consecutive months of return history, "
         "then take the largest one thousand eligible US stocks by market capitalization. "
-        "The next box keeps the five hundred with lower historical volatility.",
+        "The next box keeps the five hundred with lower historical volatility. Its formula "
+        "takes the standard deviation of thirty-six monthly total returns, then multiplies "
+        "by the square root of twelve to express volatility in annual units.",
         "The two boxes below are the rankings applied within that lower-volatility pool. "
-        "Momentum favors stronger past price performance. Net payout combines dividends with "
+        "The momentum formula compounds eleven monthly price returns, from t minus eleven "
+        "through t minus one, and subtracts one. It skips the latest month. Net payout combines dividends with "
         "a proxy for net share repurchases. We average the two favorable ranks and choose the "
         "best one hundred stocks. Each starts at one percent of the portfolio. We then let "
         "weights drift with returns and rebalance quarterly.",

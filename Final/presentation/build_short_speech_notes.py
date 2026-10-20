@@ -40,7 +40,9 @@ def short_notes(root=results.RESULTS):
         "rather than assume one thousand eligible stocks were always available.",
 
         "Follow the chart from top to bottom: first the largest one thousand stocks with enough "
-        "return history, then the five hundred with lower volatility. The two middle boxes rank "
+        "return history, then the five hundred with lower volatility. The formulas use thirty-six "
+        "monthly total returns for volatility and eleven price returns for momentum, skipping "
+        "the latest month. The two middle boxes rank "
         "momentum and net payout. We average those ranks to choose one hundred equally weighted "
         "stocks and rebalance quarterly. The early sample has fewer eligible stocks, as the "
         "table on the right explains.",

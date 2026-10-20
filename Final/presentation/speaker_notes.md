@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,515 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,558 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -44,13 +44,13 @@ Three data-cleaning choices are important. First, we keep stocks that disappear,
 
 ## 4. The portfolio rule
 
-**Approximate speaking time:** 81 seconds, plus pauses.
+**Approximate speaking time:** 101 seconds, plus pauses.
 
 **Presenter cue:** Trace the flowchart from top to bottom; point to both ranking boxes and the early-universe caveat.
 
-The flowchart shows how we narrow the universe from one thousand stocks to one hundred. At each quarter-end, we first require thirty-six consecutive months of return history, then take the largest one thousand eligible US stocks by market capitalization. The next box keeps the five hundred with lower historical volatility.
+The flowchart shows how we narrow the universe from one thousand stocks to one hundred. At each quarter-end, we first require thirty-six consecutive months of return history, then take the largest one thousand eligible US stocks by market capitalization. The next box keeps the five hundred with lower historical volatility. Its formula takes the standard deviation of thirty-six monthly total returns, then multiplies by the square root of twelve to express volatility in annual units.
 
-The two boxes below are the rankings applied within that lower-volatility pool. Momentum favors stronger past price performance. Net payout combines dividends with a proxy for net share repurchases. We average the two favorable ranks and choose the best one hundred stocks. Each starts at one percent of the portfolio. We then let weights drift with returns and rebalance quarterly.
+The two boxes below are the rankings applied within that lower-volatility pool. The momentum formula compounds eleven monthly price returns, from t minus eleven through t minus one, and subtracts one. It skips the latest month. Net payout combines dividends with a proxy for net share repurchases. We average the two favorable ranks and choose the best one hundred stocks. Each starts at one percent of the portfolio. We then let weights drift with returns and rebalance quarterly.
 
 The table on the right records our implementation conventions. The early data have fewer than one thousand eligible stocks, so the first two boxes describe the full-universe case. We use the available eligible names in the early sample. The history screen comes before the size cut, and each selection earns returns only after formation.
 

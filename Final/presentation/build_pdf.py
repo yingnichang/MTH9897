@@ -141,6 +141,30 @@ def text_paras(lines):
     return [SimpleNamespace(text=line, level=0) for line in lines]
 
 
+def draw_math(pdf, expression, x, top, width, height, size=19):
+    """Render mathematical glyphs and rules as searchable vector PDF content."""
+    from matplotlib.mathtext import MathTextParser
+    from matplotlib.font_manager import FontProperties
+    parsed=MathTextParser('path').parse(expression,dpi=72,prop=FontProperties(size=size))
+    scale=min(1,width/parsed.width,height/parsed.height)
+    pdf.saveState()
+    pdf.translate(x+(width-parsed.width*scale)/2,top-(parsed.height-parsed.depth)*scale)
+    pdf.scale(scale,scale);pdf.setFillColor(INK)
+    for glyph in parsed.glyphs:
+        # Matplotlib 3.11 adds the glyph index after the Unicode codepoint.
+        if len(glyph)==6:
+            font,font_size,code,_,gx,gy=glyph
+        else:
+            font,font_size,code,gx,gy=glyph
+        name='SlideMath_'+font.postscript_name
+        if name not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(name,font.fname))
+        pdf.setFont(name,font_size);pdf.drawString(gx,gy,chr(code))
+    for rx,ry,rw,rh in parsed.rects:
+        pdf.rect(rx,ry,rw,rh,stroke=0,fill=1)
+    pdf.restoreState()
+
+
 def research_questions(pdf,x,top,width,height):
     """The three research questions, in the same order as both speaking scripts."""
     gap=34
@@ -185,7 +209,7 @@ def selection_flow(pdf, paras, x, top, width, height):
     flow_width = width*.53
     right_x = x+flow_width+22
     right_width = width-flow_width-22
-    scale = main_height/300
+    scale = main_height/312
 
     def arrow(offset, length=13):
         cx = x+flow_width/2
@@ -195,32 +219,38 @@ def selection_flow(pdf, paras, x, top, width, height):
         pdf.line(cx,y,cx,end)
         pdf.line(cx-4,end+5,cx,end);pdf.line(cx+4,end+5,cx,end)
 
-    def node(left, offset, node_width, node_height, title, detail, fill, title_size=19, detail_size=13):
+    def node(left, offset, node_width, node_height, title, detail, fill, title_size=19, detail_size=13,
+             equation=None, equation_height=24):
         node_top = top-offset*scale
         node_height *= scale
         pdf.setFillColor(fill);pdf.setStrokeColor(RULE);pdf.setLineWidth(.7)
         pdf.roundRect(left,node_top-node_height,node_width,node_height,10,stroke=1,fill=1)
+        if equation:
+            paragraph(pdf,title,left+10,node_top-6,node_width-20,title_size,bold=True,align=1)
+            draw_math(pdf,equation,left+10,node_top-34,node_width-20,equation_height)
+            return
         title_h = paragraph(None,title,0,0,node_width-20,title_size,bold=True,measure=True)
         detail_h = paragraph(None,detail,0,0,node_width-20,detail_size,measure=True)
         text_top = node_top-(node_height-title_h-detail_h-5)/2
         paragraph(pdf,title,left+10,text_top,node_width-20,title_size,bold=True,align=1)
         paragraph(pdf,detail,left+10,text_top-title_h-5,node_width-20,detail_size,color=MUTED,align=1)
 
-    node(x,0,flow_width,52,'1,000 largest eligible US stocks',
+    node(x,0,flow_width,48,'1,000 largest eligible US stocks',
          '36-month history screen, then market capitalization',white,18,13)
-    arrow(57)
-    node(x,76,flow_width,50,'500 lower-volatility stocks',
-         'Keep the calmer half by 36-month historical volatility',STRIPE,19,13)
-    arrow(131)
+    arrow(52,9)
+    node(x,66,flow_width,68,'500 lower-volatility stocks','',STRIPE,19,13,
+         equation=r'$\sigma_{i,t}=\sqrt{12}\times\mathrm{Std}(R_{i,t-35},\ldots,R_{i,t})$')
+    arrow(138,9)
     pair_width=(flow_width-12)/2
-    node(x,150,pair_width,60,'Momentum','Stronger 12-1 price momentum',white,18,12)
-    node(x+pair_width+12,150,pair_width,60,'Net payout yield',
+    node(x,152,pair_width,78,'Momentum','',white,18,12,
+         equation=r'$MOM_{i,t}=\prod_{j=1}^{11}(1+r_{i,t-j}^{\mathrm{price}})-1$',equation_height=34)
+    node(x+pair_width+12,152,pair_width,78,'Net payout yield',
          'Dividends + net share repurchases',white,18,12)
-    paragraph(pdf,'Average the two ranks; select the best 100',x,top-217*scale,
+    paragraph(pdf,'Average the two ranks; select the best 100',x,top-234*scale,
               flow_width,12,bold=True,align=1,color=TEAL)
-    arrow(234,9)
-    node(x,249,flow_width,51,'100 stocks',
-         'Equal-weighted portfolio; rebalance quarterly',HexColor('#DCECE9'),20,14)
+    arrow(252,7)
+    node(x,264,flow_width,48,'100 stocks',
+         'Equal-weighted portfolio; rebalance quarterly',HexColor('#DCECE9'),18,12)
 
     conventions = [
         ['Convention', 'Implementation'],
