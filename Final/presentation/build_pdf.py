@@ -141,6 +141,42 @@ def text_paras(lines):
     return [SimpleNamespace(text=line, level=0) for line in lines]
 
 
+def research_questions(pdf,x,top,width,height):
+    """The three research questions, in the same order as both speaking scripts."""
+    gap=34
+    card_width=(width-2*gap)/3
+    card_top=top-8
+    card_height=258
+    cards=[
+        ('01  REPLICATE','Can we reproduce the paper?',
+         '1929–2016\nReturn, volatility and turnover'),
+        ('02  EXPLAIN','How much return comes from known factors?',
+         'Carhart: primary model\nFF5 + momentum: robustness'),
+        ('03  TEST RECENT PERFORMANCE','Does it still perform after trading costs?',
+         'Recent periods through 2024\n10 / 30 bps and break-even costs\n2017–2024: 0–30 bps grid'),
+    ]
+    for i,(label,question,detail) in enumerate(cards):
+        left=x+i*(card_width+gap)
+        pdf.setFillColor(STRIPE if i==1 else white);pdf.setStrokeColor(RULE)
+        pdf.setLineWidth(.8)
+        pdf.roundRect(left,card_top-card_height,card_width,card_height,12,stroke=1,fill=1)
+        pdf.setFillColor(TEAL);pdf.roundRect(left+18,card_top-37,30,4,2,stroke=0,fill=1)
+        paragraph(pdf,label,left+18,card_top-49,card_width-36,10,bold=True,color=TEAL)
+        paragraph(pdf,question,left+18,card_top-83,card_width-36,22,bold=True)
+        paragraph(pdf,detail,left+18,card_top-183,card_width-36,15.5,color=MUTED)
+        if i<2:
+            cy=card_top-card_height/2
+            start=left+card_width+7;end=start+gap-14
+            pdf.setStrokeColor(TEAL);pdf.setLineWidth(1.8)
+            pdf.line(start,cy,end,cy)
+            pdf.line(end-5,cy+4,end,cy);pdf.line(end-5,cy-4,end,cy)
+    bottom_top=card_top-card_height-22
+    paragraph(pdf,'Time checks: 1929–1962 | 1963–1989 | 1990–2016 | 2017–2024; rolling 120-month windows',
+              x,bottom_top,width,13.5,color=MUTED)
+    paragraph(pdf,'Uncertainty: Newey–West (12 lags) or block-bootstrap confidence intervals',
+              x,bottom_top-27,width,13.5,color=MUTED)
+
+
 def selection_flow(pdf, paras, x, top, width, height):
     """Vector selection diagram, with the original implementation conventions alongside."""
     notes = paras[1:]
@@ -417,8 +453,8 @@ def export(source, destination, root=None):
         available = body_top-bottom
         paras = list(body.paragraphs)
         if number == 2:
-            paras = [p for p in paras if not p.text.startswith('The rule:')]
-        if number == 4:
+            research_questions(pdf,margin,body_top,content_width,available)
+        elif number == 4:
             selection_flow(pdf,paras,margin,body_top,content_width,available)
         elif number in views:
             draw_numeric_view(pdf, views[number], pictures, tables, margin,

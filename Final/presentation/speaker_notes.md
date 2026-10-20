@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,492 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,496 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -20,11 +20,11 @@ We first try to reproduce the US results over 1929 to 2016, which is the paper's
 
 ## 2. What we test
 
-**Approximate speaking time:** 54 seconds, plus pauses.
+**Approximate speaking time:** 55 seconds, plus pauses.
 
-**Presenter cue:** Explain the distinction between replication and recent performance.
+**Presenter cue:** Follow the three boxes from left to right: replicate, explain, then test recent performance.
 
-We organize the analysis around three comparisons. First, can we reproduce the paper's return, volatility and turnover? Second, how much of the return is explained by familiar equity factors? Third, what happens when we move to recent periods and include trading costs?
+The three boxes show our research questions from left to right. First, can we reproduce the paper's return, volatility and turnover? Second, how much of the return is explained by familiar equity factors? Third, what happens when we move to recent periods and include trading costs?
 
 These questions matter because a strong result over almost ninety years does not necessarily mean that the strategy still has a useful advantage today. We use the Carhart model as our main factor adjustment and compare gross returns with returns at ten and thirty basis points per dollar traded. The fixed comparison periods were chosen before computing the post-2016 portfolio results.
 

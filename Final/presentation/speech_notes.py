@@ -31,8 +31,8 @@ def make_notes(root=results.RESULTS):
         "results are weaker after costs and factor adjustment. I'll explain the rule first, then the "
         "data and results, including the payout and sector issues raised in the assignment.")
 
-    add("What we test", "Explain the distinction between replication and recent performance.",
-        "We organize the analysis around three comparisons. First, can we reproduce the paper's "
+    add("What we test", "Follow the three boxes from left to right: replicate, explain, then test recent performance.",
+        "The three boxes show our research questions from left to right. First, can we reproduce the paper's "
         "return, volatility and turnover? Second, how much of the return is explained by familiar "
         "equity factors? Third, what happens when we move to recent periods and include trading costs?",
         "These questions matter because a strong result over almost ninety years does not necessarily "

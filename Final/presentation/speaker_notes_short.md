@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 900 words, or 6.9 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 904 words, or 7.0 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -10,7 +10,7 @@ Hello everyone. We're Yingni Chang and Yikai Shen. Our project tests a simple st
 
 ## 2. What we test
 
-We ask three questions: Can we reproduce the paper? How much of the return comes from familiar market factors? And does the strategy still perform well after trading costs? These comparisons help us judge both the historical result and its recent relevance.
+Follow the three boxes from left to right. Can we reproduce the paper? How much of the return comes from familiar market factors? And does the strategy still perform well after trading costs? These comparisons help us judge both the historical result and its recent relevance.
 
 ## 3. The data
 

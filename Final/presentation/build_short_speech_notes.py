@@ -29,7 +29,7 @@ def short_notes(root=results.RESULTS):
         "that combines low volatility, momentum and shareholder payout. We reproduce the paper's "
         "historical results and examine how the strategy performs in more recent data.",
 
-        "We ask three questions: Can we reproduce the paper? How much of the return comes from "
+        "Follow the three boxes from left to right. Can we reproduce the paper? How much of the return comes from "
         "familiar market factors? And does the strategy still perform well after trading costs? "
         "These comparisons help us judge both the historical result and its recent relevance.",
 
