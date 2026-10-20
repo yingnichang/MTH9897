@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,355 words. At 130 words per minute, that is about 18 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
+The read-aloud script contains approximately 2,428 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -116,11 +116,11 @@ For 2017 to 2024, gross Carhart alpha is -1.21 percent. Its ninety-five-percent 
 
 ## 10. The recent sample: 1990–2024
 
-**Approximate speaking time:** 46 seconds, plus pauses.
+**Approximate speaking time:** 65 seconds, plus pauses.
 
-**Presenter cue:** Give the net-alpha estimate, interval and lower-risk result.
+**Presenter cue:** Give the gross and net-10 alphas, the cost row and the lower-risk result.
 
-This is our main recent comparison. After thirty-basis-point trading costs, annual Carhart alpha is 0.20 percent. The ninety-five-percent interval is roughly -1.98 percent to 2.39 percent, so it includes zero. That makes a strong claim about recent factor-adjusted outperformance difficult to support.
+This is our main recent comparison. Before costs, annual Carhart alpha is 1.17 percent with a t-statistic of 1.05. After ten-basis-point costs, the paper's low-cost case, it is 0.85 percent, and the ninety-five-percent interval of roughly -1.34 percent to 3.04 percent includes zero. With five Fama–French factors and momentum, gross alpha is -1.03 percent, also insignificant. The return is explained by known factors before costs, so the cost assumption is not what removes the alpha; the thirty-basis-point column only shows a stress case.
 
 The more consistent benefit is lower volatility than the market. The Conservative-minus-Speculative contrast still has a stronger result, but that includes shorting the Speculative portfolio. It is a different comparison from holding the Conservative portfolio alone, and its attribution result does not include actual borrow or financing costs.
 
@@ -128,19 +128,19 @@ The more consistent benefit is lower volatility than the market. The Conservativ
 
 ## 11. Dividends and share repurchases
 
-**Approximate speaking time:** 55 seconds, plus pauses.
+**Approximate speaking time:** 65 seconds, plus pauses.
 
 **Presenter cue:** Emphasize the assignment's payout warning and the matched comparison.
 
 This is one of the specific issues raised in the assignment. Dividend yield alone misses the indirect payout from repurchases. For example, with a three-percent dividend yield, ninety adjusted shares today and a one-hundred-share average, the net payout signal is thirteen percent. Issuance works in the opposite direction.
 
-In the matched backtest, the net-payout rule earns 14.80 percent gross annually, compared with 13.44 percent using dividends alone. We hold the other rules constant so that we are comparing the payout ranking. This shows that the share-count term matters. It is still a proxy for net repurchases after issuance, not directly observed buyback cash spending or a causal estimate of the effect of buybacks.
+In the matched backtest over the paper period, the net-payout rule earns an arithmetic 15.33 percent a year before costs, against 14.11 percent using dividends alone. The share-count term adds 1.23 percent a year, and 1.63 percent over 1990 to 2024. We hold the other rules constant so that we are comparing the payout ranking. This shows that the share-count term matters. It is still a proxy for net repurchases after issuance, not directly observed buyback cash spending or a causal estimate of the effect of buybacks.
 
 **Transition:** The other concern is industry positioning.
 
 ## 12. Industry allocation and stock selection
 
-**Approximate speaking time:** 60 seconds, plus pauses.
+**Approximate speaking time:** 65 seconds, plus pauses.
 
 **Presenter cue:** Explain the reference universe and then the industry quota rule.
 
@@ -148,7 +148,7 @@ For sector positioning, we use Fama-French twelve industries. We compare our por
 
 Over the paper sample, industry allocation contributes about 0.82 percent a year and stock selection about 3.80 percent. A separate universe-to-market term completes the monthly identity. These are arithmetic contributions, not contributions to CAGR.
 
-We also follow the course's quota idea: if an industry contains fifteen percent of universe stocks, it receives about fifteen of the one hundred holdings. That variant earns 14.51 percent gross annually. It changes the paper's global screen and was considered after the baseline results, so we treat it as an exploratory comparison.
+We also follow the course's quota idea: if an industry contains fifteen percent of universe stocks, it receives about fifteen of the one hundred holdings. That variant earns an arithmetic 15.18 percent a year before costs, 0.15 percentage points below the baseline. It changes the paper's global screen and was considered after the baseline results, so we treat it as an exploratory comparison.
 
 **Transition:** We also test the signals outside the original stock-selection rule.
 

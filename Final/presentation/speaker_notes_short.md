@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 866 words, or 6.7 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 878 words, or 6.8 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -42,7 +42,7 @@ The long history hides differences across periods. Earlier factor-adjusted resul
 
 ## 10. The recent sample: 1990–2024
 
-For 1990 to 2024, annual Carhart alpha after thirty-basis-point costs is only 0.20 percent, and its confidence interval includes zero. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
+For 1990 to 2024, annual Carhart alpha is 1.17 percent before costs and 0.85 percent after ten-basis-point costs; neither is significant, and the FF5 plus momentum alpha is negative even before costs. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
 
 ## 11. Dividends and share repurchases
 

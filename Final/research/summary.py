@@ -164,6 +164,8 @@ def numbers(root: Path = results.RESULTS) -> dict:
         N[f"ct_cms_net30_lo|{per}"], N[f"ct_cms_net30_hi|{per}"] = float(c.carhart_ci95_low), float(c.carhart_ci95_high)
         c = one(sp, period=per, portfolio="CMS", returns="gross")
         N[f"ct_cms_gross_alpha|{per}"], N[f"ct_cms_gross_t|{per}"] = float(c.carhart_alpha), float(c.carhart_t_nw)
+        c = one(sp, period=per, portfolio="CMS", returns="net10")
+        N[f"ct_cms_net10_alpha|{per}"], N[f"ct_cms_net10_t|{per}"] = float(c.carhart_alpha), float(c.carhart_t_nw)
     be = L("critical_tests", "breakeven.csv")
     for per in PERIODS:
         for meas, tag in [("net arithmetic excess over the market", "excess"), ("net Carhart alpha", "alpha")]:

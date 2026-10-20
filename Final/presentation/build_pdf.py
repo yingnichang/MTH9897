@@ -151,12 +151,22 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
         notes_h = body_height(notes, width, 16, 6)
         gaps = (12 if intro else 0)+(12 if notes else 0)
         extra = view.get('extra')
-        extra_h = 0
         if extra:
-            extra_size, extra_layout = fit_table(extra['rows'], width, 120, view['font']-2, extra['widths'])
-            extra_h = 36+sum(extra_layout[1])
-        size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps-extra_h,
-                                 view['font'], view['widths'])
+            # One font size for both tables: the largest at which they fit together.
+            for half in range(round(view['font']*2), 25, -1):
+                extra_size, extra_layout = fit_table(extra['rows'], width, height, half/2, extra['widths'])
+                try:
+                    size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps-36-sum(extra_layout[1]),
+                                             extra_size, view['widths'])
+                except ValueError:
+                    continue
+                if size == extra_size:
+                    break
+            else:
+                raise ValueError('Slide tables do not fit without changing content')
+        else:
+            size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps,
+                                     view['font'], view['widths'])
         if intro:
             draw_body(pdf, intro, x, top, width, 16, 6)
         table_top = top-intro_h-(12 if intro else 0)

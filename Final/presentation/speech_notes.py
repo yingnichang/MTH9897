@@ -121,13 +121,15 @@ def make_notes(root=results.RESULTS):
         "We do not find strong evidence of outperformance in that period, but an "
         "insignificant estimate is not proof that expected alpha is exactly zero.")
 
-    key = "1990–2024|net30"
-    add("The recent sample: 1990–2024", "Give the net-alpha estimate, interval and lower-risk result.",
-        f"This is our main recent comparison. After thirty-basis-point trading costs, "
-        f"annual Carhart alpha is {percent(n['ct_alpha|'+key])}. The ninety-five-percent "
-        f"interval is roughly {percent(n['ct_alpha_lo|'+key])} to {percent(n['ct_alpha_hi|'+key])}, "
-        "so it includes zero. That makes a strong claim about recent factor-adjusted "
-        "outperformance difficult to support.",
+    key, gkey = "1990–2024|net10", "1990–2024|gross"
+    add("The recent sample: 1990–2024", "Give the gross and net-10 alphas, the cost row and the lower-risk result.",
+        f"This is our main recent comparison. Before costs, annual Carhart alpha is "
+        f"{percent(n['ct_alpha|'+gkey])} with a t-statistic of {n['ct_alpha_t|'+gkey]:.2f}. After ten-basis-point "
+        f"costs, the paper's low-cost case, it is {percent(n['ct_alpha|'+key])}, and the ninety-five-percent "
+        f"interval of roughly {percent(n['ct_alpha_lo|'+key])} to {percent(n['ct_alpha_hi|'+key])} includes zero. "
+        f"With five Fama–French factors and momentum, gross alpha is {percent(n['ct_ff5_alpha|'+gkey])}, "
+        "also insignificant. The return is explained by known factors before costs, so the cost "
+        "assumption is not what removes the alpha; the thirty-basis-point column only shows a stress case.",
         "The more consistent benefit is lower volatility than the market. The "
         "Conservative-minus-Speculative contrast still has a stronger result, "
         "but that includes shorting the Speculative portfolio. It is a different "
@@ -137,14 +139,18 @@ def make_notes(root=results.RESULTS):
     pc = load("professor_checks", "payout_comparison.csv")
     base = S.one(pc, period="1929–2016", strategy="Baseline NPY")
     div = S.one(pc, period="1929–2016", strategy="Dividends-only counterfactual")
+    recent = {k: S.one(pc, period="1990–2024", strategy=k) for k in ("Baseline NPY", "Dividends-only counterfactual")}
+    gain = recent["Baseline NPY"].arithmetic-recent["Dividends-only counterfactual"].arithmetic
     add("Dividends and share repurchases", "Emphasize the assignment's payout warning and the matched comparison.",
         "This is one of the specific issues raised in the assignment. Dividend yield "
         "alone misses the indirect payout from repurchases. For example, with a "
         "three-percent dividend yield, ninety adjusted shares today and a "
         "one-hundred-share average, the net payout signal is thirteen percent. "
         "Issuance works in the opposite direction.",
-        f"In the matched backtest, the net-payout rule earns {percent(base.compounded)} "
-        f"gross annually, compared with {percent(div.compounded)} using dividends alone. "
+        f"In the matched backtest over the paper period, the net-payout rule earns an arithmetic "
+        f"{percent(base.arithmetic)} a year before costs, against {percent(div.arithmetic)} using dividends alone. "
+        f"The share-count term adds {percent(base.arithmetic-div.arithmetic)} a year, and "
+        f"{percent(gain)} over 1990 to 2024. "
         "We hold the other rules constant so that we are comparing the payout ranking. "
         "This shows that the share-count term matters. It is still a proxy for net "
         "repurchases after issuance, not directly observed buyback cash spending or "
@@ -162,7 +168,9 @@ def make_notes(root=results.RESULTS):
         "the monthly identity. These are arithmetic contributions, not contributions to CAGR.",
         "We also follow the course's quota idea: if an industry contains fifteen percent "
         "of universe stocks, it receives about fifteen of the one hundred holdings. "
-        f"That variant earns {percent(quota.compounded)} gross annually. It changes "
+        f"That variant earns an arithmetic {percent(quota.arithmetic)} a year before costs, "
+        f"{abs(100*(quota.arithmetic-base.arithmetic)):.2f} percentage points "
+        f"{'below' if quota.arithmetic < base.arithmetic else 'above'} the baseline. It changes "
         "the paper's global screen and was considered after the baseline results, "
         "so we treat it as an exploratory comparison.")
 

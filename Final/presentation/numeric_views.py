@@ -13,11 +13,10 @@ def make_views(root=results.RESULTS):
     ex = load('data_audit', 'extract_summary.json')
     s = ex['sample']
     payout = load('professor_checks', 'payout_comparison.csv')
-    base = S.one(payout, period='1929–2016', strategy='Baseline NPY')
-    div = S.one(payout, period='1929–2016', strategy='Dividends-only counterfactual')
-    quota = S.one(payout, period='1929–2016', strategy='Sector quota variant')
-    a = S.one(load('professor_checks', 'sector_attribution.csv'), period='1929–2016')
+    sectors = load('professor_checks', 'sector_attribution.csv')
     recent = '1990–2024'
+    periods = ('1929–2016', recent)
+    run = lambda strategy: [S.one(payout, period=p, strategy=strategy).arithmetic for p in periods]
     gross, net = recent+'|gross', recent+'|net30'
     views = {}
 
@@ -88,55 +87,67 @@ def make_views(root=results.RESULTS):
                'Early-period break-evens are high, but so were real trading costs then.'],
         kind='with_side_table', font=15)
 
+    net10 = recent+'|net10'
+    alpha = lambda a, t: f"{pct(n[a], 2)} (t {num(n[t])})"
+    spreads = load('feedback_costs', 'spread_coverage.csv').mean_half_spread_bps
     add(10, [
-        ['Portfolio / measure', 'Gross', 'Net 30 bps', 'Market'],
+        ['Portfolio / measure', 'Gross', 'Net 10 bps', 'Market'],
         ['Conservative: excess over market',
          f"{pct(n['ct_excess|'+gross], 2)}\n{ci(n['ct_excess_lo|'+gross], n['ct_excess_hi|'+gross])}",
-         f"{pct(n['ct_excess|'+net], 2)}\n{ci(n['ct_excess_lo|'+net], n['ct_excess_hi|'+net])}", '—'],
-        ['Conservative: Carhart alpha', f"{pct(n['ct_alpha|'+gross], 2)} (t {num(n['ct_alpha_t|'+gross])})",
-         f"{pct(n['ct_alpha|'+net], 2)}\n{ci(n['ct_alpha_lo|'+net], n['ct_alpha_hi|'+net])}", '—'],
-        ['Conservative: FF5 + MOM alpha', '—',
-         f"{pct(n['ct_ff5_alpha|'+net], 2)} (t {num(n['ct_ff5_t|'+net])})", '—'],
-        ['Conservative: CAGR', pct(n['ct_cons_compounded|'+recent]), '—', pct(n['ct_mkt_compounded|'+recent])],
-        ['Conservative: volatility', pct(n['ct_cons_vol|'+recent]), '—', pct(n['ct_mkt_vol|'+recent])],
-        ['CMS: Carhart alpha', '—',
-         f"{pct(n['ct_cms_net30_alpha|'+recent], 2)} (t {num(n['ct_cms_net30_t|'+recent])})", '—'],
+         f"{pct(n['ct_excess|'+net10], 2)}\n{ci(n['ct_excess_lo|'+net10], n['ct_excess_hi|'+net10])}", '—'],
+        ['Conservative: Carhart alpha', alpha('ct_alpha|'+gross, 'ct_alpha_t|'+gross),
+         alpha('ct_alpha|'+net10, 'ct_alpha_t|'+net10), '—'],
+        ['Conservative: FF5 + MOM alpha', alpha('ct_ff5_alpha|'+gross, 'ct_ff5_t|'+gross),
+         alpha('ct_ff5_alpha|'+net10, 'ct_ff5_t|'+net10), '—'],
+        ['Conservative: CAGR', pct(n['ct_comp|'+gross]), pct(n['ct_comp|'+net10]), pct(n['ct_mkt_compounded|'+recent])],
+        ['Conservative: volatility', pct(n['ct_vol|'+gross]), pct(n['ct_vol|'+net10]), pct(n['ct_mkt_vol|'+recent])],
+        ['CMS: Carhart alpha', alpha('ct_cms_gross_alpha|'+recent, 'ct_cms_gross_t|'+recent),
+         alpha('ct_cms_net10_alpha|'+recent, 'ct_cms_net10_t|'+recent), '—'],
     ], [.36, .24, .25, .15],
-        notes=['Brackets are 95% confidence intervals. Excess return and alpha are annualized. '
-               'CMS is a separate contrast; borrow and financing costs are omitted. — means not shown.'], font=16)
+        notes=[f"10 bps is the paper's low-cost case; quoted half-spreads of the top 1,000 stocks averaged "
+               f"{spreads.mean():.1f} bps in 2016–2024. Brackets are 95% confidence intervals; returns and alphas are "
+               'annualized. CMS charges costs on both legs and omits borrow and financing costs.'], font=16)
     grid = load('feedback_costs', 'cost_summary.csv')
-    lower = [S.one(grid, period=recent, cost_model='flat', reference_bps=c) for c in (0, 5, 10, 30)]
+    costs = [S.one(grid, period=recent, cost_model='flat', reference_bps=c) for c in (0, 5, 10, 30)]
     views[10]['extra'] = dict(
-        caption='Lower cost assumptions do not change the conclusion',
-        rows=[[recent]+[f"{r.reference_bps} bps" for r in lower],
-              ['Carhart alpha']+[f"{pct(r.carhart_alpha, 2)} (t {num(r.alpha_t_nw)})" for r in lower]],
+        caption="Carhart alpha across cost levels; 30 bps is the paper's high-cost case",
+        rows=[[recent]+[f"{r.reference_bps} bps" for r in costs],
+              ['Carhart alpha']+[f"{pct(r.carhart_alpha, 2)} (t {num(r.alpha_t_nw)})" for r in costs]],
         widths=[.20, .20, .20, .20, .20])
 
+    row = lambda label, values: [label, *(pct(v, 2) for v in values)]
+    npy, div = run('Baseline NPY'), run('Dividends-only counterfactual')
     add(11, [
-        ['1929–2016 comparison', 'Annual result'],
-        ['Gross CAGR: net payout rule', pct(base.compounded, 2)],
-        ['Gross CAGR: dividends only', pct(div.compounded, 2)],
-        ['Paired net-30 arithmetic gain from NPY',
-         f"{pct(base.paired_npy_minus_div_net30_mean, 2)} {ci(base.paired_ci_low, base.paired_ci_high, 2)}"],
-    ], [.60, .40],
+        ['Annual arithmetic return, gross', *periods],
+        row('Net payout rule', npy),
+        row('− Dividends only', div),
+        row('= Gain from the share-count term', [x-y for x, y in zip(npy, div)]),
+    ], [.46, .27, .27],
         intro=['NPY = trailing dividend yield + 1 − latest adjusted shares / 24-month average adjusted shares.',
                'Repurchases raise NPY; issuance lowers it. Splits must leave adjusted shares unchanged.'],
-        notes=['Same universe, low-volatility pool, momentum signal, weights, quarterly dates and costs.',
-               'Share changes measure net repurchases after issuance, not reported buyback cash flow.'], font=18)
+        notes=['Same universe, low-volatility pool, momentum signal, weights and quarterly dates; only the payout '
+               'ranking differs. Share changes measure net repurchases after issuance, not buyback cash flow. '
+               'Differences use unrounded values.'],
+        font=18)
 
+    a = [S.one(sectors, period=p) for p in periods]
+    quota = run('Sector quota variant')
     add(12, [
-        ['1929–2016 component / variant', 'Annual result', 'Return basis'],
-        ['Industry allocation', pct(a.allocation_annual, 2), 'Arithmetic'],
-        ['Stock selection', pct(a.selection_annual, 2), 'Arithmetic'],
-        ['Reference-to-CRSP-market difference', pct(a.universe_minus_market_annual, 2), 'Arithmetic'],
-        ['Total excess over market', pct(a.baseline_minus_market_annual, 2), 'Arithmetic'],
-        ['Industry quota: gross CAGR', pct(quota.compounded, 2), 'Compounded'],
-        ['Industry quota: net-30 CAGR', pct(quota.net30_compounded, 2), 'Compounded'],
-    ], [.54, .22, .24],
-        intro=['Paper scores rank across sectors (page 4). Reference: cap-weighted formation universe; '
-               'quarterly constituents and industries fixed, weights drift, delistings become cash.'],
-        notes=['Quota variant: 100 slots proportional to industry security counts; apply the rule within each FF12 industry. '
-               'Exploratory; changes the global low-volatility screen. Contributions are arithmetic, not causal.'], font=17)
+        ['Excess over CRSP market, gross', *periods],
+        row('Industry allocation', [x.allocation_annual for x in a]),
+        row('+ Stock selection', [x.selection_annual for x in a]),
+        row('+ Reference universe − CRSP market', [x.universe_minus_market_annual for x in a]),
+        row('= Excess over CRSP market', [x.baseline_minus_market_annual for x in a]),
+    ], [.46, .27, .27],
+        intro=['Reference: cap-weighted formation universe, quarterly constituents fixed, weights drift.'],
+        notes=['Sums and differences use unrounded values. Quota: 100 slots by FF12 security counts, rule applied '
+               'within each industry; exploratory, and contributions are not causal.'],
+        font=17)
+    views[12]['extra'] = dict(
+        caption='Industry quota variant against the baseline',
+        rows=[['Annual arithmetic return, gross', *periods], row('Industry quota variant', quota),
+              row('− Baseline (global screen)', npy), row('= Difference', [x-y for x, y in zip(quota, npy)])],
+        widths=[.46, .27, .27])
 
     add(13, [
         ['Diagnostic', 'Result'],

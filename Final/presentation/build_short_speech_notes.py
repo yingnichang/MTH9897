@@ -65,8 +65,9 @@ def short_notes(root=results.RESULTS):
         "are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only "
         "eight years, so its confidence interval is wide and does not establish positive alpha.",
 
-        f"For 1990 to 2024, annual Carhart alpha after thirty-basis-point costs is only "
-        f"{pct(n['ct_alpha|1990–2024|net30'])}, and its confidence interval includes zero. "
+        f"For 1990 to 2024, annual Carhart alpha is {pct(n['ct_alpha|1990–2024|gross'])} before costs and "
+        f"{pct(n['ct_alpha|1990–2024|net10'])} after ten-basis-point costs; neither is significant, "
+        "and the FF5 plus momentum alpha is negative even before costs. "
         "Lower volatility is the clearer benefit. Conservative-minus-Speculative compares "
         "the two portfolios; it includes a short leg and is different from holding Conservative alone.",
 
