@@ -48,7 +48,7 @@ MTH 9897, Project 8
 
 MAIN REPORT: conservative_formula_final.ipynb
 COMPANION WRITTEN REPORT: conservative_formula_report.pdf
-FINAL PRESENTATION: conservative_formula_presentation.pdf (22 slides)
+FINAL PRESENTATION: conservative_formula_presentation.pdf (21 slides)
 
 Keep this Final folder intact. Install Python 3.12 and run:
     python -m pip install -r requirements.txt

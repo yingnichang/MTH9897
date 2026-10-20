@@ -18,11 +18,11 @@ these results and the assumptions behind them.
 |---|---|
 | [conservative_formula_final.ipynb](conservative_formula_final.ipynb) | Executed notebook and main course deliverable |
 | [Written report](output/pdf/conservative_formula_report.pdf) | Methods, results, figures and discussion in PDF form |
-| [Presentation](presentation/conservative_formula.pdf) | 22 slides for the final presentation |
-| [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 22 slides, presenter cues and likely questions |
+| [Presentation](presentation/conservative_formula.pdf) | 21 slides for the final presentation |
+| [Speech notes PDF](output/pdf/conservative_formula_speech_notes.pdf) | Read-aloud scripts for all 21 slides, presenter cues and likely questions |
 | [Editable speech notes](presentation/speaker_notes.md) | The same scripts in Markdown, with per-slide timing |
 | [Short speech notes PDF](output/pdf/conservative_formula_short_speech_notes.pdf) | A few sentences per slide for a shorter presentation |
-| [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 22 slides |
+| [Editable short notes](presentation/speaker_notes_short.md) | Brief scripts for all 21 slides |
 | [Calculation checks](FINAL_REVIEW.md) | Paper comparison, data checks and independent return reconstruction |
 
 The final notebook is the primary submission report and execution interface. Set RUN_MODE near the top and select Restart Kernel and Run All Cells.
@@ -96,7 +96,7 @@ python presentation/build_short_speech_notes.py
 ```
 
 `requirements-lock.txt` records the tested versions. Some packages are Windows-specific; use
-`requirements.txt` on another platform. The original PPTX is a read-only layout input. The updated presentation deliverable is the PDF; current scripts and notes target its 22 pages.
+`requirements.txt` on another platform. The original PPTX is a read-only layout input. The updated presentation deliverable is the PDF; current scripts and notes target its 21 pages.
 
 ## Rebuild from the private data package
 
@@ -206,5 +206,5 @@ Recompute only the follow-up analyses from private inputs:
 python -m research.run_all --only feedback_costs uk_comparison
 ```
 
-The new slides are pages 18-22; the final presentation ends with the UK/US results. Both speech-note versions match all 22 pages.
+Slide 10 combines both US cost grids; pages 18-21 cover time-series, spread-scaled costs and the UK extension; the final presentation ends with the UK/US results. Both speech-note versions match all 21 pages.
 The main stock-selection rule and earlier US results are unchanged.

@@ -127,7 +127,7 @@ Validation includes new split/quotation-unit, gap, exit-loss and past-only sprea
 presentation tests passed. Separately recomputing compounded returns and market excess from the monthly cash flows
 reproduced all 35 country/cost/exit summary rows within 1e-14. The seven US cost scenarios are monotone and all recent
 Carhart confidence intervals include zero. The executed notebook has 19 code cells, with no error outputs.
-The PDF presentation has 22 pages, with aligned full and short notes. New and changed PDF pages were rendered and
+The PDF presentation has 21 pages, with aligned full and short notes. New and changed PDF pages were rendered and
 visually reviewed. The private course ZIP contains the UK export and original CRSP quote export needed to rebuild
 these tests. Licensed observations remain excluded from GitHub.
 
