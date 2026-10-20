@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,558 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,634 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 20-23 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -118,11 +118,11 @@ For 2017 to 2024, gross Carhart alpha is -1.21 percent. Its ninety-five-percent 
 
 ## 10. The recent sample: 1990–2024
 
-**Approximate speaking time:** 65 seconds, plus pauses.
+**Approximate speaking time:** 100 seconds, plus pauses.
 
-**Presenter cue:** Give the gross and net-10 alphas, the cost row and the lower-risk result.
+**Presenter cue:** Walk through all seven cost levels, then distinguish compound returns from alpha.
 
-This is our main recent comparison. Before costs, annual Carhart alpha is 1.17 percent with a t-statistic of 1.05. After ten-basis-point costs, the paper's low-cost case, it is 0.85 percent, and the ninety-five-percent interval of roughly -1.34 percent to 3.04 percent includes zero. With five Fama–French factors and momentum, gross alpha is -1.03 percent, also insignificant. The return is explained by known factors before costs, so the cost assumption is not what removes the alpha; the thirty-basis-point column only shows a stress case.
+This table compares zero, five, ten, fifteen, twenty, twenty-five and thirty basis points per dollar traded for 1990 to 2024. The holdings and trades stay the same; only the cost assumption changes. CAGR is the compound growth rate, while excess return is the annual arithmetic difference from the market. These are different measures from factor-adjusted alpha. Before costs, annual Carhart alpha is 1.17 percent with a t-statistic of 1.05. After ten-basis-point costs, the paper's low-cost case, it is 0.85 percent, and the ninety-five-percent interval of roughly -1.34 percent to 3.04 percent includes zero. With five Fama–French factors and momentum, gross alpha is -1.03 percent, also insignificant. The return is explained by known factors before costs, so the cost assumption is not what removes the alpha. All seven Carhart confidence intervals include zero. Compound returns remain positive at every tier; the thirty-basis-point row is the highest-cost case. Slide eighteen shows the same seven tiers for the 2017 to 2024 extension.
 
 The more consistent benefit is lower volatility than the market. The Conservative-minus-Speculative contrast still has a stronger result, but that includes shorting the Speculative portfolio. It is a different comparison from holding the Conservative portfolio alone, and its attribution result does not include actual borrow or financing costs.
 

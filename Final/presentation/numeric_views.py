@@ -93,33 +93,24 @@ def make_views(root=results.RESULTS):
                'Early-period break-evens are high, but so were real trading costs then.'],
         kind='with_side_table', font=15)
 
-    net10 = recent+'|net10'
-    alpha = lambda a, t: f"{pct(n[a], 2)} (t {num(n[t])})"
-    spreads = load('feedback_costs', 'spread_coverage.csv').mean_half_spread_bps
-    add(10, [
-        ['Portfolio / measure', 'Gross', 'Net 10 bps', 'Market'],
-        ['Conservative: excess over market',
-         f"{pct(n['ct_excess|'+gross], 2)}\n{ci(n['ct_excess_lo|'+gross], n['ct_excess_hi|'+gross])}",
-         f"{pct(n['ct_excess|'+net10], 2)}\n{ci(n['ct_excess_lo|'+net10], n['ct_excess_hi|'+net10])}", '—'],
-        ['Conservative: Carhart alpha', alpha('ct_alpha|'+gross, 'ct_alpha_t|'+gross),
-         alpha('ct_alpha|'+net10, 'ct_alpha_t|'+net10), '—'],
-        ['Conservative: FF5 + MOM alpha', alpha('ct_ff5_alpha|'+gross, 'ct_ff5_t|'+gross),
-         alpha('ct_ff5_alpha|'+net10, 'ct_ff5_t|'+net10), '—'],
-        ['Conservative: CAGR', pct(n['ct_comp|'+gross]), pct(n['ct_comp|'+net10]), pct(n['ct_mkt_compounded|'+recent])],
-        ['Conservative: volatility', pct(n['ct_vol|'+gross]), pct(n['ct_vol|'+net10]), pct(n['ct_mkt_vol|'+recent])],
-        ['CMS: Carhart alpha', alpha('ct_cms_gross_alpha|'+recent, 'ct_cms_gross_t|'+recent),
-         alpha('ct_cms_net10_alpha|'+recent, 'ct_cms_net10_t|'+recent), '—'],
-    ], [.36, .24, .25, .15],
-        notes=[f"10 bps is the paper's low-cost case; quoted half-spreads of the top 1,000 stocks averaged "
-               f"{spreads.mean():.1f} bps in 2016–2024. Brackets are 95% confidence intervals; returns and alphas are "
-               'annualized. CMS charges costs on both legs and omits borrow and financing costs.'], font=16)
     grid = load('feedback_costs', 'cost_summary.csv')
-    costs = [S.one(grid, period=recent, cost_model='flat', reference_bps=c) for c in (0, 5, 10, 30)]
-    views[10]['extra'] = dict(
-        caption="Carhart alpha across cost levels; 30 bps is the paper's high-cost case",
-        rows=[[recent]+[f"{r.reference_bps} bps" for r in costs],
-              ['Carhart alpha']+[f"{pct(r.carhart_alpha, 2)} (t {num(r.alpha_t_nw)})" for r in costs]],
-        widths=[.20, .20, .20, .20, .20])
+    costs = [S.one(grid, period=recent, cost_model='flat', reference_bps=c)
+             for c in (0, 5, 10, 15, 20, 25, 30)]
+    add(10, [
+        ['Cost per dollar traded', 'CAGR', 'Excess over market', 'Carhart alpha', 'Alpha t-statistic'],
+        *[[f"{int(r.reference_bps)} bps" + (' (gross)' if r.reference_bps == 0 else ''),
+           pct(r.compounded, 2), pct(r.excess_vs_market, 2),
+           pct(r.carhart_alpha, 2), num(r.alpha_t_nw)] for r in costs],
+    ], [.24, .16, .22, .20, .18],
+        intro=[f"Conservative portfolio | Market CAGR: {pct(costs[0].market_cagr, 2)} | Same holdings and trades at every cost level"],
+        notes=["CAGR compounds monthly returns; excess is the annual arithmetic strategy-minus-market return. "
+               "Alpha is annualized; all seven Carhart 95% confidence intervals include zero.",
+               f"Gross / net 10 bps: FF5 + MOM alpha {pct(n['ct_ff5_alpha|'+gross], 2)} / "
+               f"{pct(n['ct_ff5_alpha|'+recent+'|net10'], 2)}; CMS Carhart alpha "
+               f"{pct(n['ct_cms_gross_alpha|'+recent], 2)} / {pct(n['ct_cms_net10_alpha|'+recent], 2)}. "
+               f"Volatility: {pct(n['ct_vol|'+gross])} gross vs. {pct(n['ct_mkt_vol|'+recent])} market.",
+               "CMS costs cover both legs, excluding borrow and financing. Slide 18 isolates the 2017–2024 extension."],
+        font=17)
 
     row = lambda label, values: [label, *(pct(v, 2) for v in values)]
     npy, div = run('Baseline NPY'), run('Dividends-only counterfactual')

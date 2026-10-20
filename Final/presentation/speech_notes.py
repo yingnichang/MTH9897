@@ -133,14 +133,14 @@ def make_notes(root=results.RESULTS):
         "insignificant estimate is not proof that expected alpha is exactly zero.")
 
     key, gkey = "1990–2024|net10", "1990–2024|gross"
-    add("The recent sample: 1990–2024", "Give the gross and net-10 alphas, the cost row and the lower-risk result.",
-        f"This is our main recent comparison. Before costs, annual Carhart alpha is "
+    add("The recent sample: 1990–2024", "Walk through all seven cost levels, then distinguish compound returns from alpha.",
+        f"This table compares zero, five, ten, fifteen, twenty, twenty-five and thirty basis points per dollar traded for 1990 to 2024. The holdings and trades stay the same; only the cost assumption changes. CAGR is the compound growth rate, while excess return is the annual arithmetic difference from the market. These are different measures from factor-adjusted alpha. Before costs, annual Carhart alpha is "
         f"{percent(n['ct_alpha|'+gkey])} with a t-statistic of {n['ct_alpha_t|'+gkey]:.2f}. After ten-basis-point "
         f"costs, the paper's low-cost case, it is {percent(n['ct_alpha|'+key])}, and the ninety-five-percent "
         f"interval of roughly {percent(n['ct_alpha_lo|'+key])} to {percent(n['ct_alpha_hi|'+key])} includes zero. "
         f"With five Fama–French factors and momentum, gross alpha is {percent(n['ct_ff5_alpha|'+gkey])}, "
         "also insignificant. The return is explained by known factors before costs, so the cost "
-        "assumption is not what removes the alpha; the thirty-basis-point column only shows a stress case.",
+        "assumption is not what removes the alpha. All seven Carhart confidence intervals include zero. Compound returns remain positive at every tier; the thirty-basis-point row is the highest-cost case. Slide eighteen shows the same seven tiers for the 2017 to 2024 extension.",
         "The more consistent benefit is lower volatility than the market. The "
         "Conservative-minus-Speculative contrast still has a stronger result, "
         "but that includes shorting the Speculative portfolio. It is a different "

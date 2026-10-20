@@ -71,9 +71,9 @@ def short_notes(root=results.RESULTS):
         "are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only "
         "eight years, so its confidence interval is wide and does not establish positive alpha.",
 
-        f"For 1990 to 2024, annual Carhart alpha is {pct(n['ct_alpha|1990–2024|gross'])} before costs and "
+        f"The table shows all seven costs, from zero to thirty basis points in five-point steps, for the same trades. CAGR stays positive, but it is different from factor-adjusted alpha. For 1990 to 2024, annual Carhart alpha is {pct(n['ct_alpha|1990–2024|gross'])} before costs and "
         f"{pct(n['ct_alpha|1990–2024|net10'])} after ten-basis-point costs; neither is significant, "
-        "and the FF5 plus momentum alpha is negative even before costs. "
+        "and all seven Carhart confidence intervals include zero. The FF5 plus momentum alpha is negative even before costs. Slide eighteen repeats the grid for 2017 to 2024. "
         "Lower volatility is the clearer benefit. Conservative-minus-Speculative compares "
         "the two portfolios; it includes a short leg and is different from holding Conservative alone.",
 

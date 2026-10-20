@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 954 words, or 7.3 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 999 words, or 7.7 minutes at 130 words per minute. Allow about 8-10 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -42,7 +42,7 @@ The teal solid line is gross; the copper dashed line includes thirty-basis-point
 
 ## 10. The recent sample: 1990–2024
 
-For 1990 to 2024, annual Carhart alpha is 1.17 percent before costs and 0.85 percent after ten-basis-point costs; neither is significant, and the FF5 plus momentum alpha is negative even before costs. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
+The table shows all seven costs, from zero to thirty basis points in five-point steps, for the same trades. CAGR stays positive, but it is different from factor-adjusted alpha. For 1990 to 2024, annual Carhart alpha is 1.17 percent before costs and 0.85 percent after ten-basis-point costs; neither is significant, and all seven Carhart confidence intervals include zero. The FF5 plus momentum alpha is negative even before costs. Slide eighteen repeats the grid for 2017 to 2024. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
 
 ## 11. Dividends and share repurchases
 
