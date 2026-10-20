@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 943 words, or 7.3 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 953 words, or 7.3 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -22,7 +22,7 @@ Follow the chart from top to bottom: first the largest one thousand stocks with 
 
 ## 5. Building the signals
 
-Volatility uses thirty-six months of total returns. Momentum uses eleven months of price returns, skipping the latest month. Net payout combines dividends with changes in split-adjusted shares, so it includes a proxy for repurchases after issuance.
+Volatility uses thirty-six months of total returns. Momentum uses eleven months of price returns, skipping the latest month. Net payout is dividend yield plus one minus current adjusted shares divided by their twenty-four-month average. Repurchases raise this proxy; issuance lowers it. Split adjustments prevent artificial changes.
 
 ## 6. Our results versus the paper
 

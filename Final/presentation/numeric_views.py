@@ -54,7 +54,7 @@ def make_views(root=results.RESULTS):
     ], [.19, .23, .58],
         notes=['A falling share count raises payout yield; new share issuance lowers it.',
                "Quarter-end information determines next month's holdings. No forward return enters selection."],
-        prose=True)
+        prose=True,kind='payout_formula')
 
     add(6, [
         ['Metric', 'Ours', 'Paper'],

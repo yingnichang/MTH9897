@@ -48,8 +48,9 @@ def short_notes(root=results.RESULTS):
         "table on the right explains.",
 
         "Volatility uses thirty-six months of total returns. Momentum uses eleven months of "
-        "price returns, skipping the latest month. Net payout combines dividends with changes "
-        "in split-adjusted shares, so it includes a proxy for repurchases after issuance.",
+        "price returns, skipping the latest month. Net payout is dividend yield plus one minus "
+        "current adjusted shares divided by their twenty-four-month average. Repurchases raise "
+        "this proxy; issuance lowers it. Split adjustments prevent artificial changes.",
 
         f"Our paper-period annual return is {pct(n['rep_cons_compounded'])}, compared with "
         f"{pct(n['paper_cons_compounded'],1)} in the paper. Volatility is also close. The main "

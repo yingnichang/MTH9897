@@ -78,11 +78,14 @@ def make_notes(root=results.RESULTS):
         "in annual units. Momentum compounds eleven monthly price returns and skips the "
         "most recent month. Portfolio performance, in contrast, uses total returns including "
         "distributions and delistings.",
-        "Net payout combines dividend yield with the change in adjusted shares. We use the "
-        "latest share count relative to its twenty-four-month average. Repurchases increase "
-        "the signal, while issuance decreases it. Both prices and shares are split-adjusted, "
-        "so a stock split should not create an artificial buyback. The twelve-month dividend "
-        "window is a disclosed choice because the paper does not fully specify that part.")
+        "The formula at the top separates net payout into two terms. The first fraction is "
+        "twelve months of adjusted cash dividends divided by the current adjusted price. "
+        "The second term is one minus current adjusted shares divided by their twenty-four-month "
+        "average. Both windows include the formation month. A falling share count raises the "
+        "signal; issuance lowers it. This is a proxy for net repurchases, not observed buyback "
+        "cash spending. Prices and shares are split-adjusted so a stock split does not create "
+        "an artificial buyback. The twelve-month dividend window is a disclosed convention "
+        "because the paper does not fully specify that part.")
 
     add("Our results versus the paper", "Point to the return/risk comparison and the growth chart.",
         f"Over the paper's sample, our Conservative portfolio compounds at "

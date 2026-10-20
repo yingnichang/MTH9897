@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,558 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,596 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -58,13 +58,13 @@ The table on the right records our implementation conventions. The early data ha
 
 ## 5. Building the signals
 
-**Approximate speaking time:** 51 seconds, plus pauses.
+**Approximate speaking time:** 68 seconds, plus pauses.
 
 **Presenter cue:** Explain each signal briefly; spend most of the time on payout.
 
 Volatility is the standard deviation of thirty-six monthly total returns, expressed in annual units. Momentum compounds eleven monthly price returns and skips the most recent month. Portfolio performance, in contrast, uses total returns including distributions and delistings.
 
-Net payout combines dividend yield with the change in adjusted shares. We use the latest share count relative to its twenty-four-month average. Repurchases increase the signal, while issuance decreases it. Both prices and shares are split-adjusted, so a stock split should not create an artificial buyback. The twelve-month dividend window is a disclosed choice because the paper does not fully specify that part.
+The formula at the top separates net payout into two terms. The first fraction is twelve months of adjusted cash dividends divided by the current adjusted price. The second term is one minus current adjusted shares divided by their twenty-four-month average. Both windows include the formation month. A falling share count raises the signal; issuance lowers it. This is a proxy for net repurchases, not observed buyback cash spending. Prices and shares are split-adjusted so a stock split does not create an artificial buyback. The twelve-month dividend window is a disclosed convention because the paper does not fully specify that part.
 
 **Transition:** Now we can compare the backtest with the published figures.
 

@@ -271,6 +271,22 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
     kind = view['kind']
     intro, notes = text_paras(view['intro']), text_paras(view['notes'])
     bottom = top-height
+    if kind == 'payout_formula':
+        pdf.setFillColor(STRIPE);pdf.setStrokeColor(RULE);pdf.setLineWidth(.7)
+        pdf.roundRect(x,top-108,width,108,11,stroke=1,fill=1)
+        paragraph(pdf,'Net payout yield = dividend yield + net share repurchase proxy',
+                  x+18,top-10,width-36,17,bold=True,color=TEAL,align=1)
+        equation=(r'$\mathrm{NPY}_{i,t}=\frac{\sum_{j=0}^{11}D_{i,t-j}^{\mathrm{adj}}}{P_{i,t}^{\mathrm{adj}}}'
+                  r'+1-\frac{S_{i,t}^{\mathrm{adj}}}{\frac{1}{24}\sum_{j=0}^{23}S_{i,t-j}^{\mathrm{adj}}}$')
+        draw_math(pdf,equation,x+20,top-37,width-40,62,size=25)
+        paragraph(pdf,'D = adjusted cash dividends; P = adjusted price; S = adjusted shares. Both windows include month t.',
+                  x,top-116,width,12.5,color=MUTED)
+        notes_h=body_height(notes,width,13.5,6)
+        table_top=top-146
+        size,layout=fit_table(view['rows'],width,height-146-notes_h-12,17,view['widths'])
+        draw_table(pdf,x,table_top,size,layout,prose=True)
+        draw_body(pdf,notes,x,bottom+notes_h,width,13.5,6)
+        return
     if kind == 'data_cleaning':
         intro_h=body_height(intro,width,15,6)
         footnote=' '.join(view['notes'])
