@@ -39,7 +39,7 @@ def build_pdf(notes, destination=PDF):
                            f"{words/130:.0f} minutes at 130 words per minute. Allow "
                            f"{math.floor(words/130)}-{math.ceil(words/130+2)} minutes with pauses. "
                            "Cues are reminders, not spoken lines. Optional split: Yingni, slides 1-9; "
-                           "Yikai, slides 10-22.", small))
+                           "Yikai, slides 10-21.", small))
     for i,note in enumerate(notes):
         if i and i%2==0: story.append(PageBreak())
         story.append(Paragraph(f"Slide {note['number']} | {escape(note['title'])}", title))
@@ -72,7 +72,7 @@ def build_pdf(notes, destination=PDF):
 
 def main():
     notes = make_notes()
-    assert len(notes)==22
+    assert len(notes)==21
     write_markdown(notes,MARKDOWN)
     pdf = build_pdf(notes)
     print(f"{len(notes)} slide scripts, {sum(word_count(n) for n in notes):,} spoken words.")

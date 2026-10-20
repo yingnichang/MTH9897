@@ -13,19 +13,19 @@ def test_deck_builds_with_aligned_scripts(tmp_path):
     pdf=PdfReader(build_deck.build(out_dir=tmp_path))
     from speech_notes import make_notes
     notes=make_notes()
-    assert len(pdf.pages)==len(notes)==22
+    assert len(pdf.pages)==len(notes)==21
     for page,note in zip(pdf.pages,notes):
         text=page.extract_text()
         assert 'Yingni Chang and Yikai Shen' in text
         normalize=lambda s:' '.join(s.replace('–','-').replace('—','-').split())
         assert normalize(note['title']) in normalize(text)
     markdown=(tmp_path/'speaker_notes.md').read_text(encoding='utf-8')
-    assert markdown.count('\n## ')==22
+    assert markdown.count('\n## ')==21
     assert 'Questions for the professor' not in '\n'.join(p.extract_text() for p in pdf.pages)
-    text=pdf.pages[17].extract_text()
+    text=pdf.pages[9].extract_text()
     from research.feedback_summary import cost_rows,load
     for row in cost_rows(load())[1:]:
-        for value in row[1:]:assert value in text
+        for value in row[1:4]:assert value.replace("-", "−") in text
 
 
 @pytest.mark.skipif(not (FINAL/'results/manifest.json').exists(),reason='results not generated')

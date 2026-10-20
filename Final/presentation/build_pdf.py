@@ -316,6 +316,18 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
             paragraph(pdf,detail,right_x+15,box_top-39,right_w-30,14,color=INK)
         paragraph(pdf,footnote,x,bottom+note_h,width,12,color=MUTED)
         return
+    if kind == 'combined_costs':
+        panel_width=(width-28)/2
+        for i,panel in enumerate(view['panels']):
+            left=x+i*(panel_width+28)
+            paragraph(pdf,panel['title'],left,top,panel_width,23,bold=True,color=TEAL)
+            paragraph(pdf,panel['subtitle'],left,top-33,panel_width,12.5,color=MUTED)
+            size,layout=fit_table(panel['rows'],panel_width,241,14.5,[.19,.23,.29,.29])
+            draw_table(pdf,left,top-63,size,layout)
+        nh=body_height(notes,width,13,6)
+        draw_body(pdf,notes,x,bottom+nh,width,13,6)
+        return
+
     if kind == 'wide':
         intro_h = body_height(intro, width, 16, 6)
         notes_h = body_height(notes, width, 16, 6)
@@ -460,7 +472,8 @@ def cost_slide(pdf,view,width,height,root):
     pdf.showPage()
 
 
-def draw_feedback_slide(pdf, view, width, height, root,number):
+def draw_feedback_slide(pdf, view, width, height, root,number,display_number=None):
+    display_number=number if display_number is None else display_number
     if number==18:
         cost_slide(pdf,view,width,height,root);return
     theme_header(pdf,view['title'],number,width,height)
@@ -482,7 +495,7 @@ def draw_feedback_slide(pdf, view, width, height, root,number):
         size,layout=fit_table(view['rows'],available_width,top-bottom-ih-12,17,view['widths'])
         draw_table(pdf,margin,top-ih-(12 if intro else 0),size,layout,prose=view.get('prose',False))
     draw_body(pdf,notes,margin,48+nh,available_width,14.5,6)
-    theme_footer(pdf,number,width)
+    theme_footer(pdf,display_number,width)
     pdf.showPage()
 
 
@@ -507,8 +520,8 @@ def export(source, destination, root=None):
                  15: [.25, .19, .23, .15, .18]}
     for number, slide in enumerate(deck.slides, 1):
         if number == 18:
-            for extra_number,view in enumerate(extras(root),18):
-                draw_feedback_slide(pdf,view,width,height,root,extra_number)
+            for extra_number,view in enumerate(extras(root)[1:],19):
+                draw_feedback_slide(pdf,view,width,height,root,extra_number,extra_number-1)
             break  # The old professor-questions slide is excluded from the final submission.
         text_shapes = [s for s in slide.shapes if s.has_text_frame]
         if len(text_shapes) != 3:
@@ -521,7 +534,7 @@ def export(source, destination, root=None):
         if number==1:
             cover(pdf,title,body,width,height)
             pdf.showPage();continue
-        theme_header(pdf,title.paragraphs[0].text,number,width,height)
+        theme_header(pdf,'Trading costs: two US samples' if number==10 else title.paragraphs[0].text,number,width,height)
         restyled=themed_chart(number,root) if pictures else None
         if restyled is not None:pictures=[restyled]
         body_top=height-126

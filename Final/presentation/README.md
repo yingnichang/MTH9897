@@ -2,7 +2,7 @@
 
 **Authors: Yingni Chang and Yikai Shen**
 
-The submission deck is `conservative_formula.pdf`: 22 pages, 16:9, with searchable text and tables.
+The submission deck is `conservative_formula.pdf`: 21 pages, 16:9, with searchable text and tables.
 Run from `Final/`:
 
 ```bash
@@ -17,13 +17,13 @@ the five added pages and the extended report text. The former professor-question
 `build_deck.py` is a compatibility entry point for the same PDF workflow. Keep the original PPTX available as a
 source input; its embedded old notes are superseded by the current separate speech notes.
 
-Pages 1-17 cover the existing replication and experiments. Pages 18-22 add the 2017-2024 cost grid, time-series
+Pages 1-17 cover the existing replication and experiments. Slide 10 combines the 1990–2024 and 2017–2024 cost grids. Pages 18-21 add time-series
 plots, lagged-spread model, UK data and UK/US results. The final deck ends with the comparison results.
 
-`speaker_notes.md` and `output/pdf/conservative_formula_speech_notes.pdf` provide a full script for all 22 pages.
+`speaker_notes.md` and `output/pdf/conservative_formula_speech_notes.pdf` provide a full script for all 21 pages.
 The script is about 2,400 words; allow 19-21 minutes with pauses. The shorter script in `speaker_notes_short.md`
 and `output/pdf/conservative_formula_short_speech_notes.pdf` is about 900 words, or 7-9 minutes with pauses.
-An optional presenter split is Yingni on pages 1-9 and Yikai on pages 10-22.
+An optional presenter split is Yingni on pages 1-9 and Yikai on pages 10-21.
 
 Numbers and figures come from hash-checked aggregate results. The UK comparison identifies local currencies,
 different market benchmarks, missing terminal payments and the separate purchase-tax scenario. No UK alpha is
@@ -33,4 +33,4 @@ The approved Navy & Teal Research design uses a navy title band, warm cream back
 
 Slide 4 recreates the supplied selection-process chart as native PDF shapes and searchable text. It shows the 1,000-to-500-to-100 funnel, volatility and momentum formulas, and quarterly equal weights. The side-by-side Conservative/Speculative comparison explains the opposing screens and rankings and distinguishes each long-only portfolio from the CMS long/short contrast. The early-universe caveat distinguishes the full-universe counts from the smaller historical sample; detailed implementation conventions remain in the written report.
 
-Whenever slides change, update the corresponding full and short scripts, then regenerate both Markdown notes and both rehearsal PDFs with the commands above. Check the 22 slide titles and any changed values against the current deck. Speaker notes remain in this original repository and are excluded from the submission package.
+Whenever slides change, update the corresponding full and short scripts, then regenerate both Markdown notes and both rehearsal PDFs with the commands above. Check the 21 slide titles and any changed values against the current deck. Speaker notes remain in this original repository and are excluded from the submission package.

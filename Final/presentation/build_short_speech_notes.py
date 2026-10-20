@@ -71,11 +71,7 @@ def short_notes(root=results.RESULTS):
         "are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only "
         "eight years, so its confidence interval is wide and does not establish positive alpha.",
 
-        f"The table shows all seven costs, from zero to thirty basis points in five-point steps, for the same trades. CAGR stays positive, but it is different from factor-adjusted alpha. For 1990 to 2024, annual Carhart alpha is {pct(n['ct_alpha|1990–2024|gross'])} before costs and "
-        f"{pct(n['ct_alpha|1990–2024|net10'])} after ten-basis-point costs; neither is significant, "
-        "and all seven Carhart confidence intervals include zero. The FF5 plus momentum alpha is negative even before costs. Slide eighteen repeats the grid for 2017 to 2024. "
-        "Lower volatility is the clearer benefit. Conservative-minus-Speculative compares "
-        "the two portfolios; it includes a short leg and is different from holding Conservative alone.",
+        "Compare the same seven cost levels across two periods. The left table is 1990 to 2024; the right is the 2017 to 2024 extension. Higher costs reduce returns in both. The extension still makes money, but trails the market even before costs. CAGR measures compound growth; alpha adjusts for factors. None of the fourteen alpha estimates is statistically significant. These periods overlap.",
 
         "The professor warned against using dividends alone. We also include the change in "
         "adjusted shares to capture net repurchases. The dividends-only comparison performs "
@@ -125,7 +121,7 @@ def short_notes(root=results.RESULTS):
         "For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.",
         "The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.",
     ]
-    scripts=scripts[:17]+short_extra
+    scripts=scripts[:17]+short_extra[1:]
     titles = [note['title'] for note in make_notes(root)]
     if len(scripts) != len(titles):
         raise ValueError('Every slide must have a short script')
@@ -136,10 +132,10 @@ def short_notes(root=results.RESULTS):
 def main():
     notes = short_notes()
     words = sum(len(n['script'].split()) for n in notes)
-    intro = (f'Brief script for all 22 slides: approximately {words:,} words, or '
+    intro = (f'Brief script for all 21 slides: approximately {words:,} words, or '
              f'{words/130:.1f} minutes at 130 words per minute. Allow about '
              f'{round(words/130)}-{round(words/130)+2} minutes with pauses, plus questions. '
-             'Optional split: Yingni, slides 1-9; Yikai, slides 10-22.')
+             'Optional split: Yingni, slides 1-9; Yikai, slides 10-21.')
     lines = ['# Short Speaking Notes for the Conservative Formula', '',
              f'**Authors:** {AUTHORS}', '', intro, '']
     for n in notes:

@@ -133,19 +133,10 @@ def make_notes(root=results.RESULTS):
         "insignificant estimate is not proof that expected alpha is exactly zero.")
 
     key, gkey = "1990–2024|net10", "1990–2024|gross"
-    add("The recent sample: 1990–2024", "Walk through all seven cost levels, then distinguish compound returns from alpha.",
-        f"This table compares zero, five, ten, fifteen, twenty, twenty-five and thirty basis points per dollar traded for 1990 to 2024. The holdings and trades stay the same; only the cost assumption changes. CAGR is the compound growth rate, while excess return is the annual arithmetic difference from the market. These are different measures from factor-adjusted alpha. Before costs, annual Carhart alpha is "
-        f"{percent(n['ct_alpha|'+gkey])} with a t-statistic of {n['ct_alpha_t|'+gkey]:.2f}. After ten-basis-point "
-        f"costs, the paper's low-cost case, it is {percent(n['ct_alpha|'+key])}, and the ninety-five-percent "
-        f"interval of roughly {percent(n['ct_alpha_lo|'+key])} to {percent(n['ct_alpha_hi|'+key])} includes zero. "
-        f"With five Fama–French factors and momentum, gross alpha is {percent(n['ct_ff5_alpha|'+gkey])}, "
-        "also insignificant. The return is explained by known factors before costs, so the cost "
-        "assumption is not what removes the alpha. All seven Carhart confidence intervals include zero. Compound returns remain positive at every tier; the thirty-basis-point row is the highest-cost case. Slide eighteen shows the same seven tiers for the 2017 to 2024 extension.",
-        "The more consistent benefit is lower volatility than the market. The "
-        "Conservative-minus-Speculative contrast still has a stronger result, "
-        "but that includes shorting the Speculative portfolio. It is a different "
-        "comparison from holding the Conservative portfolio alone, and its "
-        "attribution result does not include actual borrow or financing costs.")
+    add("Trading costs: two US samples", "Compare the two periods at the same cost level.",
+        "The left table covers 1990 to 2024, our broader recent sample. The right table isolates 2017 to 2024, which is beyond the paper's original period and addresses the professor's suggested extension. Both tables test zero to thirty basis points in steps of five. Within each period, the holdings and trades are identical across cost assumptions, and both purchases and sales pay costs.",
+        "For 1990 to 2024, CAGR falls from 12.24 percent before costs to 11.17 percent at thirty basis points, against market CAGR of 10.10 percent. Annual Carhart alpha falls from 1.17 percent to 0.20 percent. In 2017 to 2024, CAGR falls from 11.01 percent to 9.97 percent, while the market compounds at 13.01 percent. The strategy makes money in absolute terms but trails the market even before costs. Annual alpha falls from minus 1.21 percent to minus 2.10 percent.",
+        "CAGR describes compound growth. Above-market return is the annual arithmetic strategy-minus-market difference, while alpha controls for Carhart factors. All fourteen alpha confidence intervals include zero. The periods overlap, so this is a comparison of sample definitions, not two independent experiments. Lower costs improve returns, but do not establish positive alpha in the extension.")
 
     pc = load("professor_checks", "payout_comparison.csv")
     base = S.one(pc, period="1929–2016", strategy="Baseline NPY")
@@ -275,7 +266,7 @@ def make_notes(root=results.RESULTS):
     for note, transition in zip(notes, transitions): note["transition"] = transition
     from research.feedback_summary import extension_notes
     extra=extension_notes(root)
-    notes=notes[:17]+extra
+    notes=notes[:17]+extra[1:]
     notes[16]['transition']='We now turn to the follow-up work suggested after the presentation.'
     for i,note in enumerate(notes,1):note['number']=i
     return notes
@@ -329,7 +320,7 @@ def write_markdown(notes, destination, root=results.RESULTS):
              f"that is about {words/130:.0f} minutes before pauses and discussion of charts. "
              f"Allow roughly {math.floor(words/130)}-{math.ceil(words/130+2)} minutes with short pauses.", "",
              "Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 "
-             "and Yikai on slides 10-22; change this to suit your delivery.", ""]
+             "and Yikai on slides 10-21; change this to suit your delivery.", ""]
     for note in notes:
         seconds = round(word_count(note)/130*60)
         lines += [f"## {note['number']}. {note['title']}", "",

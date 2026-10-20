@@ -94,23 +94,20 @@ def make_views(root=results.RESULTS):
         kind='with_side_table', font=15)
 
     grid = load('feedback_costs', 'cost_summary.csv')
-    costs = [S.one(grid, period=recent, cost_model='flat', reference_bps=c)
-             for c in (0, 5, 10, 15, 20, 25, 30)]
-    add(10, [
-        ['Cost per dollar traded', 'CAGR', 'Excess over market', 'Carhart alpha', 'Alpha t-statistic'],
-        *[[f"{int(r.reference_bps)} bps" + (' (gross)' if r.reference_bps == 0 else ''),
-           pct(r.compounded, 2), pct(r.excess_vs_market, 2),
-           pct(r.carhart_alpha, 2), num(r.alpha_t_nw)] for r in costs],
-    ], [.24, .16, .22, .20, .18],
-        intro=[f"Conservative portfolio | Market CAGR: {pct(costs[0].market_cagr, 2)} | Same holdings and trades at every cost level"],
-        notes=["CAGR compounds monthly returns; excess is the annual arithmetic strategy-minus-market return. "
-               "Alpha is annualized; all seven Carhart 95% confidence intervals include zero.",
-               f"Gross / net 10 bps: FF5 + MOM alpha {pct(n['ct_ff5_alpha|'+gross], 2)} / "
-               f"{pct(n['ct_ff5_alpha|'+recent+'|net10'], 2)}; CMS Carhart alpha "
-               f"{pct(n['ct_cms_gross_alpha|'+recent], 2)} / {pct(n['ct_cms_net10_alpha|'+recent], 2)}. "
-               f"Volatility: {pct(n['ct_vol|'+gross])} gross vs. {pct(n['ct_mkt_vol|'+recent])} market.",
-               "CMS costs cover both legs, excluding borrow and financing. Slide 18 isolates the 2017–2024 extension."],
-        font=17)
+    panels=[]
+    for period, label in [(recent, 'Broader recent sample'), ('2017–2024', 'Beyond the paper period')]:
+        costs=[S.one(grid, period=period, cost_model='flat', reference_bps=c)
+               for c in (0, 5, 10, 15, 20, 25, 30)]
+        panels.append(dict(title=period, subtitle=f"{label} | Market CAGR {pct(costs[0].market_cagr, 2)}",
+            rows=[['Cost (bps)', 'CAGR', 'Above market', 'Carhart alpha']] +
+                 [[str(int(r.reference_bps)), pct(r.compounded, 2), pct(r.excess_vs_market, 2),
+                   pct(r.carhart_alpha, 2)] for r in costs]))
+    add(10, [], [], kind='combined_costs',
+        notes=['Same holdings and trades within each period; costs apply to both purchases and sales. '
+               'CAGR compounds monthly returns; above-market return is 12 × the mean monthly return difference.',
+               'All Carhart alpha 95% intervals include zero. Returns remain positive at every cost tier, '
+               'but the 2017–2024 strategy trails the market even before costs.'])
+    views[10]['panels']=panels
 
     row = lambda label, values: [label, *(pct(v, 2) for v in values)]
     npy, div = run('Baseline NPY'), run('Dividends-only counterfactual')

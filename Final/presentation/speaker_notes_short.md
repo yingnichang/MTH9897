@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 999 words, or 7.7 minutes at 130 words per minute. Allow about 8-10 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 21 slides: approximately 925 words, or 7.1 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-21.
 
 ## 1. Replicating the Conservative Formula
 
@@ -40,9 +40,9 @@ Trading costs reduce the strategy's advantage. For 1990 to 2024, about 36 basis 
 
 The teal solid line is gross; the copper dashed line includes thirty-basis-point costs. The long history hides differences across periods. Earlier factor-adjusted results are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only eight years, so its confidence interval is wide and does not establish positive alpha.
 
-## 10. The recent sample: 1990–2024
+## 10. Trading costs: two US samples
 
-The table shows all seven costs, from zero to thirty basis points in five-point steps, for the same trades. CAGR stays positive, but it is different from factor-adjusted alpha. For 1990 to 2024, annual Carhart alpha is 1.17 percent before costs and 0.85 percent after ten-basis-point costs; neither is significant, and all seven Carhart confidence intervals include zero. The FF5 plus momentum alpha is negative even before costs. Slide eighteen repeats the grid for 2017 to 2024. Lower volatility is the clearer benefit. Conservative-minus-Speculative compares the two portfolios; it includes a short leg and is different from holding Conservative alone.
+Compare the same seven cost levels across two periods. The left table is 1990 to 2024; the right is the 2017 to 2024 extension. Higher costs reduce returns in both. The extension still makes money, but trails the market even before costs. CAGR measures compound growth; alpha adjusts for factors. None of the fourteen alpha estimates is statistically significant. These periods overlap.
 
 ## 11. Dividends and share repurchases
 
@@ -72,22 +72,18 @@ The buffer keeps an existing holding while it remains eligible and within the be
 
 We reproduce much of the historical return and risk pattern, although turnover still differs. We address payout and industry positioning explicitly. In recent data, lower volatility is more consistent than positive net alpha. The extensions are useful experiments, but do not establish a superior strategy on unseen data.
 
-## 18. 2017-2024 trading-cost scenarios
-
-We test zero to thirty basis points in steps of five, with the same holdings. Lower costs improve the 2017-2024 profit, but the US strategy still trails its market over the full period, even before costs.
-
-## 19. When the recent return gap developed
+## 18. When the recent return gap developed
 
 These wealth paths and rolling twelve-month comparisons show when performance improves or weakens. Rolling alpha is also in the notebook. These overlapping windows describe the sample and do not provide a forecast.
 
-## 20. Costs that change with quoted spreads
+## 19. Costs that change with quoted spreads
 
 We also let costs change with CRSP bid-ask spreads. We fix a 2016 reference and use only the previous month's spread. The result measures relative liquidity, without estimating our actual execution costs.
 
-## 21. UK data and implementation
+## 20. UK data and implementation
 
 For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.
 
-## 22. UK and US after the paper period
+## 21. UK and US after the paper period
 
 The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.

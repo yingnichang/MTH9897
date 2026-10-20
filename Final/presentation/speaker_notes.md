@@ -2,9 +2,9 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,634 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 20-23 minutes with short pauses.
+The read-aloud script contains approximately 2,540 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
-Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
+Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-21; change this to suit your delivery.
 
 ## 1. Replicating the Conservative Formula
 
@@ -116,15 +116,17 @@ For 2017 to 2024, gross Carhart alpha is -1.21 percent. Its ninety-five-percent 
 
 **Transition:** We will now focus on the recent sample in more detail.
 
-## 10. The recent sample: 1990–2024
+## 10. Trading costs: two US samples
 
-**Approximate speaking time:** 100 seconds, plus pauses.
+**Approximate speaking time:** 94 seconds, plus pauses.
 
-**Presenter cue:** Walk through all seven cost levels, then distinguish compound returns from alpha.
+**Presenter cue:** Compare the two periods at the same cost level.
 
-This table compares zero, five, ten, fifteen, twenty, twenty-five and thirty basis points per dollar traded for 1990 to 2024. The holdings and trades stay the same; only the cost assumption changes. CAGR is the compound growth rate, while excess return is the annual arithmetic difference from the market. These are different measures from factor-adjusted alpha. Before costs, annual Carhart alpha is 1.17 percent with a t-statistic of 1.05. After ten-basis-point costs, the paper's low-cost case, it is 0.85 percent, and the ninety-five-percent interval of roughly -1.34 percent to 3.04 percent includes zero. With five Fama–French factors and momentum, gross alpha is -1.03 percent, also insignificant. The return is explained by known factors before costs, so the cost assumption is not what removes the alpha. All seven Carhart confidence intervals include zero. Compound returns remain positive at every tier; the thirty-basis-point row is the highest-cost case. Slide eighteen shows the same seven tiers for the 2017 to 2024 extension.
+The left table covers 1990 to 2024, our broader recent sample. The right table isolates 2017 to 2024, which is beyond the paper's original period and addresses the professor's suggested extension. Both tables test zero to thirty basis points in steps of five. Within each period, the holdings and trades are identical across cost assumptions, and both purchases and sales pay costs.
 
-The more consistent benefit is lower volatility than the market. The Conservative-minus-Speculative contrast still has a stronger result, but that includes shorting the Speculative portfolio. It is a different comparison from holding the Conservative portfolio alone, and its attribution result does not include actual borrow or financing costs.
+For 1990 to 2024, CAGR falls from 12.24 percent before costs to 11.17 percent at thirty basis points, against market CAGR of 10.10 percent. Annual Carhart alpha falls from 1.17 percent to 0.20 percent. In 2017 to 2024, CAGR falls from 11.01 percent to 9.97 percent, while the market compounds at 13.01 percent. The strategy makes money in absolute terms but trails the market even before costs. Annual alpha falls from minus 1.21 percent to minus 2.10 percent.
+
+CAGR describes compound growth. Above-market return is the annual arithmetic strategy-minus-market difference, while alpha controls for Carhart factors. All fourteen alpha confidence intervals include zero. The periods overlap, so this is a comparison of sample definitions, not two independent experiments. Lower costs improve returns, but do not establish positive alpha in the extension.
 
 **Transition:** Next are the two implementation checks highlighted in the assignment.
 
@@ -214,15 +216,7 @@ For recent data, lower volatility is more consistent than positive net alpha. Th
 
 **Transition:** We now turn to the follow-up work suggested after the presentation.
 
-## 18. 2017-2024 trading-cost scenarios
-
-**Approximate speaking time:** 37 seconds, plus pauses.
-
-**Presenter cue:** Explain the comparison and its limits.
-
-Following the professor's feedback, we keep the portfolio fixed and vary costs from zero to thirty basis points in steps of five. Annual return falls from 11.01% before costs to 9.97% at thirty basis points. At five basis points it is 10.83%. These are still positive absolute returns, but the market grows faster over these eight years. Lower costs help without creating positive full-period market excess or alpha. The final column shows what happens to an initial one hundred dollars.
-
-## 19. When the recent return gap developed
+## 18. When the recent return gap developed
 
 **Approximate speaking time:** 36 seconds, plus pauses.
 
@@ -230,7 +224,7 @@ Following the professor's feedback, we keep the portfolio fixed and vary costs f
 
 The time-series view explains what an eight-year average can hide. The top panel shows the actual wealth paths. The lower panel compares the most recent twelve months of strategy and market returns. The sign can change during the sample. We also calculate trailing thirty-six-month Carhart alpha with Newey-West intervals in the notebook. Those windows overlap, and the short windows produce uncertain estimates. We use them to describe changing performance, rather than claim that we can forecast the next regime.
 
-## 20. Costs that change with quoted spreads
+## 19. Costs that change with quoted spreads
 
 **Approximate speaking time:** 37 seconds, plus pauses.
 
@@ -238,7 +232,7 @@ The time-series view explains what an eight-year average can hide. The top panel
 
 The transcript also suggests scaling costs with average spreads. We use CRSP closing bid and ask quotes for the eligible large-stock universe. We fix the reference average using 2016, then use only the previous month's spread to set the next month's cost. A five-basis-point reference therefore need not remain five in every month. The chart shows the changing cost assumption and quote coverage. It is a market-wide quote proxy. It does not measure our actual execution price, commissions or market impact.
 
-## 21. UK data and implementation
+## 20. UK data and implementation
 
 **Approximate speaking time:** 41 seconds, plus pauses.
 
@@ -246,7 +240,7 @@ The transcript also suggests scaling costs with average spreads. We use CRSP clo
 
 For the UK comparison, we download Compustat Global daily data and take each month's final available observation. We use ordinary London shares quoted in pounds, retain inactive companies, and use earlier observations to build the same thirty-six-month history. We adjust prices and shares for splits, then use the total-return factor to include distributions. Our benchmark holds the same eligible UK universe at capitalization weights. Current country and exchange headers and incomplete terminal payments make this a qualified extension. We do not use US factors to claim UK alpha.
 
-## 22. UK and US after the paper period
+## 21. UK and US after the paper period
 
 **Approximate speaking time:** 44 seconds, plus pauses.
 
