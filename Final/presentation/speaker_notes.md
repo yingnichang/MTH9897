@@ -108,7 +108,7 @@ At thirty basis points, the paper-period annual compound return falls to 13.73 p
 
 **Approximate speaking time:** 50 seconds, plus pauses.
 
-**Presenter cue:** Trace the early-to-recent pattern; do not read every table cell.
+**Presenter cue:** Teal solid = gross; copper dashed = net 30 bps. Trace the early-to-recent pattern.
 
 The subperiods show why the long history needs to be broken up. The earlier Carhart estimates are stronger, while the recent estimates are weaker. The rolling plots show a similar pattern, although adjacent windows overlap and should not be treated as independent observations.
 

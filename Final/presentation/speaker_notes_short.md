@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 941 words, or 7.2 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 954 words, or 7.3 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -38,7 +38,7 @@ Trading costs reduce the strategy's advantage. For 1990 to 2024, about 36 basis 
 
 ## 9. Results by period
 
-The long history hides differences across periods. Earlier factor-adjusted results are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only eight years, so its confidence interval is wide and does not establish positive alpha.
+The teal solid line is gross; the copper dashed line includes thirty-basis-point costs. The long history hides differences across periods. Earlier factor-adjusted results are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only eight years, so its confidence interval is wide and does not establish positive alpha.
 
 ## 10. The recent sample: 1990–2024
 

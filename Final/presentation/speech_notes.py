@@ -120,7 +120,7 @@ def make_notes(root=results.RESULTS):
         "period after 2016, gross excess return and alpha are already nonpositive. "
         "These are flat cost scenarios, not a complete model of historical liquidity or market impact.")
 
-    add("Results by period", "Trace the early-to-recent pattern; do not read every table cell.",
+    add("Results by period", "Teal solid = gross; copper dashed = net 30 bps. Trace the early-to-recent pattern.",
         "The subperiods show why the long history needs to be broken up. The earlier "
         "Carhart estimates are stronger, while the recent estimates are weaker. The "
         "rolling plots show a similar pattern, although adjacent windows overlap "

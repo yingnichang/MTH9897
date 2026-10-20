@@ -45,9 +45,9 @@ def chart(number,root=results.RESULTS):
             d=load('critical_tests','rolling.csv',parse_dates=['window_end'])
             fig,axes=plt.subplots(2,1,figsize=(5.1,5.1),sharex=True,layout='constrained')
             for col,ax,label in [('excess_vs_market',axes[0],'Excess over CRSP VW (%/yr)'),('carhart_alpha',axes[1],'Carhart alpha (%/yr)')]:
-                for kind,ls in [('gross','-'),('net30','--')]:
+                for kind,ls,color in [('gross','-',TEAL),('net30','--',COPPER)]:
                     g=d.loc[d.returns.eq(kind)]
-                    ax.plot(g.window_end,100*g[col],ls,color=TEAL,lw=1.5,label=f'Conservative, {kind}')
+                    ax.plot(g.window_end,100*g[col],ls,color=color,lw=1.7,label=f'Conservative, {kind}')
                 ax.axhline(0,color=SLATE,lw=.6)
                 for date in ['1963-01-31','1990-01-31','2017-01-31']:ax.axvline(pd.Timestamp(date),color=SLATE,lw=.7,ls=':')
                 ax.set_ylabel(label);ax.legend(fontsize=7,loc='upper left')

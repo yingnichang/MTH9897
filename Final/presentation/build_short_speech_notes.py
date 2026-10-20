@@ -66,6 +66,7 @@ def short_notes(root=results.RESULTS):
         f"about {n['be_excess|1990–2024']:.0f} eliminates the average return above the market. "
         "These are break-even cost levels, not return percentages. We charge purchases and sales.",
 
+        "The teal solid line is gross; the copper dashed line includes thirty-basis-point costs. "
         "The long history hides differences across periods. Earlier factor-adjusted results "
         "are stronger, while recent estimates are weaker. The 2017 to 2024 sample is only "
         "eight years, so its confidence interval is wide and does not establish positive alpha.",
