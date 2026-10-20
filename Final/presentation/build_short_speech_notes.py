@@ -39,13 +39,12 @@ def short_notes(root=results.RESULTS):
         "returns, keep one common share class per company, and respect the smaller early universe "
         "rather than assume one thousand eligible stocks were always available.",
 
-        "Follow the chart from top to bottom: first the largest one thousand stocks with enough "
-        "return history, then the five hundred with lower volatility. The formulas use thirty-six "
-        "monthly total returns for volatility and eleven price returns for momentum, skipping "
-        "the latest month. The two middle boxes rank "
-        "momentum and net payout. We average those ranks to choose one hundred equally weighted "
-        "stocks and rebalance quarterly. The early sample has fewer eligible stocks, as the "
-        "table on the right explains.",
+        "Conservative uses the lower-volatility half and favors stronger momentum and higher "
+        "net payout. Speculative uses the higher-volatility half and weaker scores. Both select "
+        "one hundred stocks, invest equally and rebalance quarterly. Each is long-only on its "
+        "own; CMS buys Conservative and shorts Speculative. The formulas use thirty-six monthly "
+        "returns for volatility and eleven price returns for momentum, skipping the latest month. "
+        "Early data have a smaller eligible universe.",
 
         "Volatility uses thirty-six months of total returns. Momentum uses eleven months of "
         "price returns, skipping the latest month. Net payout is dividend yield plus one minus "

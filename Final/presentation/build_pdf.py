@@ -202,8 +202,12 @@ def research_questions(pdf,x,top,width,height):
 
 
 def selection_flow(pdf, paras, x, top, width, height):
-    """Vector selection diagram, with the original implementation conventions alongside."""
-    notes = paras[1:]
+    """Conservative selection diagram beside its Speculative comparison portfolio."""
+    notes = text_paras([
+        paras[1].text,
+        'Full-universe counts are shown; early data use all eligible stocks (393 at 1928-12; full universe from 1964-06).',
+        paras[3].text+'; rank complete signals after the volatility split.',
+    ])
     note_size, note_gap, note_height = fit_body(notes, width, 85, 12, minimum=11)
     main_height = height-note_height-15
     flow_width = width*.53
@@ -252,17 +256,21 @@ def selection_flow(pdf, paras, x, top, width, height):
     node(x,264,flow_width,48,'100 stocks',
          'Equal-weighted portfolio; rebalance quarterly',HexColor('#DCECE9'),18,12)
 
-    conventions = [
-        ['Convention', 'Implementation'],
-        ['Share classes', 'Largest common class per company each month; share codes 10/11.'],
-        ['Size measure', 'Security market capitalization after the history screen.'],
-        ['Dividends', 'Implied from RET - RETX; legacy RETX includes non-ordinary distributions.'],
-        ['Missing signals', 'Partition by volatility first, then rank complete cases.'],
-        ['Early universe', 'Use all eligible names if fewer than 1,000: 393 at 1928-12; full 500-name pool from 1964-06.'],
-        ['Missing returns', 'Stale carry (0) or an in-gap price ratio.'],
+    comparison = [
+        ['Selection', 'Conservative', 'Speculative'],
+        ['Volatility', 'Lower half', 'Higher half'],
+        ['Momentum', 'Stronger', 'Weaker'],
+        ['Net payout', 'Higher', 'Lower'],
+        ['Final 100', 'Best combined ranks', 'Worst combined ranks'],
+        ['Weights', 'Equal: 1% each', 'Equal: 1% each'],
+        ['Rebalance', 'Quarterly', 'Quarterly'],
     ]
-    size,layout=fit_table(conventions,right_width,main_height,14,[.32,.68])
-    draw_table(pdf,right_x,top,size,layout,prose=True)
+    paragraph(pdf,'Same eligible US universe; opposite selection rules',right_x,top,right_width,13.5,bold=True,color=TEAL)
+    size,layout=fit_table(comparison,right_width,main_height-90,13.5,[.27,.365,.365])
+    table_bottom=draw_table(pdf,right_x,top-30,size,layout)
+    paragraph(pdf,'CMS = Conservative − Speculative',right_x,table_bottom-18,right_width,15,bold=True,color=TEAL)
+    paragraph(pdf,'Both alone are long-only. CMS buys Conservative and shorts Speculative.',
+              right_x,table_bottom-44,right_width,12.5,color=MUTED)
     draw_body(pdf,notes,x,top-main_height-15,width,note_size,note_gap)
 
 

@@ -55,23 +55,21 @@ def make_notes(root=results.RESULTS):
         "stocks are eligible at the first formation. The universe first reaches one thousand "
         "in June 1964, so we use the available eligible stocks in the early backtest.")
 
-    add("The portfolio rule", "Trace the flowchart from top to bottom; point to both ranking boxes and the early-universe caveat.",
-        "The flowchart shows how we narrow the universe from one thousand stocks to one hundred. "
-        "At each quarter-end, we first require thirty-six consecutive months of return history, "
-        "then take the largest one thousand eligible US stocks by market capitalization. "
-        "The next box keeps the five hundred with lower historical volatility. Its formula "
-        "takes the standard deviation of thirty-six monthly total returns, then multiplies "
-        "by the square root of twelve to express volatility in annual units.",
-        "The two boxes below are the rankings applied within that lower-volatility pool. "
-        "The momentum formula compounds eleven monthly price returns, from t minus eleven "
-        "through t minus one, and subtracts one. It skips the latest month. Net payout combines dividends with "
-        "a proxy for net share repurchases. We average the two favorable ranks and choose the "
-        "best one hundred stocks. Each starts at one percent of the portfolio. We then let "
-        "weights drift with returns and rebalance quarterly.",
-        "The table on the right records our implementation conventions. The early data have "
-        "fewer than one thousand eligible stocks, so the first two boxes describe the full-universe "
-        "case. We use the available eligible names in the early sample. The history screen "
-        "comes before the size cut, and each selection earns returns only after formation.")
+    add("The portfolio rule", "Trace the Conservative flow, compare the two columns, then distinguish CMS from either long-only portfolio.",
+        "The left flowchart builds the Conservative portfolio. We first require thirty-six "
+        "consecutive months of return history, then choose the largest one thousand eligible "
+        "US stocks and keep the lower-volatility half. The volatility formula annualizes the "
+        "standard deviation of thirty-six monthly total returns using the square root of twelve.",
+        "The momentum formula compounds eleven monthly price returns and skips the latest "
+        "month. We average the momentum and net payout ranks to select the best one hundred. "
+        "The right-hand table shows the Speculative mirror: the higher-volatility half and "
+        "the weakest combined momentum and net payout scores. Both portfolios hold one hundred "
+        "stocks at equal initial weights and rebalance quarterly; weights drift between rebalances.",
+        "Each portfolio on its own is long-only. Conservative-minus-Speculative, or CMS, "
+        "instead buys Conservative and shorts Speculative. It measures the contrast between "
+        "the groups and differs from holding Conservative alone. The early sample has fewer "
+        "eligible stocks, so the full one-thousand-to-five-hundred counts do not apply throughout. "
+        "The history screen precedes the size cut, and holdings earn returns after formation.")
 
     add("Building the signals", "Explain each signal briefly; spend most of the time on payout.",
         "Volatility is the standard deviation of thirty-six monthly total returns, expressed "
