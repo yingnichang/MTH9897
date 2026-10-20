@@ -14,6 +14,9 @@ def test_deck_builds_with_aligned_scripts(tmp_path):
     from speech_notes import make_notes
     notes=make_notes()
     assert len(pdf.pages)==len(notes)==21
+    assert notes[-1]['title']=='What we conclude'
+    final_text=pdf.pages[-1].extract_text()
+    assert 'UK' in final_text and '2017–2024' in final_text and 'Net share repurchases' in final_text
     for page,note in zip(pdf.pages,notes):
         text=page.extract_text()
         assert 'Yingni Chang and Yikai Shen' in text

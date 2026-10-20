@@ -502,7 +502,7 @@ def draw_feedback_slide(pdf, view, width, height, root,number,display_number=Non
 def export(source, destination, root=None):
     """Build readable PDF evidence tables from the same saved numerical results.
 
-    The PPTX is read only. Five feedback slides follow the original 17 content slides. Existing figures, dimensions and scientific
+    The PPTX is read only. Four follow-up slides precede the final conclusion. Existing figures, dimensions and scientific
     results are retained; numerical prose is reorganized into labeled tables.
     """
     deck = Presentation(source)
@@ -520,9 +520,11 @@ def export(source, destination, root=None):
                  15: [.25, .19, .23, .15, .18]}
     for number, slide in enumerate(deck.slides, 1):
         if number == 18:
-            for extra_number,view in enumerate(extras(root)[1:],19):
-                draw_feedback_slide(pdf,view,width,height,root,extra_number,extra_number-1)
             break  # The old professor-questions slide is excluded from the final submission.
+        if number == 17:
+            for extra_number,view in enumerate(extras(root)[1:],19):
+                draw_feedback_slide(pdf,view,width,height,root,extra_number,extra_number-2)
+        display_number = 21 if number == 17 else number
         text_shapes = [s for s in slide.shapes if s.has_text_frame]
         if len(text_shapes) != 3:
             raise ValueError('Expected title, body and author credit on each slide')
@@ -590,7 +592,7 @@ def export(source, destination, root=None):
                 table_h = sum(layout[1])
                 draw_table(pdf, margin+left_w+gutter, body_top-(available-table_h)*.15,
                            size_t, layout, prose=number == 4)
-        theme_footer(pdf,number,width)
+        theme_footer(pdf,display_number,width)
         pdf.showPage()
     pdf.save()
     return destination

@@ -186,4 +186,14 @@ def make_views(root=results.RESULTS):
         intro=['Keep holdings while eligible and within the best 150 ranks.'],
         notes=['Net paired interval includes zero: not significant. The buffer changes holdings as well as costs.',
                'The recent period was already seen when we tested this variant.'], kind='with_picture', font=15)
+    add(17, [
+        ['What we tested', 'What we learned'],
+        ['Data and selection rule', 'CRSP history; low volatility, momentum and net payout. Split adjustment, delistings and timing matter.'],
+        ['Historical replication', 'Much of the return and risk pattern is reproduced. Turnover and some factor results still differ.'],
+        ['Recent US performance and costs', 'Lower risk is clearer than positive alpha. All 0–30 bps tiers leave 2017–2024 below the market, even at zero cost.'],
+        ['Payout, industries and trading', 'Net share repurchases matter; industry positioning is tested separately. Buffers reduce turnover; optimizer gains remain uncertain.'],
+        ['Time series and UK extension', 'Rolling results vary. UK base results are stronger versus its own benchmark, but exit-loss stress reverses the advantage.'],
+    ], [.29, .71],
+        notes=['The formula is a transparent factor strategy. These results do not establish persistent outperformance; '
+               'costs, data conventions and sample choice affect the conclusion.'], font=17, prose=True)
     return views

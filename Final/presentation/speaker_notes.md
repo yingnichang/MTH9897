@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,540 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
+The read-aloud script contains approximately 2,635 words. At 130 words per minute, that is about 20 minutes before pauses and discussion of charts. Allow roughly 20-23 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-21; change this to suit your delivery.
 
@@ -194,7 +194,7 @@ For 1990 to 2024, risk aversion five gives net CAGR of 11.59 percent and volatil
 
 ## 16. A buffer to reduce trading
 
-**Approximate speaking time:** 50 seconds, plus pauses.
+**Approximate speaking time:** 51 seconds, plus pauses.
 
 **Presenter cue:** Point to the turnover reduction and the confidence interval.
 
@@ -202,21 +202,9 @@ The buffer asks whether we need to sell a holding immediately when its rank slip
 
 Quarterly turnover falls from 39.8 percent to 28.4 percent. The net paired difference is 0.34 percent a year, but its interval includes zero. The modification reduces trading, while also changing holdings, so we cannot attribute the whole return difference to costs. We view it as a useful trading experiment, not proof of a better signal.
 
-**Transition:** These comparisons lead us to the main conclusion.
+**Transition:** We now turn to the time-series and international extensions.
 
-## 17. What we conclude
-
-**Approximate speaking time:** 54 seconds, plus pauses.
-
-**Presenter cue:** Pause on the main conclusion and the unresolved turnover difference.
-
-Our implementation reproduces much of the paper's historical return and risk pattern, but it is not an exact replication. Turnover and some regression results still differ. We have also checked the two issues highlighted in the assignment: net payout includes the adjusted share-count term, and industry positioning is measured and tested separately.
-
-For recent data, lower volatility is more consistent than positive net alpha. The buffer and optimizers change trading and risk, but their results do not yet show a stronger strategy on unseen data. Our conclusion is that this is a useful, understandable factor portfolio, with important limits to a claim of persistent outperformance.
-
-**Transition:** We now turn to the follow-up work suggested after the presentation.
-
-## 18. When the recent return gap developed
+## 17. When the recent return gap developed
 
 **Approximate speaking time:** 36 seconds, plus pauses.
 
@@ -224,7 +212,7 @@ For recent data, lower volatility is more consistent than positive net alpha. Th
 
 The time-series view explains what an eight-year average can hide. The top panel shows the actual wealth paths. The lower panel compares the most recent twelve months of strategy and market returns. The sign can change during the sample. We also calculate trailing thirty-six-month Carhart alpha with Newey-West intervals in the notebook. Those windows overlap, and the short windows produce uncertain estimates. We use them to describe changing performance, rather than claim that we can forecast the next regime.
 
-## 19. Costs that change with quoted spreads
+## 18. Costs that change with quoted spreads
 
 **Approximate speaking time:** 37 seconds, plus pauses.
 
@@ -232,7 +220,7 @@ The time-series view explains what an eight-year average can hide. The top panel
 
 The transcript also suggests scaling costs with average spreads. We use CRSP closing bid and ask quotes for the eligible large-stock universe. We fix the reference average using 2016, then use only the previous month's spread to set the next month's cost. A five-basis-point reference therefore need not remain five in every month. The chart shows the changing cost assumption and quote coverage. It is a market-wide quote proxy. It does not measure our actual execution price, commissions or market impact.
 
-## 20. UK data and implementation
+## 19. UK data and implementation
 
 **Approximate speaking time:** 41 seconds, plus pauses.
 
@@ -240,13 +228,29 @@ The transcript also suggests scaling costs with average spreads. We use CRSP clo
 
 For the UK comparison, we download Compustat Global daily data and take each month's final available observation. We use ordinary London shares quoted in pounds, retain inactive companies, and use earlier observations to build the same thirty-six-month history. We adjust prices and shares for splits, then use the total-return factor to include distributions. Our benchmark holds the same eligible UK universe at capitalization weights. Current country and exchange headers and incomplete terminal payments make this a qualified extension. We do not use US factors to claim UK alpha.
 
-## 21. UK and US after the paper period
+## 20. UK and US after the paper period
 
-**Approximate speaking time:** 44 seconds, plus pauses.
+**Approximate speaking time:** 48 seconds, plus pauses.
 
 **Presenter cue:** Explain the comparison and its limits.
 
 At ten basis points, the US strategy returns 10.66% annually against 13.01% for its benchmark. The UK base sample returns 7.23% against 5.40%. The UK exit stress returns 1.65% against 3.55% for its comparator, reversing the relative advantage. Adding a fifty-basis-point purchase tax to the ordinary ten-basis-point costs gives 6.34% for the UK base case. The relative UK result is more encouraging in this sample, but pounds and dollars represent different investor exposures. The benchmark definitions also differ. We should check historical classifications, terminal payments and a common-currency benchmark before calling this a robust country effect.
+
+**Transition:** Together, these results lead to our final conclusions.
+
+## 21. What we conclude
+
+**Approximate speaking time:** 93 seconds, plus pauses.
+
+**Presenter cue:** Close by connecting the data work, historical replication and both extensions.
+
+We tested a simple rule using low volatility, momentum and net payout. The historical CRSP data need careful treatment of splits, delistings and signal timing. We reproduce much of the paper's historical return and risk pattern, but turnover and some factor-regression results still differ, so this is not an exact replication.
+
+We address both assignment warnings: payout includes the split-adjusted share-count term, and industry positioning is measured and tested separately. Dividends alone lose useful information. The buffer reduces turnover, while the optimization experiments do not establish a stronger strategy on unseen data.
+
+The combined cost table distinguishes the broader 1990 to 2024 sample from the 2017 to 2024 extension. The extension earns a positive absolute return but trails the market even before costs. Lower costs improve returns without establishing positive alpha. Rolling windows show that performance changes through time; spread-scaled costs are a liquidity sensitivity rather than actual execution costs.
+
+The UK base case performs better relative to its own benchmark, but a severe exit-loss stress reverses that advantage. Purchase taxes, different currencies, benchmark definitions and incomplete terminal payments limit the comparison. Overall, the formula is understandable and useful for studying factor investing. Our evidence does not establish persistent outperformance. Thank you.
 
 # Questions to Prepare For
 

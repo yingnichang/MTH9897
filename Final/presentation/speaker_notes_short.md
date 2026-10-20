@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 21 slides: approximately 925 words, or 7.1 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-21.
+Brief script for all 21 slides: approximately 950 words, or 7.3 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-21.
 
 ## 1. Replicating the Conservative Formula
 
@@ -68,22 +68,22 @@ The mean-variance model balances expected return, risk and trading costs. It use
 
 The buffer keeps an existing holding while it remains eligible and within the best one hundred and fifty ranks. Recent quarterly turnover falls from 39.8 percent to 28.4 percent. It reduces trading, but the return improvement is uncertain because its confidence interval includes zero.
 
-## 17. What we conclude
-
-We reproduce much of the historical return and risk pattern, although turnover still differs. We address payout and industry positioning explicitly. In recent data, lower volatility is more consistent than positive net alpha. The extensions are useful experiments, but do not establish a superior strategy on unseen data.
-
-## 18. When the recent return gap developed
+## 17. When the recent return gap developed
 
 These wealth paths and rolling twelve-month comparisons show when performance improves or weakens. Rolling alpha is also in the notebook. These overlapping windows describe the sample and do not provide a forecast.
 
-## 19. Costs that change with quoted spreads
+## 18. Costs that change with quoted spreads
 
 We also let costs change with CRSP bid-ask spreads. We fix a 2016 reference and use only the previous month's spread. The result measures relative liquidity, without estimating our actual execution costs.
 
-## 20. UK data and implementation
+## 19. UK data and implementation
 
 For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.
 
-## 21. UK and US after the paper period
+## 20. UK and US after the paper period
 
 The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.
+
+## 21. What we conclude
+
+We reproduce much of the historical pattern, with remaining turnover and factor differences. Payout and industry checks matter; buffers reduce trading, while optimizer gains remain uncertain. In 2017 to 2024, US returns are positive but trail the market at every cost tier. Rolling results vary. The UK base case is more encouraging, but exit stress reverses its advantage. This is a transparent factor strategy, with no established claim of persistent outperformance. Thank you.

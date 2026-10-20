@@ -103,10 +103,7 @@ def short_notes(root=results.RESULTS):
         f"{pct(n['buf_turn_base'],1)} to {pct(n['buf_turn_buf'],1)}. It reduces trading, "
         "but the return improvement is uncertain because its confidence interval includes zero.",
 
-        "We reproduce much of the historical return and risk pattern, although turnover "
-        "still differs. We address payout and industry positioning explicitly. In recent "
-        "data, lower volatility is more consistent than positive net alpha. The extensions "
-        "are useful experiments, but do not establish a superior strategy on unseen data.",
+        "We reproduce much of the historical pattern, with remaining turnover and factor differences. Payout and industry checks matter; buffers reduce trading, while optimizer gains remain uncertain. In 2017 to 2024, US returns are positive but trail the market at every cost tier. Rolling results vary. The UK base case is more encouraging, but exit stress reverses its advantage. This is a transparent factor strategy, with no established claim of persistent outperformance. Thank you.",
 
         "We'd appreciate guidance on payout, industry positioning and the turnover gap. "
         "Could we compare our cleaning with your reference? For the weaker recent "
@@ -121,7 +118,7 @@ def short_notes(root=results.RESULTS):
         "For the UK, we apply the same signals to Compustat Global ordinary London shares in pounds. We retain inactive companies and adjust for splits and dividends. Current classifications and incomplete terminal payments remain limitations.",
         "The UK base case beats its own benchmark, but the severe exit-loss stress reverses that advantage. We also show a purchase-tax sensitivity. Different currencies and benchmarks prevent treating this as proof of a country effect.",
     ]
-    scripts=scripts[:17]+short_extra[1:]
+    scripts=scripts[:16]+short_extra[1:]+[scripts[16]]
     titles = [note['title'] for note in make_notes(root)]
     if len(scripts) != len(titles):
         raise ValueError('Every slide must have a short script')

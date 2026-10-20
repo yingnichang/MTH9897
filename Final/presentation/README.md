@@ -13,12 +13,12 @@ python presentation/build_short_speech_notes.py
 
 `build_pdf.py` reads the original PPTX as a layout template. It never writes a new PowerPoint file.
 `numeric_views.py` supplies verified tables for the historical pages. `research/feedback_summary.py` supplies
-the five added pages and the extended report text. The former professor-questions slide is excluded from the final submission.
+the follow-up content and the extended report text. The former professor-questions slide is excluded from the final submission.
 `build_deck.py` is a compatibility entry point for the same PDF workflow. Keep the original PPTX available as a
 source input; its embedded old notes are superseded by the current separate speech notes.
 
-Pages 1-17 cover the existing replication and experiments. Slide 10 combines the 1990–2024 and 2017–2024 cost grids. Pages 18-21 add time-series
-plots, lagged-spread model, UK data and UK/US results. The final deck ends with the comparison results.
+Pages 1-16 cover the replication and experiments. Slide 10 combines the 1990–2024 and 2017–2024 cost grids. Pages 17-20 add time-series
+plots, lagged-spread model, UK data and UK/US results. Slide 21 summarizes the full project.
 
 `speaker_notes.md` and `output/pdf/conservative_formula_speech_notes.pdf` provide a full script for all 21 pages.
 The script is about 2,400 words; allow 19-21 minutes with pauses. The shorter script in `speaker_notes_short.md`
@@ -34,3 +34,5 @@ The approved Navy & Teal Research design uses a navy title band, warm cream back
 Slide 4 recreates the supplied selection-process chart as native PDF shapes and searchable text. It shows the 1,000-to-500-to-100 funnel, volatility and momentum formulas, and quarterly equal weights. The side-by-side Conservative/Speculative comparison explains the opposing screens and rankings and distinguishes each long-only portfolio from the CMS long/short contrast. The early-universe caveat distinguishes the full-universe counts from the smaller historical sample; detailed implementation conventions remain in the written report.
 
 Whenever slides change, update the corresponding full and short scripts, then regenerate both Markdown notes and both rehearsal PDFs with the commands above. Check the 21 slide titles and any changed values against the current deck. Speaker notes remain in this original repository and are excluded from the submission package.
+
+Slide 21 closes the presentation with conclusions covering the full project, including the recent cost, time-series and UK extensions.

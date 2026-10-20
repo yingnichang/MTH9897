@@ -206,5 +206,5 @@ Recompute only the follow-up analyses from private inputs:
 python -m research.run_all --only feedback_costs uk_comparison
 ```
 
-Slide 10 combines both US cost grids; pages 18-21 cover time-series, spread-scaled costs and the UK extension; the final presentation ends with the UK/US results. Both speech-note versions match all 21 pages.
+Slide 10 combines both US cost grids; pages 17-20 cover time-series, spread-scaled costs and the UK extension; slide 21 concludes the full project. Both speech-note versions match all 21 pages.
 The main stock-selection rule and earlier US results are unchanged.

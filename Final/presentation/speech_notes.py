@@ -230,18 +230,11 @@ def make_notes(root=results.RESULTS):
         "so we cannot attribute the whole return difference to costs. We "
         "view it as a useful trading experiment, not proof of a better signal.")
 
-    add("What we conclude", "Pause on the main conclusion and the unresolved turnover difference.",
-        "Our implementation reproduces much of the paper's historical return "
-        "and risk pattern, but it is not an exact replication. Turnover and "
-        "some regression results still differ. We have also checked the two "
-        "issues highlighted in the assignment: net payout includes the "
-        "adjusted share-count term, and industry positioning is measured "
-        "and tested separately.",
-        "For recent data, lower volatility is more consistent than positive "
-        "net alpha. The buffer and optimizers change trading and risk, "
-        "but their results do not yet show a stronger strategy on unseen "
-        "data. Our conclusion is that this is a useful, understandable "
-        "factor portfolio, with important limits to a claim of persistent outperformance.")
+    add("What we conclude", "Close by connecting the data work, historical replication and both extensions.",
+        "We tested a simple rule using low volatility, momentum and net payout. The historical CRSP data need careful treatment of splits, delistings and signal timing. We reproduce much of the paper's historical return and risk pattern, but turnover and some factor-regression results still differ, so this is not an exact replication.",
+        "We address both assignment warnings: payout includes the split-adjusted share-count term, and industry positioning is measured and tested separately. Dividends alone lose useful information. The buffer reduces turnover, while the optimization experiments do not establish a stronger strategy on unseen data.",
+        "The combined cost table distinguishes the broader 1990 to 2024 sample from the 2017 to 2024 extension. The extension earns a positive absolute return but trails the market even before costs. Lower costs improve returns without establishing positive alpha. Rolling windows show that performance changes through time; spread-scaled costs are a liquidity sensitivity rather than actual execution costs.",
+        "The UK base case performs better relative to its own benchmark, but a severe exit-loss stress reverses that advantage. Purchase taxes, different currencies, benchmark definitions and incomplete terminal payments limit the comparison. Overall, the formula is understandable and useful for studying factor investing. Our evidence does not establish persistent outperformance. Thank you.")
 
     transitions = [
         "Let me start with what we wanted to test.",
@@ -266,8 +259,10 @@ def make_notes(root=results.RESULTS):
     for note, transition in zip(notes, transitions): note["transition"] = transition
     from research.feedback_summary import extension_notes
     extra=extension_notes(root)
-    notes=notes[:17]+extra[1:]
-    notes[16]['transition']='We now turn to the follow-up work suggested after the presentation.'
+    notes=notes[:16]+extra[1:]+[notes[16]]
+    notes[15]['transition']='We now turn to the time-series and international extensions.'
+    notes[-2]['transition']='Together, these results lead to our final conclusions.'
+    notes[-1]['transition']=''
     for i,note in enumerate(notes,1):note['number']=i
     return notes
 
