@@ -30,3 +30,5 @@ different market benchmarks, missing terminal payments and the separate purchase
 estimated using US factors. Render the final PDF with Poppler for visual review.
 
 The approved Navy & Teal Research design uses a navy title band, warm cream background, teal accents, and consistent native tables. The cover and cost-summary page use dedicated layouts. `chart_theme.py` redraws presentation charts from the same hash-checked aggregate data; it does not rerun or modify the backtests. Presentation generation code remains in GitHub for audit and is excluded from the submission archive.
+
+Slide 4 recreates the supplied selection-process chart as native PDF shapes and searchable text. It shows the 1,000-to-500-to-100 funnel, momentum and net payout ranking, and quarterly equal weights, with the implementation conventions alongside. The early-universe caveat distinguishes these full-universe counts from the smaller historical sample.

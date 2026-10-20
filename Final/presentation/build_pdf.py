@@ -141,6 +141,65 @@ def text_paras(lines):
     return [SimpleNamespace(text=line, level=0) for line in lines]
 
 
+def selection_flow(pdf, paras, x, top, width, height):
+    """Vector selection diagram, with the original implementation conventions alongside."""
+    notes = paras[1:]
+    note_size, note_gap, note_height = fit_body(notes, width, 85, 12, minimum=11)
+    main_height = height-note_height-15
+    flow_width = width*.53
+    right_x = x+flow_width+22
+    right_width = width-flow_width-22
+    scale = main_height/300
+
+    def arrow(offset, length=13):
+        cx = x+flow_width/2
+        y = top-offset*scale
+        end = y-length*scale
+        pdf.setStrokeColor(TEAL);pdf.setLineWidth(1.5)
+        pdf.line(cx,y,cx,end)
+        pdf.line(cx-4,end+5,cx,end);pdf.line(cx+4,end+5,cx,end)
+
+    def node(left, offset, node_width, node_height, title, detail, fill, title_size=19, detail_size=13):
+        node_top = top-offset*scale
+        node_height *= scale
+        pdf.setFillColor(fill);pdf.setStrokeColor(RULE);pdf.setLineWidth(.7)
+        pdf.roundRect(left,node_top-node_height,node_width,node_height,10,stroke=1,fill=1)
+        title_h = paragraph(None,title,0,0,node_width-20,title_size,bold=True,measure=True)
+        detail_h = paragraph(None,detail,0,0,node_width-20,detail_size,measure=True)
+        text_top = node_top-(node_height-title_h-detail_h-5)/2
+        paragraph(pdf,title,left+10,text_top,node_width-20,title_size,bold=True,align=1)
+        paragraph(pdf,detail,left+10,text_top-title_h-5,node_width-20,detail_size,color=MUTED,align=1)
+
+    node(x,0,flow_width,52,'1,000 largest eligible US stocks',
+         '36-month history screen, then market capitalization',white,18,13)
+    arrow(57)
+    node(x,76,flow_width,50,'500 lower-volatility stocks',
+         'Keep the calmer half by 36-month historical volatility',STRIPE,19,13)
+    arrow(131)
+    pair_width=(flow_width-12)/2
+    node(x,150,pair_width,60,'Momentum','Stronger 12-1 price momentum',white,18,12)
+    node(x+pair_width+12,150,pair_width,60,'Net payout yield',
+         'Dividends + net share repurchases',white,18,12)
+    paragraph(pdf,'Average the two ranks; select the best 100',x,top-217*scale,
+              flow_width,12,bold=True,align=1,color=TEAL)
+    arrow(234,9)
+    node(x,249,flow_width,51,'100 stocks',
+         'Equal-weighted portfolio; rebalance quarterly',HexColor('#DCECE9'),20,14)
+
+    conventions = [
+        ['Convention', 'Implementation'],
+        ['Share classes', 'Largest common class per company each month; share codes 10/11.'],
+        ['Size measure', 'Security market capitalization after the history screen.'],
+        ['Dividends', 'Implied from RET - RETX; legacy RETX includes non-ordinary distributions.'],
+        ['Missing signals', 'Partition by volatility first, then rank complete cases.'],
+        ['Early universe', 'Use all eligible names if fewer than 1,000: 393 at 1928-12; full 500-name pool from 1964-06.'],
+        ['Missing returns', 'Stale carry (0) or an in-gap price ratio.'],
+    ]
+    size,layout=fit_table(conventions,right_width,main_height,14,[.32,.68])
+    draw_table(pdf,right_x,top,size,layout,prose=True)
+    draw_body(pdf,notes,x,top-main_height-15,width,note_size,note_gap)
+
+
 def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
     """Place a verified numerical table with its context and source figure."""
     kind = view['kind']
@@ -357,7 +416,9 @@ def export(source, destination, root=None):
         body_top=height-126
         available = body_top-bottom
         paras = list(body.paragraphs)
-        if number in views:
+        if number == 4:
+            selection_flow(pdf,paras,margin,body_top,content_width,available)
+        elif number in views:
             draw_numeric_view(pdf, views[number], pictures, tables, margin,
                               body_top, content_width, available)
         elif not pictures and not tables:
