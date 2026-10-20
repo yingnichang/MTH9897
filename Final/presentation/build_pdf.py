@@ -150,12 +150,20 @@ def draw_numeric_view(pdf, view, pictures, tables, x, top, width, height):
         intro_h = body_height(intro, width, 16, 6)
         notes_h = body_height(notes, width, 16, 6)
         gaps = (12 if intro else 0)+(12 if notes else 0)
-        size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps,
+        extra = view.get('extra')
+        extra_h = 0
+        if extra:
+            extra_size, extra_layout = fit_table(extra['rows'], width, 120, view['font']-2, extra['widths'])
+            extra_h = 36+sum(extra_layout[1])
+        size, layout = fit_table(view['rows'], width, height-intro_h-notes_h-gaps-extra_h,
                                  view['font'], view['widths'])
         if intro:
             draw_body(pdf, intro, x, top, width, 16, 6)
         table_top = top-intro_h-(12 if intro else 0)
-        draw_table(pdf, x, table_top, size, layout, prose=view['prose'])
+        table_bottom = draw_table(pdf, x, table_top, size, layout, prose=view['prose'])
+        if extra:
+            paragraph(pdf, extra['caption'], x, table_bottom-12, width, 15, bold=True)
+            draw_table(pdf, x, table_bottom-36, extra_size, extra_layout)
         if notes:
             draw_body(pdf, notes, x, bottom+notes_h, width, 16, 6)
         return

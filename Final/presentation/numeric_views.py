@@ -104,6 +104,13 @@ def make_views(root=results.RESULTS):
     ], [.36, .24, .25, .15],
         notes=['Brackets are 95% confidence intervals. Excess return and alpha are annualized. '
                'CMS is a separate contrast; borrow and financing costs are omitted. — means not shown.'], font=16)
+    grid = load('feedback_costs', 'cost_summary.csv')
+    lower = [S.one(grid, period=recent, cost_model='flat', reference_bps=c) for c in (0, 5, 10, 30)]
+    views[10]['extra'] = dict(
+        caption='Lower cost assumptions do not change the conclusion',
+        rows=[[recent]+[f"{r.reference_bps} bps" for r in lower],
+              ['Carhart alpha']+[f"{pct(r.carhart_alpha, 2)} (t {num(r.alpha_t_nw)})" for r in lower]],
+        widths=[.20, .20, .20, .20, .20])
 
     add(11, [
         ['1929–2016 comparison', 'Annual result'],
