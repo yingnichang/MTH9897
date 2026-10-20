@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-Brief script for all 22 slides: approximately 878 words, or 6.8 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
+Brief script for all 22 slides: approximately 900 words, or 6.9 minutes at 130 words per minute. Allow about 7-9 minutes with pauses, plus questions. Optional split: Yingni, slides 1-9; Yikai, slides 10-22.
 
 ## 1. Replicating the Conservative Formula
 
@@ -18,7 +18,7 @@ We use monthly CRSP stock data through 2024, together with delistings, dividends
 
 ## 4. The portfolio rule
 
-Each quarter, we select the largest one thousand stocks with enough return history. We keep the lower-volatility half, then choose one hundred using momentum and net payout. We invest equally, allow weights to drift with returns and rebalance quarterly.
+Follow the chart from top to bottom: first the largest one thousand stocks with enough return history, then the five hundred with lower volatility. The two middle boxes rank momentum and net payout. We average those ranks to choose one hundred equally weighted stocks and rebalance quarterly. The early sample has fewer eligible stocks, as the table on the right explains.
 
 ## 5. Building the signals
 

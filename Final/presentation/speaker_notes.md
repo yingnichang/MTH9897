@@ -2,7 +2,7 @@
 
 **Authors:** Yingni Chang and Yikai Shen
 
-The read-aloud script contains approximately 2,428 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 18-21 minutes with short pauses.
+The read-aloud script contains approximately 2,492 words. At 130 words per minute, that is about 19 minutes before pauses and discussion of charts. Allow roughly 19-22 minutes with short pauses.
 
 Presenter cues are reminders, not spoken lines. An optional split is Yingni on slides 1-9 and Yikai on slides 10-22; change this to suit your delivery.
 
@@ -44,13 +44,15 @@ Two choices are especially important. We keep stocks that disappear, including t
 
 ## 4. The portfolio rule
 
-**Approximate speaking time:** 51 seconds, plus pauses.
+**Approximate speaking time:** 81 seconds, plus pauses.
 
-**Presenter cue:** Follow the selection order on the slide.
+**Presenter cue:** Trace the flowchart from top to bottom; point to both ranking boxes and the early-universe caveat.
 
-At each quarter-end, we first require thirty-six consecutive months of return history. We then select the largest one thousand eligible stocks by market capitalization. From this group, we keep the half with the lowest historical volatility.
+The flowchart shows how we narrow the universe from one thousand stocks to one hundred. At each quarter-end, we first require thirty-six consecutive months of return history, then take the largest one thousand eligible US stocks by market capitalization. The next box keeps the five hundred with lower historical volatility.
 
-Within that lower-volatility pool, we rank momentum and net payout favorably, average the two ranks, and select the best one hundred stocks. Each receives an equal weight. The holdings then drift with returns for the next three months. We rebalance using information available at the previous quarter-end. Applying the history requirement before the size cut is important because reversing that order changes the universe.
+The two boxes below are the rankings applied within that lower-volatility pool. Momentum favors stronger past price performance. Net payout combines dividends with a proxy for net share repurchases. We average the two favorable ranks and choose the best one hundred stocks. Each starts at one percent of the portfolio. We then let weights drift with returns and rebalance quarterly.
+
+The table on the right records our implementation conventions. The early data have fewer than one thousand eligible stocks, so the first two boxes describe the full-universe case. We use the available eligible names in the early sample. The history screen comes before the size cut, and each selection earns returns only after formation.
 
 **Transition:** I'll show how we calculate the three inputs to those ranks.
 

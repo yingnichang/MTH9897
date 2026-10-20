@@ -38,9 +38,11 @@ def short_notes(root=results.RESULTS):
         "1929. We retain disappearing stocks and use historical classifications to avoid looking "
         "only at companies that survived.",
 
-        "Each quarter, we select the largest one thousand stocks with enough return history. "
-        "We keep the lower-volatility half, then choose one hundred using momentum and net payout. "
-        "We invest equally, allow weights to drift with returns and rebalance quarterly.",
+        "Follow the chart from top to bottom: first the largest one thousand stocks with enough "
+        "return history, then the five hundred with lower volatility. The two middle boxes rank "
+        "momentum and net payout. We average those ranks to choose one hundred equally weighted "
+        "stocks and rebalance quarterly. The early sample has fewer eligible stocks, as the "
+        "table on the right explains.",
 
         "Volatility uses thirty-six months of total returns. Momentum uses eleven months of "
         "price returns, skipping the latest month. Net payout combines dividends with changes "
